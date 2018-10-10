@@ -94,17 +94,17 @@ public:
 		switch(mode)
 		{
 			case openmode::read :
-				if(!Read_F::check(str_val))
+				if (!Read_F::check(str_val))
 					throw std::runtime_error("does not name an existing " + name);
 				break;
 
 			case openmode::write :
-				if(!Write_F::check(str_val))
+				if (!Write_F::check(str_val))
 					throw std::runtime_error("does not name a " + name);
 				break;
 
 			case openmode::read_write : // nothing to check
-				if(!RW_F::check(str_val))
+				if (!RW_F::check(str_val))
 					throw std::runtime_error("does not name a " + name);
 				break;
 		}

@@ -27,9 +27,9 @@ Encoder_RS::parameters* Encoder_RS::parameters
 }
 
 void Encoder_RS::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -37,9 +37,9 @@ void Encoder_RS::parameters
 }
 
 void Encoder_RS::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 }
 
 void Encoder_RS::parameters

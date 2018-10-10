@@ -152,9 +152,9 @@ std::string Puncturer_turbo<B,Q>
 {
 	std::string m;
 
-	for(auto &v : pattern_bits)
+	for (auto &v : pattern_bits)
 	{
-		for(const auto &vb : v)
+		for (const auto &vb : v)
 			m += std::to_string(vb);
 
 		m += ",";

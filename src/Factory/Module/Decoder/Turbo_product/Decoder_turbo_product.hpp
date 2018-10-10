@@ -30,14 +30,14 @@ struct Decoder_turbo_product : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		int   n_ite = 4;
 		std::vector<float> alpha;
 		std::vector<float> beta;
 		std::vector<float> cp_coef;
-		int   n_least_reliable_positions = 2;
-		int   n_test_vectors = 0;
-		int   n_competitors  = 0;
-		int   parity_extended = false;
+		unsigned           n_ite = 4;
+		unsigned           n_least_reliable_positions = 2;
+		unsigned           n_test_vectors = 0;
+		unsigned           n_competitors  = 0;
+		unsigned           parity_extended = false;
 
 		// depending parameters
 		tools::auto_cloned_unique_ptr<Decoder_BCH::parameters> sub;
@@ -53,9 +53,9 @@ struct Decoder_turbo_product : public Decoder
 		virtual std::vector<std::string> get_prefixes   () const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>

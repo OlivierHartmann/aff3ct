@@ -12,6 +12,9 @@
 #include <vector>
 #include <map>
 
+#include <CLI/CLI.hpp>
+
+#include "Tools/Arguments/CLI11_tools.hpp"
 #include "Tools/Arguments/Argument_tools.hpp"
 
 namespace aff3ct
@@ -37,6 +40,8 @@ struct Factory
 	class parameters
 	{
 	public:
+		tools::Argument_map_info  args;
+		tools::Argument_map_value vals;
 		// constructor/destructor
 		parameters(const std::string &name       = Factory_name,
 		           const std::string &short_name = Factory_short_name,
@@ -52,9 +57,10 @@ struct Factory
 		virtual std::vector<std::string> get_short_names() const;
 		virtual std::vector<std::string> get_prefixes   () const;
 
-		virtual void get_description(tools::Argument_map_info &args) const = 0;
-		virtual void store          (const tools::Argument_map_value &vals                             ) = 0;
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const = 0;
+		virtual void register_arguments(CLI::App &app) {}
+		virtual void callback_arguments() {};
+
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const = 0;
 
 	private:
 		const std::string name;
@@ -62,10 +68,11 @@ struct Factory
 		const std::string prefix;
 	};
 
-	static tools::Argument_map_info get_description(const std::vector<Factory::parameters*> &params);
-	static void get_description(const std::vector<Factory::parameters*> &params, tools::Argument_map_info &args);
+	static std::unique_ptr<CLI::App> make_argument_handler();
 
-	static void                      store        (std::vector<Factory::parameters*> &params, const tools::Argument_map_value &vals);
+	static void register_arguments(const std::vector<Factory::parameters*> &params, CLI::App &app);
+	static void callback_arguments(const std::vector<Factory::parameters*> &params);
+
 	static tools::Argument_map_group create_groups(const std::vector<Factory::parameters*> &params);
 };
 

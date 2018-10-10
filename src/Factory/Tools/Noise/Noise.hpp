@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "Tools/Arguments/Matlab_vector.hpp"
 #include "Tools/Noise/Noise.hpp"
 
 #include "../../Factory.hpp"
@@ -21,7 +22,7 @@ struct Noise : public Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		std::vector<float> range;
+		CLI::Matlab_vector<float> range;
 
 		// optional parameters
 		std::string type     = "EBN0";
@@ -33,13 +34,24 @@ struct Noise : public Factory
 		Noise::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename R = float>
 		tools::Noise<R>* build(R noise_val, R bit_rate = 1., int bps = 1, int upf = 1) const;
+
+	private:
+		float noise_min;
+		float noise_max;
+		float noise_step;
+		std::vector<std::string> str_range;
+		CLI::Option* noise_range_option;
+		CLI::Option* noise_min_option;
+		CLI::Option* noise_max_option;
+		CLI::Option* noise_step_option;
+		CLI::Option* pdf_path_option;
 	};
 
 	template <typename R = float>

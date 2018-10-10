@@ -16,7 +16,7 @@ Puncturer_turbo_DB::parameters
 ::parameters(const std::string &prefix)
 : Puncturer::parameters(Puncturer_turbo_DB_name, prefix)
 {
-	this->type = "TURBO_DB";
+	type = "TURBO_DB";
 }
 
 Puncturer_turbo_DB::parameters* Puncturer_turbo_DB::parameters
@@ -26,24 +26,22 @@ Puncturer_turbo_DB::parameters* Puncturer_turbo_DB::parameters
 }
 
 void Puncturer_turbo_DB::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Puncturer::parameters::get_description(args);
+	Puncturer::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
-
-	tools::add_options(args.at({p+"-type"}), 0, "TURBO_DB");
+	type_set.insert("TURBO_DB");
 }
 
 void Puncturer_turbo_DB::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Puncturer::parameters::store(vals);
+	Puncturer::parameters::callback_arguments();
 
-	this->N_cw = 3 * this->K;
+	N_cw = 3 * K;
 
-	if (this->N == this->N_cw)
-		this->type = "NO";
+	if (N == N_cw)
+		type = "NO";
 }
 
 void Puncturer_turbo_DB::parameters
@@ -56,7 +54,7 @@ template <typename B, typename Q>
 module::Puncturer<B,Q>* Puncturer_turbo_DB::parameters
 ::build() const
 {
-	if (this->type == "TURBO_DB") return new module::Puncturer_turbo_DB<B,Q>(this->K, this->N, this->n_frames);
+	if (type == "TURBO_DB") return new module::Puncturer_turbo_DB<B,Q>(K, N, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

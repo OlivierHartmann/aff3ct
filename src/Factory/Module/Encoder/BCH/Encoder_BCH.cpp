@@ -1,8 +1,6 @@
 #include <cmath>
 
 #include "Tools/Exception/exception.hpp"
-#include "Tools/Math/utils.h"
-
 #include "Module/Encoder/BCH/Encoder_BCH.hpp"
 
 #include "Encoder_BCH.hpp"
@@ -17,7 +15,7 @@ Encoder_BCH::parameters
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_BCH_name, prefix)
 {
-	this->type = "BCH";
+	type = "BCH";
 }
 
 Encoder_BCH::parameters* Encoder_BCH::parameters
@@ -27,19 +25,21 @@ Encoder_BCH::parameters* Encoder_BCH::parameters
 }
 
 void Encoder_BCH::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	tools::add_options(args.at({p+"-type"}), 0, "BCH");
+	type_set.insert("BCH");
+
+	sub->get_option("--cw-size")->check(CLI::Power_of_two_minus_one<decltype(N_cw)>());
 }
 
 void Encoder_BCH::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 }
 
 void Encoder_BCH::parameters
@@ -52,7 +52,7 @@ template <typename B>
 module::Encoder_BCH<B>* Encoder_BCH::parameters
 ::build(const tools::BCH_polynomial_generator<B> &GF) const
 {
-	if (this->type == "BCH") return new module::Encoder_BCH<B>(this->K, this->N_cw, GF, this->n_frames);
+	if (type == "BCH") return new module::Encoder_BCH<B>(K, N_cw, GF, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

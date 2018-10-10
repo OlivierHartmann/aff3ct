@@ -21,7 +21,7 @@ Encoder_RSC_DB<B>
 {
 	const std::string name = "Encoder_RSC_DB";
 	this->set_name(name);
-	
+
 	if (N !=  2 * K)
 	{
 		std::stringstream message;
@@ -162,7 +162,7 @@ int Encoder_RSC_DB<B>
 {
 	std::vector<int> FF (n_ff, 0);
 
-	for(auto i = 0; i < n_ff; i++)
+	for (auto i = 0; i < n_ff; i++)
 		FF[0]^= ( ((in_state >> i) &1) * poly[4][n_ff - 1 - i] );
 	FF[0]^= poly[0][0] * ((in >> 1) &1);
 	FF[0]^= poly[1][0] * ((in     ) &1);
@@ -202,7 +202,7 @@ void Encoder_RSC_DB<B>
 		auto in = U_K[i]*2 + U_K[i+1];
 		auto parity = out_parity[in][state];
 		state = next_state[in][state];
-		if(!only_parity)
+		if (!only_parity)
 		{
 			X_N[j++] = U_K[i];
 			X_N[j++] = U_K[i+1];
@@ -323,7 +323,7 @@ bool Encoder_RSC_DB<B>
 	return this->buffered_encoding;
 }
 
-// ==================================================================================== explicit template instantiation 
+// ==================================================================================== explicit template instantiation
 #include "Tools/types.h"
 #ifdef MULTI_PREC
 template class aff3ct::module::Encoder_RSC_DB<B_8>;

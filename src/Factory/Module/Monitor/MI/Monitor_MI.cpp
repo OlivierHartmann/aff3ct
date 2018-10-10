@@ -23,39 +23,42 @@ Monitor_MI::parameters* Monitor_MI::parameters
 }
 
 void Monitor_MI::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Monitor::parameters::get_description(args);
+	Monitor::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-fra-size", "N"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"the frame size for the mutual information computation.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-N,--fra-size",
+		N,
+		"The frame size for the mutual information computation.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	if (!CLI::has_option(sub, "--fra"))
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-trials", "n"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of frames to simulate.");
+	sub->add_option(
+		"--trials",
+		n_trials,
+		"Number of frames to simulate per noise point.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 }
 
 void Monitor_MI::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Monitor::parameters::store(vals);
-
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-fra-size", "N"})) this->N        = vals.to_int({p+"-fra-size", "N"});
-	if(vals.exist({p+"-fra",      "F"})) this->n_frames = vals.to_int({p+"-fra",      "F"});
-	if(vals.exist({p+"-trials",   "n"})) this->n_trials = vals.to_int({p+"-trials",   "n"});
+	Monitor::parameters::callback_arguments();
 }
 
 void Monitor_MI::parameters

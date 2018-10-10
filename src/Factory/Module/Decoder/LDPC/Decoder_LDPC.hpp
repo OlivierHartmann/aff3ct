@@ -34,8 +34,8 @@ struct Decoder_LDPC : public Decoder
 		float       offset          = 0.f;
 		float       mwbf_factor     = 0.f;
 		bool        enable_syndrome = true;
-		int         syndrome_depth  = 1;
-		int         n_ite           = 10;
+		unsigned    syndrome_depth  = 1;
+		unsigned    n_ite           = 10;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_LDPC_prefix);
@@ -43,9 +43,9 @@ struct Decoder_LDPC : public Decoder
 		Decoder_LDPC::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>

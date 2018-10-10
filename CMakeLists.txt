@@ -120,7 +120,7 @@ endif ()
 
 # CLI11
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/CLI11/include/CLI/CLI.hpp")
-    include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/lib/CLI11/include/CLI/")
+    include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/lib/CLI11/include/")
     message(STATUS "AFF3CT - Header found: CLI11")
     #add_subdirectory(lib/CLI11)
     #aff3ct_link_libraries(CLI11::CLI11)

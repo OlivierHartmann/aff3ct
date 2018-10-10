@@ -8,6 +8,7 @@
 #include "Tools/Display/rang_format/rang_format.h"
 #include "Tools/general_utils.h"
 #include "Tools/Exception/exception.hpp"
+#include "Tools/Arguments/Help_formatter.hpp"
 
 #include "Factory.hpp"
 
@@ -64,29 +65,18 @@ std::vector<std::string> Factory::parameters
 	return p;
 }
 
-tools::Argument_map_info Factory
-::get_description(const std::vector<Factory::parameters*> &params)
+void Factory
+::register_arguments(const std::vector<Factory::parameters*> &params, CLI::App &app)
 {
-	tools::Argument_map_info args;
-
-	get_description(params, args);
-
-	return args;
+	for (auto *p : params)
+		p->register_arguments(app);
 }
 
 void Factory
-::get_description(const std::vector<Factory::parameters*> &params,
-                     tools::Argument_map_info &args)
+::callback_arguments(const std::vector<Factory::parameters*> &params)
 {
 	for (auto *p : params)
-		p->get_description(args);
-}
-
-void Factory
-::store(std::vector<Factory::parameters*> &params, const tools::Argument_map_value &vals)
-{
-	for (auto *p : params)
-		p->store(vals);
+		p->callback_arguments();
 }
 
 tools::Argument_map_group Factory
@@ -216,4 +206,24 @@ void aff3ct::factory::Header::compute_max_n_chars(const header_list& header, int
 {
 	for (unsigned i = 0; i < header.size(); i++)
 		max_n_chars = std::max(max_n_chars, (int)header[i].first.length());
+}
+
+
+std::unique_ptr<CLI::App> aff3ct::factory::Factory::make_argument_handler()
+{
+	std::unique_ptr<CLI::App> app(new CLI::App{"A Fast Forward Error Correction Toolbox!"});
+
+	app->require_subcommand(0,0); // require at least one subcommand
+	app->fallthrough(false); // allow main argument (as help or version flags) to be given any where in the command
+	app->allow_extras(); // allow extra arguments
+
+
+	app->formatter(std::make_shared<CLI::Help_formatter>());
+	app->get_formatter()->label("REQUIRED", "{R}");
+
+	// remove help flags because they shorcut everything
+	app->set_help_flag();
+	app->set_help_all_flag();
+
+	return app;
 }

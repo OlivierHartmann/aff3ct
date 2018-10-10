@@ -27,48 +27,53 @@ CRC::parameters* CRC::parameters
 }
 
 void CRC::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-info-bits", "K"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of generated bits (information bits, the CRC is not included).",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-K,--info-bits",
+		K,
+		"Number of generated bits (information bits, the CRC is not included).")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-type", p+"-poly"},
-		tools::Text(),
-		"select the CRC type/polynomial you want to use (ex: \"8-DVB-S2\": 0xD5, \"16-IBM\": 0x8005, \"24-LTEA\": 0x864CFB, \"32-GZIP\": 0x04C11DB7).");
+	sub->add_option(
+		"--type,--poly",
+		type,
+		"Select the CRC type/polynomial you want to use (ex: \"8-DVB-S2\": 0xD5,"
+		" \"16-IBM\": 0x8005, \"24-LTEA\": 0x864CFB, \"32-GZIP\": 0x04C11DB7).",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-implem"},
-		tools::Text(tools::Including_set("STD", "FAST", "INTER")),
-		"select the CRC implementation you want to use.");
+	sub->add_set(
+		"--implem",
+		implem,
+		{"STD", "FAST", "INTER"},
+		"Select the CRC implementation you want to use.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-size"},
-		tools::Integer(tools::Positive()),
-		"size of the CRC (divisor size in bit -1), required if you selected an unknown CRC.");
+	sub->add_option(
+		"--size",
+		size,
+		"Size of the CRC (divisor size in bit -1), required if you selected an unknown CRC.")
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 }
 
 void CRC::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-info-bits",  "K"})) this->K        = vals.to_int({p+"-info-bits",  "K"});
-	if(vals.exist({p+"-fra",        "F"})) this->n_frames = vals.to_int({p+"-fra",        "F"});
-	if(vals.exist({p+"-type", p+"-poly"})) this->type     = vals.at    ({p+"-type", p+"-poly"});
-	if(vals.exist({p+"-implem"         })) this->implem   = vals.at    ({p+"-implem"         });
-	if(vals.exist({p+"-size"           })) this->size     = vals.to_int({p+"-size"           });
-
 	if (this->type != "NO" && !this->type.empty() && !this->size)
 		this->size = module::CRC_polynomial<B>::get_size(this->type);
 }

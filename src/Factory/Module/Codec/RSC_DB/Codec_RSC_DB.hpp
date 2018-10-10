@@ -27,9 +27,9 @@ struct Codec_RSC_DB : public Codec_SISO_SIHO
 		Codec_RSC_DB::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>

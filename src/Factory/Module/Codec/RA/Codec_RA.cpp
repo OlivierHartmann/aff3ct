@@ -29,12 +29,12 @@ Codec_RA::parameters* Codec_RA::parameters
 }
 
 void Codec_RA::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SIHO::parameters::get_description(args);
+	Codec_SIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec->get_prefix();
 
@@ -44,7 +44,7 @@ void Codec_RA::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -54,13 +54,13 @@ void Codec_RA::parameters
 }
 
 void Codec_RA::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SIHO::parameters::store(vals);
+	Codec_SIHO::parameters::callback_arguments();
 
 	auto dec_ra = dynamic_cast<Decoder_RA::parameters*>(dec.get());
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	dec_ra->K                   = enc->K;
 	dec_ra->N_cw                = enc->N_cw;
@@ -69,7 +69,7 @@ void Codec_RA::parameters
 	if (dec_ra->itl != nullptr)
 		dec_ra->itl->core->n_frames = enc->n_frames;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	K    = enc->K;
 	N_cw = enc->N_cw;
@@ -80,7 +80,7 @@ void Codec_RA::parameters
 		itl->core->size     = dec_ra->N_cw;
 		itl->core->n_frames = dec_ra->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 	}
 }
 

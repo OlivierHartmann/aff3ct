@@ -19,9 +19,9 @@ Turbo_product<L,B,R,Q>
 
 template <class L, typename B, typename R, typename Q>
 void Turbo_product<L,B,R,Q>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	params_cdc->get_description(this->args);
+	params_cdc->register_arguments(app);
 
 	auto penc = params_cdc->enc->get_prefix();
 	auto pitl = params_cdc->itl->get_prefix();
@@ -30,7 +30,7 @@ void Turbo_product<L,B,R,Q>
 	this->args.erase({penc+"-seed", "S"});
 	this->args.erase({pitl+"-seed", "S"});
 
-	L::get_description_args();
+	L::register_arguments(app);
 
 	auto psrc = this->params.src->get_prefix();
 	this->args.erase({psrc+"-info-bits", "K"});
@@ -39,12 +39,12 @@ void Turbo_product<L,B,R,Q>
 
 template <class L, typename B, typename R, typename Q>
 void Turbo_product<L,B,R,Q>
-::store_args()
+::callback_arguments()
 {
 	auto enc_tur = dynamic_cast<factory::Encoder_turbo_product::parameters*>(params_cdc->enc.get());
 	auto dec_tur = dynamic_cast<factory::Decoder_turbo_product::parameters*>(params_cdc->dec.get());
 
-	params_cdc->store(this->arg_vals);
+	params_cdc->callback_arguments();
 
 	// if (params_cdc->dec->sub->simd_strategy == "INTER")
 	// 	this->params.src->n_frames = mipp::N<Q>();
@@ -62,7 +62,7 @@ void Turbo_product<L,B,R,Q>
 		this->params.qnt->n_decimals = 3;
 	}
 
-	L::store_args();
+	L::callback_arguments();
 
 	params_cdc->enc      ->n_frames = this->params.src->n_frames;
 	params_cdc->dec      ->n_frames = this->params.src->n_frames;

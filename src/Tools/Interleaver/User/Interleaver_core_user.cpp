@@ -45,7 +45,7 @@ Interleaver_core_user<T>
 						{
 							auto found = false;
 							auto j = 0;
-							while(j < i && !found)
+							while (j < i && !found)
 							{
 								if (this->pi_buffer[itl][j] == val)
 									found = true;

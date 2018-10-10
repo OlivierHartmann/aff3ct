@@ -32,15 +32,15 @@ void Codec_turbo_DB::parameters
 }
 
 void Codec_turbo_DB::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SIHO::parameters::get_description(args);
+	Codec_SIHO::parameters::register_arguments(app);
 
 	auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());
 
 	if (pct != nullptr)
 	{
-		pct->get_description(args);
+		pct->register_arguments(app);
 
 		auto ppct = pct->get_prefix();
 
@@ -52,8 +52,8 @@ void Codec_turbo_DB::parameters
 		args[{ppct+"-fra-size", "N"}]->rank = tools::arg_rank::OPT;
 	}
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec_tur->get_prefix();
 	auto pdes = dec_tur->sub->get_prefix();
@@ -68,7 +68,7 @@ void Codec_turbo_DB::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -78,14 +78,14 @@ void Codec_turbo_DB::parameters
 }
 
 void Codec_turbo_DB::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SIHO::parameters::store(vals);
+	Codec_SIHO::parameters::callback_arguments();
 
 	auto enc_tur = dynamic_cast<Encoder_turbo_DB::parameters*>(enc.get());
 	auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	if (pct != nullptr)
 	{
@@ -94,7 +94,7 @@ void Codec_turbo_DB::parameters
 		pct->N_cw     = enc->N_cw;
 		pct->n_frames = enc->n_frames;
 
-		pct->store(vals);
+		pct->callback_arguments();
 	}
 
 	dec_tur->K             = enc_tur->K;
@@ -103,7 +103,7 @@ void Codec_turbo_DB::parameters
 	dec_tur->n_frames      = enc_tur->n_frames;
 	dec_tur->sub->n_frames = enc_tur->sub->n_frames;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	auto pdes = dec_tur->sub->get_prefix();
 
@@ -121,7 +121,7 @@ void Codec_turbo_DB::parameters
 		itl->core->size     = enc->K >> 1;
 		itl->core->n_frames = enc->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 
 		if (dec_tur->sub->implem == "DVB-RCS1" && !vals.exist({"itl-type"}))
 			itl->core->type = "DVB-RCS1";

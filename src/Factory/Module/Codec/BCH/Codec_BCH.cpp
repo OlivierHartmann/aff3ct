@@ -25,38 +25,40 @@ Codec_BCH::parameters* Codec_BCH::parameters
 }
 
 void Codec_BCH::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SIHO_HIHO::parameters::get_description(args);
+	Codec_SIHO_HIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
-	auto pdec = dec->get_prefix();
-	auto penc = enc->get_prefix();
+	sub_dec = app.get_subcommand(dec->get_prefix());
+	sub_enc = app.get_subcommand(enc->get_prefix());
 
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
-	args.erase({pdec+"-no-sys"        });
+	CLI::remove_option(sub_dec, "--cw-size"  );
+	CLI::remove_option(sub_dec, "--info-bits");
+	CLI::remove_option(sub_dec, "--fra"      );
 
-	args.add_link({pdec+"-corr-pow", "T"}, {penc+"-info-bits", "K"});
+	sub_enc->get_option("--info-bits")->required(false);
+	// sub_dec->get_option("--corr-pow")->excludes(sub_enc->get_option("--info-bits"));
 }
 
 void Codec_BCH::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SIHO_HIHO::parameters::store(vals);
+	Codec_SIHO_HIHO::parameters::callback_arguments();
 
-	enc->store(vals);
+	enc->callback_arguments();
 
-	dec->K        = enc->K;
+	if (!sub_enc->get_option("--info-bits")->empty())
+		dec->K = enc->K;
+
 	dec->N_cw     = enc->N_cw;
 	dec->n_frames = enc->n_frames;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
-	if(dec->K != enc->K) // when -T has been given but not -K
+	if (dec->K != 0) // when -T has been given but not -K
 		enc->K = dec->K;
 
 	K    = enc->K;

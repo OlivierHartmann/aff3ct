@@ -97,13 +97,13 @@ std::vector<std::string> Codec_polar::parameters
 }
 
 void Codec_polar::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SISO_SIHO::parameters::get_description(args);
+	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	fbg->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	fbg->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec->get_prefix();
 	auto pfbg = fbg->get_prefix();
@@ -117,7 +117,7 @@ void Codec_polar::parameters
 
 	if (pct != nullptr)
 	{
-		pct->get_description(args);
+		pct->register_arguments(app);
 
 		auto penc = enc->get_prefix();
 
@@ -128,20 +128,20 @@ void Codec_polar::parameters
 }
 
 void Codec_polar::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SISO_SIHO::parameters::store(vals);
+	Codec_SISO_SIHO::parameters::callback_arguments();
 
 	if (pct != nullptr)
 	{
-		pct->store(vals);
+		pct->callback_arguments();
 
 		enc->K        = fbg->K    = dec->K        = pct->K;
 		enc->N_cw     = fbg->N_cw = dec->N_cw     = pct->N_cw;
 		enc->n_frames             = dec->n_frames = pct->n_frames;
 	}
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	if (pct == nullptr)
 	{
@@ -150,11 +150,11 @@ void Codec_polar::parameters
 		            dec->n_frames = enc->n_frames;
 	}
 
-	fbg->store(vals);
+	fbg->callback_arguments();
 
-	dec->systematic = enc->systematic;
+	dec->not_systematic = enc->not_systematic;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	K    = pct != nullptr ? pct->K    : enc->K;
 	N_cw = pct != nullptr ? pct->N_cw : enc->N_cw;

@@ -20,14 +20,14 @@ struct Interleaver_core : public Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         size     = 0;
+		unsigned    size     = 0;
 
 		// optional parameters
 		std::string type     = "RANDOM";
 		std::string path     = "";
-		int         n_cols   = 4; // number of columns of the columns interleaver
-		int         n_frames = 1;
-		int         seed     = 0;
+		unsigned    n_cols   = 4; // number of columns of the columns interleaver
+		unsigned    n_frames = 1;
+		unsigned    seed     = 0;
 		bool        uniform  = false; // set at true to regenerate the interleaver at each new frame
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
@@ -36,9 +36,9 @@ struct Interleaver_core : public Factory
 		Interleaver_core::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename T = uint32_t>

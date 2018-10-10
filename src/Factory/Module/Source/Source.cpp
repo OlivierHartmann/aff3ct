@@ -26,59 +26,67 @@ Source::parameters* Source::parameters
 }
 
 void Source::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-info-bits", "K"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of generated bits (information bits).",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-K,--info-bits",
+		K,
+		"Useful number of bit transmitted (information bits).")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-type"},
-		tools::Text(tools::Including_set("RAND", "AZCW", "USER")),
-		"method used to generate the codewords.");
+	sub->add_set(
+		"--type",
+		type,
+		{"RAND", "AZCW", "USER"},
+		"Method used to generate the codewords.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-implem"},
-		tools::Text(tools::Including_set("STD", "FAST")),
-		"select the implementation of the algorithm to generate the information bits.");
+	sub->add_set(
+		"--implem",
+		implem,
+		{"STD", "FAST"},
+		"Select the implementation of the algorithm to generate the information bits.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-path"},
-		tools::File(tools::openmode::read),
-		"path to a file containing one or a set of pre-computed source bits, to use with \"--src-type USER\".");
+	sub->add_option(
+		"--path",
+		path,
+		"Path to a file containing one or a set of pre-computed source bits (to use with \"--src-type USER\").")
+		->check(CLI::ExistingFile)
+		->group("Standard");
 
-	args.add(
-		{p+"-start-idx"},
-		tools::Integer(tools::Positive()),
-		"Start idx to use in the USER type source.");
+	sub->add_option(
+		"--start-idx",
+		start_idx,
+		"Start idx to use in the USER type source.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-seed", "S"},
-		tools::Integer(tools::Positive()),
-		"seed used to initialize the pseudo random generators.");
+	sub->add_option(
+		"-S,--seed",
+		seed,
+		"Seed used to initialize the pseudo random generators.",
+		true)
+		->group("Standard");
 }
 
 void Source::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-info-bits", "K"})) this->K        = vals.to_int({p+"-info-bits", "K"});
-	if(vals.exist({p+"-fra",       "F"})) this->n_frames = vals.to_int({p+"-fra",       "F"});
-	if(vals.exist({p+"-type"          })) this->type     = vals.at    ({p+"-type"          });
-	if(vals.exist({p+"-implem"        })) this->implem   = vals.at    ({p+"-implem"        });
-	if(vals.exist({p+"-path"          })) this->path     = vals.at    ({p+"-path"          });
-	if(vals.exist({p+"-seed",      "S"})) this->seed     = vals.to_int({p+"-seed",      "S"});
-	if(vals.exist({p+"-start-idx"     })) this->start_idx= vals.to_int({p+"-start-idx"     });
 }
 
 void Source::parameters

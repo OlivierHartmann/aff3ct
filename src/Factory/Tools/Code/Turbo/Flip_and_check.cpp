@@ -27,72 +27,83 @@ Flip_and_check::parameters* Flip_and_check::parameters
 }
 
 void Flip_and_check::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-size"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"size (in bit) of the extrinsic for the fnc processing.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"--size",
+		size,
+		"Size (in bit) of the extrinsic for the fnc processing.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p},
-		tools::None(),
-		"enables the flip and check decoder (requires \"--crc-type\").");
+	sub->add_flag(
+		get_prefix(),
+		enable,
+		"Enables the flip and check decoder (requires \"--crc-type\").")
+		->group("Standard");
 
-	args.add(
-		{p+"-q"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the search's space for the fnc algorithm.");
+	sub->add_option(
+		"-q",
+		q,
+		"Set the search's space for the fnc algorithm.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-ite-m"},
-		tools::Integer(tools::Positive()),
-		"set first iteration at which the fnc is used.");
+	sub->add_option(
+		"--ite-m",
+		ite_min,
+		"Set first iteration at which the fnc is used.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-ite-M"},
-		tools::Integer(tools::Positive()),
-		"set last iteration at which the fnc is used.");
+	ite_M_option =
+	sub->add_option(
+		"--ite-M",
+		ite_min,
+		"Set last iteration at which the fnc is used.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-ite-s"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set iteration step for the fnc algorithm.");
+	sub->add_option(
+		"--ite-s",
+		ite_step,
+		"Set iteration step for the fnc algorithm.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-ite", "i"},
-		tools::Integer(tools::Positive()),
-		"maximal number of iterations in the turbo.");
+	sub->add_option(
+		"-i,--ite",
+		ite_step,
+		"Maximal number of iterations in the turbo.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-crc-ite"},
-		tools::Integer(tools::Positive()),
-		"set the iteration to start the CRC checking.");
+	sub->add_option(
+		"--crc-ite",
+		start_crc_check_ite,
+		"Set the iteration to start the CRC checking.",
+		true)
+		->group("Standard");
 }
 
 void Flip_and_check::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p             })) this->enable              = true;
-	if(vals.exist({p+"-size"     })) this->size                = vals.to_int({p+"-size"     });
-	if(vals.exist({p+"-q"        })) this->q                   = vals.to_int({p+"-q"        });
-	if(vals.exist({p+"-crc-ite"  })) this->start_crc_check_ite = vals.to_int({p+"-crc-ite"  });
-	if(vals.exist({p+"-fra",  "F"})) this->n_frames            = vals.to_int({p+"-fra", "F" });
-	if(vals.exist({p+"-ite-s"    })) this->ite_step            = vals.to_int({p+"-ite-s"    });
-	if(vals.exist({p+"-ite",  "i"})) this->n_ite               = vals.to_int({p+"-ite",  "i"});
-	if(vals.exist({p+"-ite-m"    })) this->ite_min             = vals.to_int({p+"-ite-m"    });
-	if(vals.exist({p+"-ite-M"    })) this->ite_max             = vals.to_int({p+"-ite-M"    });
-	else                              this->ite_max             = this->n_ite;
+	if (ite_M_option->empty())
+		ite_max = n_ite;
 }
 
 void Flip_and_check::parameters

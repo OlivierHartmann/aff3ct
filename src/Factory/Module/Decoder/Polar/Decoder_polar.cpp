@@ -65,9 +65,9 @@ Decoder_polar::parameters* Decoder_polar::parameters
 }
 
 void Decoder_polar::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -107,17 +107,17 @@ void Decoder_polar::parameters
 }
 
 void Decoder_polar::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-ite",         "i"})) this->n_ite         = vals.to_int({p+"-ite",    "i"});
-	if(vals.exist({p+"-lists",       "L"})) this->L             = vals.to_int({p+"-lists",  "L"});
-	if(vals.exist({p+"-simd"            })) this->simd_strategy = vals.at    ({p+"-simd"       });
-	if(vals.exist({p+"-polar-nodes"     })) this->polar_nodes   = vals.at    ({p+"-polar-nodes"});
-	if(vals.exist({p+"-partial-adaptive"})) this->full_adaptive = false;
+	if (vals.exist({p+"-ite",         "i"})) this->n_ite         = vals.to_int({p+"-ite",    "i"});
+	if (vals.exist({p+"-lists",       "L"})) this->L             = vals.to_int({p+"-lists",  "L"});
+	if (vals.exist({p+"-simd"            })) this->simd_strategy = vals.at    ({p+"-simd"       });
+	if (vals.exist({p+"-polar-nodes"     })) this->polar_nodes   = vals.at    ({p+"-polar-nodes"});
+	if (vals.exist({p+"-partial-adaptive"})) this->full_adaptive = false;
 
 	// force 1 iteration max if not SCAN (and polar code)
 	if (this->type != "SCAN") this->n_ite = 1;
@@ -161,11 +161,11 @@ template <typename B, typename Q>
 module::Decoder_SISO_SIHO<B,Q>* Decoder_polar::parameters
 ::build_siso(const std::vector<bool> &frozen_bits, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "SCAN" && this->systematic)
+	if (this->type == "SCAN" && !this->not_systematic)
 	{
 		if (this->implem == "NAIVE") return new module::Decoder_polar_SCAN_naive_sys<B, Q, tools::f_LLR<Q>, tools::v_LLR<Q>, tools::h_LLR<B,Q>>(this->K, this->N_cw, this->n_ite, frozen_bits, this->n_frames);
 	}
-	else if (this->type == "SCAN" && !this->systematic)
+	else if (this->type == "SCAN" && this->not_systematic)
 	{
 		if (this->implem == "NAIVE") return new module::Decoder_polar_SCAN_naive    <B, Q, tools::f_LLR<Q>, tools::v_LLR<Q>, tools::h_LLR<B,Q>>(this->K, this->N_cw, this->n_ite, frozen_bits, this->n_frames);
 	}
@@ -177,7 +177,7 @@ template <typename B, typename Q, class API_polar>
 module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 ::_build(const std::vector<bool> &frozen_bits, module::CRC<B> *crc, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (!this->systematic) // non-systematic encoding
+	if (this->not_systematic) // non-systematic encoding
 	{
 		if (this->implem == "NAIVE")
 		{
@@ -225,7 +225,7 @@ module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 	int idx_r0, idx_r1;
 	auto polar_patterns = tools::nodes_parser(this->polar_nodes, idx_r0, idx_r1);
 
-	if (this->implem == "FAST" && this->systematic)
+	if (this->implem == "FAST" && !this->not_systematic)
 	{
 		if (crc != nullptr && crc->get_size() > 0)
 		{

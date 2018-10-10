@@ -27,7 +27,7 @@ BFER_ite<B,R,Q>
 
   rd_engine_seed(params_BFER_ite.n_threads)
 {
-	for (auto tid = 0; tid < params_BFER_ite.n_threads; tid++)
+	for (unsigned tid = 0; tid < params_BFER_ite.n_threads; tid++)
 		rd_engine_seed[tid].seed(params_BFER_ite.local_seed + tid);
 
 	this->add_module("source"         , params_BFER_ite.n_threads);
@@ -118,7 +118,7 @@ void BFER_ite<B,R,Q>
 ::_launch()
 {
 	// set current sigma
-	for (auto tid = 0; tid < this->params_BFER_ite.n_threads; tid++)
+	for (unsigned tid = 0; tid < this->params_BFER_ite.n_threads; tid++)
 	{
 		this->channel[tid]->set_noise(*this->noise);
 		this->modem  [tid]->set_noise(*this->noise);

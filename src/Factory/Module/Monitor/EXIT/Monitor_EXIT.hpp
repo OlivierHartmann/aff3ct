@@ -20,12 +20,12 @@ struct Monitor_EXIT : public Monitor
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         size     = 0;
+		unsigned    size     = 0;
 
 		// optional parameters
 		std::string type     = "STD";
-		int         n_trials = 200;
-		int         n_frames = 1;
+		unsigned    n_trials = 200;
+		unsigned    n_frames = 1;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Monitor_EXIT_prefix);
@@ -33,9 +33,9 @@ struct Monitor_EXIT : public Monitor
 		Monitor_EXIT::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename R = float>

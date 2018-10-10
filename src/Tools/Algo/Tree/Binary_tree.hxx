@@ -62,7 +62,7 @@ template <typename T>
 void Binary_tree<T>
 ::delete_nodes(Binary_node<T>* cur_node)
 {
-	if(cur_node != nullptr)
+	if (cur_node != nullptr)
 	{
 		this->delete_nodes(cur_node->left);
 		this->delete_nodes(cur_node->right);
@@ -74,7 +74,7 @@ void Binary_tree<T>
 template<typename T>
 void Binary_tree<T>
 ::recursive_get_leaves(Binary_node<T>* cur_node){
-	if(cur_node->is_leaf())
+	if (cur_node->is_leaf())
 		leaves.push_back(cur_node);
 	else
 	{

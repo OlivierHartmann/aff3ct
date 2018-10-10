@@ -32,9 +32,9 @@ bool enc_dvb_no_h_matrix(const void*, const void* enc_type)
 
 template <class L, typename B, typename R, typename Q>
 void LDPC<L,B,R,Q>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	params_cdc->get_description(this->args);
+	params_cdc->register_arguments(app);
 
 	auto penc = params_cdc->enc->get_prefix();
 	auto pdec = params_cdc->dec->get_prefix();
@@ -45,16 +45,16 @@ void LDPC<L,B,R,Q>
 	this->args.add_link({pdec+"-h-path"}, {penc+"-type"}, enc_dvb_no_h_matrix);
 
 
-	L::get_description_args();
+	L::register_arguments(app);
 }
 
 template <class L, typename B, typename R, typename Q>
 void LDPC<L,B,R,Q>
-::store_args()
+::callback_arguments()
 {
 	auto dec_ldpc = dynamic_cast<factory::Decoder_LDPC::parameters*>(params_cdc->dec.get());
 
-	params_cdc->store(this->arg_vals);
+	params_cdc->callback_arguments();
 
 	if (dec_ldpc->simd_strategy == "INTER")
 		this->params.src->n_frames = mipp::N<Q>();
@@ -65,7 +65,7 @@ void LDPC<L,B,R,Q>
 		this->params.qnt->n_decimals = 2;
 	}
 
-	L::store_args();
+	L::callback_arguments();
 
 	params_cdc->enc->n_frames = this->params.src->n_frames;
 	if (params_cdc->pct != nullptr)

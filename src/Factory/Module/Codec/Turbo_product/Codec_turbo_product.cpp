@@ -29,14 +29,14 @@ Codec_turbo_product::parameters* Codec_turbo_product::parameters
 }
 
 void Codec_turbo_product::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SIHO::parameters::get_description(args);
+	Codec_SIHO::parameters::register_arguments(app);
 
 	auto dec_tur = dynamic_cast<Decoder_turbo_product::parameters*>(dec.get());
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec->get_prefix();
 	auto pdes = dec_tur->get_prefix();
@@ -49,7 +49,7 @@ void Codec_turbo_product::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -59,21 +59,21 @@ void Codec_turbo_product::parameters
 }
 
 void Codec_turbo_product::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SIHO::parameters::store(vals);
+	Codec_SIHO::parameters::callback_arguments();
 
 	auto enc_tur = dynamic_cast<Encoder_turbo_product::parameters*>(enc.get());
 	auto dec_tur = dynamic_cast<Decoder_turbo_product::parameters*>(dec.get());
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	dec_tur->sub->K           = enc_tur->sub->K;
 	dec_tur->sub->N_cw        = enc_tur->sub->N_cw;
 	dec_tur->n_frames         = enc_tur->n_frames;
 	dec_tur->parity_extended  = enc_tur->parity_extended;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	if (itl != nullptr)
 	{
@@ -89,7 +89,7 @@ void Codec_turbo_product::parameters
 		enc->N_cw = itl->core->size;
 		dec->N_cw = itl->core->size;
 
-		itl->store(vals);
+		itl->callback_arguments();
 	}
 
 	K    = enc->K;

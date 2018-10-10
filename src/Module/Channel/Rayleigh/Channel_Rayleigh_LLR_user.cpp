@@ -88,7 +88,7 @@ void Channel_Rayleigh_LLR_user<R>
 		throw tools::invalid_argument(__FILE__, __LINE__, __func__, "Can't open '" + gains_filename + "' file.");
 	}
 
-	if(gains_stock.empty())
+	if (gains_stock.empty())
 		throw tools::invalid_argument(__FILE__, __LINE__, __func__, "The file '" + gains_filename + "' is empty.");
 }
 
@@ -111,12 +111,12 @@ void Channel_Rayleigh_LLR_user<R>
 		gains[i] = gains_stock[gain_index];
 
 		current_gain_occur++;
-		if(current_gain_occur >= gain_occur)
+		if (current_gain_occur >= gain_occur)
 		{
 			current_gain_occur = 0;
 			gain_index++;
 
-			if(gain_index >= gains_stock.size())
+			if (gain_index >= gains_stock.size())
 				gain_index = 0;
 		}
 	}

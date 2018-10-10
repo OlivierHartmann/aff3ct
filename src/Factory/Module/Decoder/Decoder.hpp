@@ -22,29 +22,32 @@ struct Decoder : Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         K           = 0;
-		int         N_cw        = 0;
+		unsigned    K              = 0;
+		unsigned    N_cw           = 0;
 
 		// optional parameters
-		std::string type        = "ML";
-		std::string implem      = "STD";
-		bool        systematic  = true;
-		bool        hamming     = false;
-		int         n_frames    = 1;
-		int         tail_length = 0;
-		int         flips       = 3;
+		std::string type           = "ML";
+		std::string implem         = "STD";
+		unsigned    n_frames       = 1;
+		unsigned    tail_length    = 0;
+		unsigned    flips          = 3;
+		bool        hamming        = false;
+		bool        not_systematic = false;
 
 		// deduced parameters
-		float       R           = -1.f;
+		float       R              = -1.f;
+
+		std::set<std::string> type_set   = {"ML",  "CHASE"};
+		std::set<std::string> implem_set = {"STD", "NAIVE"};
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		virtual ~parameters() = default;
 		virtual Decoder::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 	protected:
 		parameters(const std::string &n, const std::string &p);

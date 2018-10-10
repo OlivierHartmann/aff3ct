@@ -30,34 +30,34 @@ Terminal::parameters* Terminal::parameters
 }
 
 void Terminal::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-type"},
-		tools::Text(tools::Including_set("STD")),
-		"type of the terminal to use to display results.");
+	sub->add_set(
+		"--type",
+		type,
+		{"STD"},
+		"Type of the terminal to use to display results.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-no"},
-		tools::None(),
-		"disable reporting for each iteration.");
+	sub->add_flag(
+		"--no",
+		disabled,
+		"Disable recurrent report but only at the end of each noise point.")
+		->group("Standard");
 
-	args.add(
-		{p+"-freq"},
-		tools::Integer(tools::Positive()),
-		"display frequency in ms (refresh time step for each iteration, 0 = disable display refresh).");
+	sub->add_option(
+		"--freq",
+		frequency,
+		"Display frequency in ms (refresh time step for each iteration, 0 = disable display refresh).")
+		->group("Standard");
 }
 
 void Terminal::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-type"})) this->type      = vals.at({p+"-type"});
-	if(vals.exist({p+"-no"  })) this->disabled  = true;
-	if(vals.exist({p+"-freq"})) this->frequency = std::chrono::milliseconds(vals.to_int({p+"-freq"}));
 }
 
 void Terminal::parameters

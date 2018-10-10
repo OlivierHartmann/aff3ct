@@ -19,33 +19,21 @@ BFER::parameters* BFER::parameters
 ::clone() const
 {
 	return new BFER::parameters(*this);
-
-	// if (src != nullptr) { clone->src = src->clone(); }
-	// if (crc != nullptr) { clone->crc = crc->clone(); }
-	// if (cdc != nullptr) { clone->cdc = cdc->clone(); }
-	// if (mdm != nullptr) { clone->mdm = mdm->clone(); }
-	// if (chn != nullptr) { clone->chn = chn->clone(); }
-	// if (qnt != nullptr) { clone->qnt = qnt->clone(); }
-	// if (mnt_mi != nullptr) { clone->mnt_mi = mnt_mi->clone(); }
-	// if (mnt_er != nullptr) { clone->mnt_er = mnt_er->clone(); }
-	// if (ter != nullptr) { clone->ter = ter->clone(); }
-
-	// return clone;
 }
 
 std::vector<std::string> BFER::parameters
 ::get_names() const
 {
 	auto n = Simulation::parameters::get_names();
-	if (src != nullptr) { auto nn = src->get_names(); for (auto &x : nn) n.push_back(x); }
-	if (crc != nullptr) { auto nn = crc->get_names(); for (auto &x : nn) n.push_back(x); }
-	if (cdc != nullptr) { auto nn = cdc->get_names(); for (auto &x : nn) n.push_back(x); }
-	if (mdm != nullptr) { auto nn = mdm->get_names(); for (auto &x : nn) n.push_back(x); }
-	if (chn != nullptr) { auto nn = chn->get_names(); for (auto &x : nn) n.push_back(x); }
-	if (qnt != nullptr) { auto nn = qnt->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (src    != nullptr) { auto nn = src   ->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (crc    != nullptr) { auto nn = crc   ->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (cdc    != nullptr) { auto nn = cdc   ->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (mdm    != nullptr) { auto nn = mdm   ->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (chn    != nullptr) { auto nn = chn   ->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (qnt    != nullptr) { auto nn = qnt   ->get_names(); for (auto &x : nn) n.push_back(x); }
 	if (mnt_mi != nullptr) { auto nn = mnt_mi->get_names(); for (auto &x : nn) n.push_back(x); }
 	if (mnt_er != nullptr) { auto nn = mnt_er->get_names(); for (auto &x : nn) n.push_back(x); }
-	if (ter != nullptr) { auto nn = ter->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (ter    != nullptr) { auto nn = ter   ->get_names(); for (auto &x : nn) n.push_back(x); }
 	return n;
 }
 
@@ -53,15 +41,15 @@ std::vector<std::string> BFER::parameters
 ::get_short_names() const
 {
 	auto sn = Factory::parameters::get_short_names();
-	if (src != nullptr) { auto nn = src->get_short_names(); for (auto &x : nn) sn.push_back(x); }
-	if (crc != nullptr) { auto nn = crc->get_short_names(); for (auto &x : nn) sn.push_back(x); }
-	if (cdc != nullptr) { auto nn = cdc->get_short_names(); for (auto &x : nn) sn.push_back(x); }
-	if (mdm != nullptr) { auto nn = mdm->get_short_names(); for (auto &x : nn) sn.push_back(x); }
-	if (chn != nullptr) { auto nn = chn->get_short_names(); for (auto &x : nn) sn.push_back(x); }
-	if (qnt != nullptr) { auto nn = qnt->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (src    != nullptr) { auto nn = src   ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (crc    != nullptr) { auto nn = crc   ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (cdc    != nullptr) { auto nn = cdc   ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (mdm    != nullptr) { auto nn = mdm   ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (chn    != nullptr) { auto nn = chn   ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (qnt    != nullptr) { auto nn = qnt   ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	if (mnt_mi != nullptr) { auto nn = mnt_mi->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	if (mnt_er != nullptr) { auto nn = mnt_er->get_short_names(); for (auto &x : nn) sn.push_back(x); }
-	if (ter != nullptr) { auto nn = ter->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (ter    != nullptr) { auto nn = ter   ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	return sn;
 }
 
@@ -69,95 +57,94 @@ std::vector<std::string> BFER::parameters
 ::get_prefixes() const
 {
 	auto p = Factory::parameters::get_prefixes();
-	if (src != nullptr) { auto nn = src->get_prefixes(); for (auto &x : nn) p.push_back(x); }
-	if (crc != nullptr) { auto nn = crc->get_prefixes(); for (auto &x : nn) p.push_back(x); }
-	if (cdc != nullptr) { auto nn = cdc->get_prefixes(); for (auto &x : nn) p.push_back(x); }
-	if (mdm != nullptr) { auto nn = mdm->get_prefixes(); for (auto &x : nn) p.push_back(x); }
-	if (chn != nullptr) { auto nn = chn->get_prefixes(); for (auto &x : nn) p.push_back(x); }
-	if (qnt != nullptr) { auto nn = qnt->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (src    != nullptr) { auto nn = src   ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (crc    != nullptr) { auto nn = crc   ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (cdc    != nullptr) { auto nn = cdc   ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (mdm    != nullptr) { auto nn = mdm   ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (chn    != nullptr) { auto nn = chn   ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (qnt    != nullptr) { auto nn = qnt   ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	if (mnt_mi != nullptr) { auto nn = mnt_mi->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	if (mnt_er != nullptr) { auto nn = mnt_er->get_prefixes(); for (auto &x : nn) p.push_back(x); }
-	if (ter != nullptr) { auto nn = ter->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (ter    != nullptr) { auto nn = ter   ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	return p;
 }
 
 void BFER::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Simulation::parameters::get_description(args);
+	Simulation::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-coset", "c"},
-		tools::None(),
-		"enable the coset approach.");
+	sub->add_flag(
+		"-c,--coset",
+		coset,
+		"Enable the coset approach.")
+		->group("Standard");
 
-	args.add(
-		{p+"-err-trk"},
-		tools::None(),
-		"enable the tracking of the bad frames (by default the frames are stored in the current folder).",
-		tools::arg_rank::ADV);
-
-	args.add(
-		{p+"-err-trk-rev"},
-		tools::None(),
-		"automatically replay the saved frames.",
-		tools::arg_rank::ADV);
-
-	args.add(
-		{p+"-err-trk-path"},
-		tools::File(tools::openmode::read_write),
-		"base path for the files where the bad frames will be stored or read.",
-		tools::arg_rank::ADV);
-
-	args.add(
-		{p+"-err-trk-thold"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"dump only frames with a bit error count above or equal to this threshold.",
-		tools::arg_rank::ADV);
-
-	args.add(
-		{p+"-coded"},
-		tools::None(),
-		"enable the coded monitoring (extends the monitored bits to the entire codeword).");
+	sub->add_flag(
+		"--coded",
+		coded_monitoring,
+		"Enable the coded monitoring (extends the monitored bits to the entire codeword).")
+		->group("Standard");
 
 
-	auto pmon = mnt_er->get_prefix();
+	auto flag_err_trk =
+	sub->add_flag(
+		"--err-trk",
+		err_track_enable,
+		"Enable the tracking of the bad frames (by default the frames are stored in the current folder).")
+		->group("Advanced");
 
-	args.add(
-		{pmon+"-mutinfo"},
-		tools::None(),
-		"allow the computation of the mutual information.");
+	sub->add_flag(
+		"--err-trk-rev",
+		err_track_revert,
+		"Automatically replay the saved frames.")
+		->group("Advanced");
+
+	sub->add_option(
+		"--err-trk-path",
+		err_track_path,
+		"Base path for the files where the bad frames will be stored or read.")
+		->needs(flag_err_trk)
+		->group("Advanced");
+
+	sub->add_option(
+		"--err-trk-thold",
+		err_track_threshold,
+		"Dump only frames with a bit error count above or equal to this threshold.")
+		->needs(flag_err_trk)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Advanced");
+
+
+
+	// auto sub_mon = app.get_subcommand(mnt_er->get_prefix());
+
+	// sub_mon->add_flag(
+	// 	"--mutinfo",
+	// 	mutinfo,
+	// 	"Allow the computation of the mutual information.")
+	// 	->group("Standard");
 }
 
 void BFER::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-#if !defined(SYSTEMC)
-	this->n_threads = std::thread::hardware_concurrency() ? std::thread::hardware_concurrency() : 1;
+	Simulation::parameters::callback_arguments();
+
+#if defined(SYSTEMC)
+	this->n_threads = 1;
+#else
+	this->n_threads = (this->n_threads == 0 && std::thread::hardware_concurrency())
+	                   ? std::thread::hardware_concurrency() : 1;
 #endif
-
-	Simulation::parameters::store(vals);
-
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-err-trk-path"   })) this->err_track_path      = vals.at    ({p+"-err-trk-path"   });
-	if(vals.exist({p+"-err-trk-thold"  })) this->err_track_threshold = vals.to_int({p+"-err-trk-thold"  });
-	if(vals.exist({p+"-err-trk-rev"    })) this->err_track_revert    = true;
-	if(vals.exist({p+"-err-trk"        })) this->err_track_enable    = true;
-	if(vals.exist({p+"-coset",      "c"})) this->coset               = true;
-	if(vals.exist({p+"-coded",         })) this->coded_monitoring    = true;
 
 	if (this->err_track_revert)
 	{
 		this->err_track_enable = false;
 		this->n_threads = 1;
 	}
-
-	auto pmon = mnt_er->get_prefix();
-
-	if(vals.exist({pmon+"-mutinfo"})) this->mutinfo = true;
 }
 
 void BFER::parameters

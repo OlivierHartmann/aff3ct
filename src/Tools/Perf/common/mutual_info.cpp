@@ -406,7 +406,7 @@ R aff3ct::tools::mutual_info_histo_seq(const B* ref, const R* llr, const unsigne
 	{
 		const unsigned hist_idx = ref[i] ? 1 : 0;
 
-		if(llr[i] == -inf)
+		if (llr[i] == -inf)
 			hist[hist_idx].front()++;
 
 		else if (llr[i] == inf)

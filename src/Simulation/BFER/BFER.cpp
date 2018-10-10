@@ -42,7 +42,7 @@ BFER<B,R,Q>
 
 	if (params_BFER.err_track_enable)
 	{
-		for (auto tid = 0; tid < params_BFER.n_threads; tid++)
+		for (unsigned tid = 0; tid < params_BFER.n_threads; tid++)
 			dumper[tid].reset(new tools::Dumper());
 
 		dumper_red.reset(new tools::Dumper_reduction(dumper));
@@ -63,13 +63,13 @@ void BFER<B,R,Q>
 {
 	// build the communication chain in multi-threaded mode
 	std::vector<std::thread> threads(params_BFER.n_threads -1);
-	for (auto tid = 1; tid < params_BFER.n_threads; tid++)
+	for (unsigned tid = 1; tid < params_BFER.n_threads; tid++)
 		threads[tid -1] = std::thread(BFER<B,R,Q>::start_thread_build_comm_chain, this, tid);
 
 	BFER<B,R,Q>::start_thread_build_comm_chain(this, 0);
 
 	// join the slave threads with the master thread
-	for (auto tid = 1; tid < params_BFER.n_threads; tid++)
+	for (unsigned tid = 1; tid < params_BFER.n_threads; tid++)
 		threads[tid -1].join();
 }
 
@@ -99,7 +99,7 @@ void BFER<B,R,Q>
 	for (auto noise_idx = noise_begin; noise_idx != noise_end; noise_idx += noise_step)
 	{
 		this->noise.reset(params_BFER.noise->template build<R>(params_BFER.noise->range[noise_idx], bit_rate,
-		                                                       params_BFER.mdm->bps, params_BFER.mdm->upf));
+		                                                       params_BFER.mdm->bps, params_BFER.mdm->ups));
 
 		// manage noise distributions to be sure it exists
 		if (this->distributions != nullptr)
@@ -147,7 +147,7 @@ void BFER<B,R,Q>
 #ifdef ENABLE_MPI
 		if (params_BFER.mpi_rank == 0)
 #endif
-		if (params_BFER.display_legend)
+		if (!params_BFER.hide_legend)
 			if ((!params_BFER.ter->disabled && noise_idx == noise_begin && !params_BFER.debug)
 				|| (params_BFER.statistics && !params_BFER.debug))
 				terminal->legend(std::cout);
@@ -212,7 +212,7 @@ void BFER<B,R,Q>
 			tools::Terminal::stop();
 
 
-		if (params_BFER.mnt_er->err_hist != -1)
+		if (params_BFER.mnt_er->err_hist != (unsigned)-1)
 		{
 			auto err_hist = monitor_er_red->get_err_hist();
 
@@ -284,7 +284,7 @@ std::unique_ptr<typename BFER<B,R,Q>::Monitor_BFER_type> BFER<B,R,Q>
 	bool count_unknown_values = params_BFER.noise->type == "EP";
 
 	auto mnt = std::unique_ptr<typename BFER<B,R,Q>::Monitor_BFER_type>(params_BFER.mnt_er->build<B>(count_unknown_values));
-	mnt->activate_err_histogram(params_BFER.mnt_er->err_hist != -1);
+	mnt->activate_err_histogram(params_BFER.mnt_er->err_hist != (unsigned)-1);
 
 	return mnt;
 }
@@ -318,7 +318,7 @@ void BFER<B,R,Q>
 {
 	// build a monitor to compute BER/FER on each thread
 	this->add_module("monitor_er", params_BFER.n_threads);
-	for (auto tid = 0; tid < params_BFER.n_threads; tid++)
+	for (unsigned tid = 0; tid < params_BFER.n_threads; tid++)
 	{
 		this->monitor_er[tid] = this->build_monitor_er(tid);
 		this->set_module("monitor_er", tid, this->monitor_er[tid]);
@@ -331,7 +331,7 @@ void BFER<B,R,Q>
 	{
 		// build a monitor to compute MIon each thread
 		this->add_module("monitor_mi", params_BFER.n_threads);
-		for (auto tid = 0; tid < params_BFER.n_threads; tid++)
+		for (unsigned tid = 0; tid < params_BFER.n_threads; tid++)
 		{
 			this->monitor_mi[tid] = this->build_monitor_mi(tid);
 			this->set_module("monitor_mi", tid, this->monitor_mi[tid]);

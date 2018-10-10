@@ -25,12 +25,12 @@ Codec_RSC_DB::parameters* Codec_RSC_DB::parameters
 }
 
 void Codec_RSC_DB::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SISO_SIHO::parameters::get_description(args);
+	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec->get_prefix();
 
@@ -41,21 +41,21 @@ void Codec_RSC_DB::parameters
 }
 
 void Codec_RSC_DB::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SISO_SIHO::parameters::store(vals);
+	Codec_SISO_SIHO::parameters::callback_arguments();
 
 	auto enc_rsc = dynamic_cast<Encoder_RSC_DB::parameters*>(enc.get());
 	auto dec_rsc = dynamic_cast<Decoder_RSC_DB::parameters*>(dec.get());
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	dec_rsc->K        = enc_rsc->K;
 	dec_rsc->N_cw     = enc_rsc->N_cw;
 	dec_rsc->n_frames = enc_rsc->n_frames;
 	dec_rsc->buffered = enc_rsc->buffered;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	auto pdec = dec->get_prefix();
 

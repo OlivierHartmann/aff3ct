@@ -52,9 +52,9 @@ std::vector<std::string> Encoder_turbo_DB::parameters
 }
 
 void Encoder_turbo_DB::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -62,7 +62,7 @@ void Encoder_turbo_DB::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -77,7 +77,7 @@ void Encoder_turbo_DB::parameters
 		tools::File(tools::openmode::write),
 		"path to store the encoder and decoder traces formated in JSON.");
 
-	sub->get_description(args);
+	sub->register_arguments(app);
 
 	auto ps = sub->get_prefix();
 
@@ -90,15 +90,15 @@ void Encoder_turbo_DB::parameters
 }
 
 void Encoder_turbo_DB::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 
 	this->sub->K        = this->K;
 	this->sub->n_frames = this->n_frames;
 	this->sub->seed     = this->seed;
 
-	sub->store(vals);
+	sub->callback_arguments();
 
 	this->N_cw = 2 * this->sub->N_cw - this->K;
 	this->R    = (float)this->K / (float)this->N_cw;
@@ -108,7 +108,7 @@ void Encoder_turbo_DB::parameters
 		this->itl->core->size     = this->K >> 1;
 		this->itl->core->n_frames = this->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 
 		if (this->sub->standard == "DVB-RCS1" && !vals.exist({"itl-type"}))
 			this->itl->core->type = "DVB-RCS1";

@@ -53,9 +53,9 @@ std::vector<std::string> Encoder_turbo_product::parameters
 }
 
 void Encoder_turbo_product::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -64,7 +64,7 @@ void Encoder_turbo_product::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = this->itl->get_prefix();
 
@@ -80,7 +80,7 @@ void Encoder_turbo_product::parameters
 		"extends code with a parity bits.");
 
 
-	sub->get_description(args);
+	sub->register_arguments(app);
 
 	auto ps = sub->get_prefix();
 
@@ -88,17 +88,17 @@ void Encoder_turbo_product::parameters
 }
 
 void Encoder_turbo_product::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-ext"})) this->parity_extended = true;
+	if (vals.exist({p+"-ext"})) this->parity_extended = true;
 
 	// this->sub->n_frames = this->n_frames;
 
-	sub->store(vals);
+	sub->callback_arguments();
 
 	this->K = this->sub->K * this->sub->K;
 
@@ -118,7 +118,7 @@ void Encoder_turbo_product::parameters
 		this->itl->core->size = this->itl->core->n_cols * this->itl->core->n_cols;
 		this->N_cw = this->itl->core->size;
 
-		itl->store(vals);
+		itl->callback_arguments();
 	}
 }
 

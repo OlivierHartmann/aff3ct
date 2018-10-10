@@ -47,92 +47,105 @@ Channel::parameters* Channel::parameters
 }
 
 void Channel::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-fra-size", "N"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of symbols by frame.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-N,--fra-size",
+		N,
+		"Number of symbols by frame.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-type"},
-		tools::Text(tools::Including_set("NO", "USER", "USER_ADD", "AWGN", "RAYLEIGH", "RAYLEIGH_USER", "BEC", "BSC",
-		                                 "OPTICAL")),
-		"type of the channel to use in the simulation ('USER' has an output got from a file when 'USER_ADD' has an"
-		" additive noise got from a file).");
 
-	args.add(
-		{p+"-implem"},
-		tools::Text(tools::Including_set("STD", "FAST")),
-		"select the implementation of the algorithm to generate noise.");
+	sub->add_set(
+		"--type",
+		type,
+		type_set,
+		"Type of the channel to use in the simulation ('USER' has an output got from a file when 'USER_ADD' has an"
+		" additive noise got from a file).",
+		true)
+		->group("Standard");
+
+	sub->add_set(
+		"--implem",
+		implem,
+		implem_set,
+		"Select the implementation of the algorithm to generate noise.",
+		true)
+		->group("Standard");
+
 
 #ifdef CHANNEL_GSL
-	tools::add_options(args.at({p+"-implem"}), 0, "GSL");
+	implem_set.insert("GSL");
 #endif
 #ifdef CHANNEL_MKL
-	tools::add_options(args.at({p+"-implem"}), 0, "MKL");
+	implem_set.insert("MKL");
 #endif
 
-	args.add(
-		{p+"-path"},
-		tools::File(tools::openmode::read_write),
-		"path to a noisy file, to use with \"--chn-type USER,OPTICAL\" or to a gain file (used with \"--chn-type RAYLEIGH_USER\").");
+	sub->add_option(
+		"--path",
+		path,
+		"Path to a noisy file, to use with \"--chn-type USER,OPTICAL\" or to a gain file (used with \"--chn-type RAYLEIGH_USER\").")
+		->check(CLI::ExistingFile)
+		->group("Standard");
 
-	args.add(
-		{p+"-blk-fad"},
-		tools::Text(tools::Including_set("NO", "FRAME", "ONETAP")),
-		"block fading policy for the RAYLEIGH channel.");
+	sub->add_set(
+		"--blk-fad",
+		block_fading,
+		{"NO", "FRAME", "ONETAP"},
+		"Block fading policy for the RAYLEIGH channel.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-noise"},
-		tools::Real(tools::Positive(), tools::Non_zero()),
-		"noise value (for SIGMA, ROP or EP noise type).");
+	sub->add_option(
+		"--noise",
+		noise,
+		"Noise value (for SIGMA, ROP or EP noise type).")
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-seed", "S"},
-		tools::Integer(tools::Positive()),
-		"seed used to initialize the pseudo random generators.");
+	sub->add_option(
+		"-S,--seed",
+		seed,
+		"Seed used to initialize the pseudo random generators.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-add-users"},
-		tools::None(),
-		"add all the users (= frames) before generating the noise.");
+	sub->add_flag(
+		"--add-users",
+		add_users,
+		"Add all the users (= frames) before generating the noise.")
+		->group("Standard");
 
-	args.add(
-		{p+"-complex"},
-		tools::None(),
-		"enable complex noise generation.");
+	sub->add_flag(
+		"--complex",
+		complex,
+		"Enable complex noise generation.")
+		->group("Standard");
 
-	args.add(
-		{p+"-gain-occur"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"the number of times a gain is used on consecutive symbols (used with \"--chn-type RAYLEIGH_USER\").");
+	sub->add_option(
+		"--gain-occur",
+		gain_occur,
+		"The number of times a gain is used on consecutive symbols (used with \"--chn-type RAYLEIGH_USER\")",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 }
 
 void Channel::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-fra-size", "N"})) this->N            = vals.to_int({p+"-fra-size", "N"});
-	if(vals.exist({p+"-fra",      "F"})) this->n_frames     = vals.to_int({p+"-fra",      "F"});
-	if(vals.exist({p+"-seed",     "S"})) this->seed         = vals.to_int({p+"-seed",     "S"});
-	if(vals.exist({p+"-gain-occur"   })) this->gain_occur   = vals.to_int({p+"-gain-occur"   });
-	if(vals.exist({p+"-type"         })) this->type         = vals.at    ({p+"-type"         });
-	if(vals.exist({p+"-implem"       })) this->implem       = vals.at    ({p+"-implem"       });
-	if(vals.exist({p+"-path"         })) this->path         = vals.at    ({p+"-path"         });
-	if(vals.exist({p+"-blk-fad"      })) this->block_fading = vals.at    ({p+"-blk-fad"      });
-	if(vals.exist({p+"-add-users"    })) this->add_users    = true;
-	if(vals.exist({p+"-complex"      })) this->complex      = true;
-	if(vals.exist({p+"-noise"        })) this->noise        = vals.to_float({p+"-noise"      });
 }
 
 void Channel::parameters

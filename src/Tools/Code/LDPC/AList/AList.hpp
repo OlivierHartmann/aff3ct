@@ -20,10 +20,10 @@ public:
 	 * @H is the height of the matrix
 	 * @N is the width of the matrix
 	 */
-	static void                  read_matrix_size   (std::istream &stream, int& H, int& N);
+	static void                  read_matrix_size   (std::istream &stream, unsigned& H, unsigned& N);
 
 	static std::vector<unsigned> read_info_bits_pos (std::istream &stream);
-	static std::vector<unsigned> read_info_bits_pos (std::istream &stream, const int K, const int N);
+	static std::vector<unsigned> read_info_bits_pos (std::istream &stream, const unsigned K, const unsigned N);
 	static void                  write_info_bits_pos(const std::vector<unsigned> &info_bits_pos, std::ostream &stream);
 
 private:

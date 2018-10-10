@@ -18,7 +18,7 @@ Puncturer_LDPC::parameters
 ::parameters(const std::string &prefix)
 : Puncturer::parameters(Puncturer_LDPC_name, prefix)
 {
-	this->type = "LDPC";
+	type = "LDPC";
 }
 
 Puncturer_LDPC::parameters* Puncturer_LDPC::parameters
@@ -28,24 +28,27 @@ Puncturer_LDPC::parameters* Puncturer_LDPC::parameters
 }
 
 void Puncturer_LDPC::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Puncturer::parameters::get_description(args);
+	Puncturer::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-cw-size", "N_cw"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"the codeword size.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-N,--cw-size",
+		N_cw,
+		"The codeword size.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	tools::add_options(args.at({p+"-type"}), 0, "LDPC");
+	type_set.insert("LDPC");
 
-	args.add(
-		{p+"-pattern"},
-		tools::Text(),
-		"puncturing pattern for the LDPC encoder/decoder (size = N_Code/Z) (ex: \"1,1,1,0\").");
+	sub->add_option(
+		"--pattern",
+		str_pattern,
+		"Puncturing pattern for the LDPC encoder/decoder (size = N_Code/Z) (ex: \"1,1,1,0\").")
+		->group("Standard");
 }
 
 std::vector<bool> generate_punct_vector(const std::string &pattern)
@@ -72,26 +75,18 @@ std::vector<bool> generate_punct_vector(const std::string &pattern)
 }
 
 void Puncturer_LDPC::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto save_N_cw = this->N_cw;
-	Puncturer::parameters::store(vals);
+	auto save_N_cw = N_cw;
+	Puncturer::parameters::callback_arguments();
 	if (save_N_cw > 0)
-		this->N_cw = save_N_cw;
+		N_cw = save_N_cw;
 
-	auto p = this->get_prefix();
+	if (str_pattern.size() != 0)
+		pattern = generate_punct_vector(str_pattern);
 
-	std::string str_pattern;
-	if(vals.exist({p+"-pattern"}))
-	{
-		str_pattern = vals.at({p+"-pattern"});
-		this->pattern = generate_punct_vector(str_pattern);
-	}
-
-	if(vals.exist({p+"-cw-size", "N_cw"})) this->N_cw = vals.to_int({p+"-cw-size",  "N_cw"});
-
-	if (this->N == this->N_cw)
-		this->type = "NO";
+	if (N == N_cw)
+		type = "NO";
 }
 
 void Puncturer_LDPC::parameters
@@ -99,12 +94,12 @@ void Puncturer_LDPC::parameters
 {
 	Puncturer::parameters::get_headers(headers, full);
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	if (this->type != "NO")
+	if (type != "NO")
 	{
 		std::stringstream pat;
-		for(auto p : this->pattern)
+		for (auto p : pattern)
 			pat << p;
 
 		headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + pat.str() + "}")));
@@ -115,7 +110,7 @@ template <typename B, typename Q>
 module::Puncturer<B,Q>* Puncturer_LDPC::parameters
 ::build() const
 {
-	if (this->type == "LDPC") return new module::Puncturer_LDPC<B,Q>(this->K, this->N, this->N_cw, this->pattern, this->n_frames);
+	if (type == "LDPC") return new module::Puncturer_LDPC<B,Q>(K, N, N_cw, pattern, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

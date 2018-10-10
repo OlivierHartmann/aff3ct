@@ -34,14 +34,14 @@ void BFER_std_threads<B,R,Q>
 
 	std::vector<std::thread> threads(this->params_BFER_std.n_threads -1);
 	// launch a group of slave threads (there is "n_threads -1" slave threads)
-	for (auto tid = 1; tid < this->params_BFER_std.n_threads; tid++)
+	for (unsigned tid = 1; tid < this->params_BFER_std.n_threads; tid++)
 		threads[tid -1] = std::thread(BFER_std_threads<B,R,Q>::start_thread, this, tid);
 
 	// launch the master thread
 	BFER_std_threads<B,R,Q>::start_thread(this, 0);
 
 	// join the slave threads with the master thread
-	for (auto tid = 1; tid < this->params_BFER_std.n_threads; tid++)
+	for (unsigned tid = 1; tid < this->params_BFER_std.n_threads; tid++)
 		threads[tid -1].join();
 
 	if (!this->prev_err_messages_to_display.empty())

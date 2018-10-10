@@ -29,39 +29,39 @@ Scaling_factor::parameters* Scaling_factor::parameters
 }
 
 void Scaling_factor::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-type"},
-		tools::Text(tools::Including_set("CST", "LTE", "LTE_VEC", "ARRAY", "ADAPTIVE")),
-		"scaling factor type.");
+	type_option =
+	sub->add_set(
+		"--type",
+		type,
+		{"CST", "LTE", "LTE_VEC", "ARRAY", "ADAPTIVE"},
+		"Scaling factor type.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-ite"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of iterations.");
+	sub->add_option(
+		"--ite",
+		n_ite,
+		"Number of iterations.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
+
+	sub->add_option(
+		"--cst",
+		cst,
+		"Scaling factor constant.",
+		true)
+		->group("Standard");
 }
 
 void Scaling_factor::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-type"}))
-	{
-		this->enable = true;
-		this->type = vals.at({p+"-type"});
-
-		if (std::isdigit(this->type[0]))
-		{
-			this->cst  = std::stof(this->type);
-			this->type = "CST";
-		}
-	}
-
-	if(vals.exist({p+"-ite", "i"})) this->n_ite = vals.to_int({p+"-ite", "i"});
+	this->enable = !type_option->empty();
 }
 
 void Scaling_factor::parameters

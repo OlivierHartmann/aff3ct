@@ -231,7 +231,7 @@ void Decoder_turbo_product<B,R>
 				}
 			}
 		}
-		else if(return_K_siso == 0)
+		else if (return_K_siso == 0)
 		{
 			for (int j = 0; j < cp_c.get_K(); j++)
 			{

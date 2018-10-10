@@ -29,12 +29,13 @@ Monitor::parameters* Monitor::parameters
 }
 
 void Monitor::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
+	CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 }
 
 void Monitor::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
 }
 

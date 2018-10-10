@@ -24,39 +24,41 @@ Monitor_EXIT::parameters* Monitor_EXIT::parameters
 }
 
 void Monitor_EXIT::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Monitor::parameters::get_description(args);
+	Monitor::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-size", "K"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of bits to check.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-K,--info-bits",
+		size,
+		"Number of bits to check.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-trials", "n"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of frames to simulate per sigma A value.");
+	sub->add_option(
+		"-n,--trials",
+		n_trials,
+		"Number of frames to simulate per sigma A value.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 }
 
 void Monitor_EXIT::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Monitor::parameters::store(vals);
-
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-size",   "K"})) this->size     = vals.to_int({p+"-size",   "K"});
-	if(vals.exist({p+"-fra",    "F"})) this->n_frames = vals.to_int({p+"-fra",    "F"});
-	if(vals.exist({p+"-trials", "n"})) this->n_trials = vals.to_int({p+"-trials", "n"});
+	Monitor::parameters::callback_arguments();
 }
 
 void Monitor_EXIT::parameters

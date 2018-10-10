@@ -25,12 +25,12 @@ Codec_RS::parameters* Codec_RS::parameters
 }
 
 void Codec_RS::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SIHO_HIHO::parameters::get_description(args);
+	Codec_SIHO_HIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec->get_prefix();
 	auto penc = enc->get_prefix();
@@ -44,21 +44,21 @@ void Codec_RS::parameters
 }
 
 void Codec_RS::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SIHO_HIHO::parameters::store(vals);
+	Codec_SIHO_HIHO::parameters::callback_arguments();
 
 	auto dec_rs = dynamic_cast<Decoder_RS::parameters*>(dec.get());
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	dec->K        = enc->K;
 	dec->N_cw     = enc->N_cw;
 	dec->n_frames = enc->n_frames;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
-	if(dec->K != enc->K) // when -T has been given but not -K
+	if (dec->K != enc->K) // when -T has been given but not -K
 		enc->K = dec->K;
 
 	K    = enc->K    * dec_rs->m;

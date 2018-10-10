@@ -21,7 +21,7 @@ struct Scaling_factor : public Factory
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
 		std::string         type        = "LTE_VEC";
-		int                 n_ite       = 6;
+		unsigned            n_ite       = 6;
 		bool                enable      = false;
 		float               cst         = 0.75f;
 		mipp::vector<float> alpha_array = {0.15f, 0.15f,  // ite 1
@@ -39,13 +39,15 @@ struct Scaling_factor : public Factory
 		Scaling_factor::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>
 		tools::Scaling_factor<B,Q>* build() const;
+	private:
+		CLI::Option* type_option;
 	};
 
 	template <typename B = int, typename Q = float>

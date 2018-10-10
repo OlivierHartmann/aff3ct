@@ -41,7 +41,7 @@ template <typename T>
 void linear_interpolation(const T* x_data, const T* y_data, const unsigned l_data,
                           const T* x_vals,       T* y_vals, const unsigned l_vals)
 {
-	for(unsigned j = 0; j < l_vals; j++)
+	for (unsigned j = 0; j < l_vals; j++)
 		y_vals[j] = linear_interpolation(x_data, y_data, l_data, x_vals[j]);
 }
 
@@ -52,7 +52,7 @@ void linear_interpolation(const std::vector<T>& x_data, const std::vector<T>& y_
 	assert(x_data.size() == y_data.size());
 	assert(x_vals.size() == y_vals.size());
 
-	for(unsigned j = 0; j < x_vals.size(); j++)
+	for (unsigned j = 0; j < x_vals.size(); j++)
 		y_vals[j] = linear_interpolation(x_data.data(), y_data.data(), x_data.size(), x_vals[j]);
 }
 
@@ -71,7 +71,7 @@ template <typename T>
 void nearest_interpolation(const T* x_data, const T* y_data, const unsigned l_data,
                            const T* x_vals,       T* y_vals, const unsigned l_vals)
 {
-	for(unsigned j = 0; j < l_vals; j++)
+	for (unsigned j = 0; j < l_vals; j++)
 		y_vals[j] = nearest_interpolation(x_data, y_data, l_data, x_vals[j]);
 }
 
@@ -82,7 +82,7 @@ void nearest_interpolation(const std::vector<T>& x_data, const std::vector<T>& y
 	assert(x_data.size() == y_data.size());
 	assert(x_vals.size() == y_vals.size());
 
-	for(unsigned j = 0; j < x_vals.size(); j++)
+	for (unsigned j = 0; j < x_vals.size(); j++)
 		y_vals[j] = nearest_interpolation(x_data.data(), y_data.data(), x_data.size(), x_vals[j]);
 }
 

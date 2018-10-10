@@ -49,15 +49,15 @@ std::vector<std::string> Decoder_RA::parameters
 }
 
 void Decoder_RA::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -75,9 +75,9 @@ void Decoder_RA::parameters
 }
 
 void Decoder_RA::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
@@ -86,10 +86,10 @@ void Decoder_RA::parameters
 		this->itl->core->size     = this->N_cw;
 		this->itl->core->n_frames = this->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 	}
 
-	if(vals.exist({p+"-ite", "i"})) this->n_ite = vals.to_int({p+"-ite", "i"});
+	if (vals.exist({p+"-ite", "i"})) this->n_ite = vals.to_int({p+"-ite", "i"});
 }
 
 void Decoder_RA::parameters

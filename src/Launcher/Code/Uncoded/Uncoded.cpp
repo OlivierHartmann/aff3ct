@@ -17,27 +17,27 @@ Uncoded<L,B,R,Q>
 
 template <class L, typename B, typename R, typename Q>
 void Uncoded<L,B,R,Q>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	params_cdc->get_description(this->args);
+	params_cdc->register_arguments(app);
 
 	auto penc = params_cdc->enc->get_prefix();
 
 	this->args.erase({penc+"-info-bits", "K"});
 	this->args.erase({penc+"-fra",       "F"});
 
-	L::get_description_args();
+	L::register_arguments(app);
 }
 
 template <class L, typename B, typename R, typename Q>
 void Uncoded<L,B,R,Q>
-::store_args()
+::callback_arguments()
 {
-	L::store_args();
+	L::callback_arguments();
 
 	params_cdc->enc->K = this->params.src->K;
 
-	params_cdc->store(this->arg_vals);
+	params_cdc->callback_arguments();
 
 	params_cdc->enc->n_frames = this->params.src->n_frames;
 	params_cdc->dec->n_frames = this->params.src->n_frames;

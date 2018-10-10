@@ -24,9 +24,9 @@ Polar<L,B,R,Q>
 
 template <class L, typename B, typename R, typename Q>
 void Polar<L,B,R,Q>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	params_cdc->get_description(this->args);
+	params_cdc->register_arguments(app);
 
 	auto penc = params_cdc->enc->get_prefix();
 	this->args.erase({penc+"-seed", "S"});
@@ -39,16 +39,16 @@ void Polar<L,B,R,Q>
 	else
 		this->args.erase({penc+"-fra", "F"});
 
-	L::get_description_args();
+	L::register_arguments(app);
 }
 
 template <class L, typename B, typename R, typename Q>
 void Polar<L,B,R,Q>
-::store_args()
+::callback_arguments()
 {
 	auto dec_polar = dynamic_cast<factory::Decoder_polar::parameters*>(params_cdc->dec.get());
 
-	params_cdc->store(this->arg_vals);
+	params_cdc->callback_arguments();
 
 	if (dec_polar->simd_strategy == "INTER")
 		this->params.src->n_frames = mipp::N<Q>();
@@ -59,7 +59,7 @@ void Polar<L,B,R,Q>
 		this->params.qnt->n_decimals = 1;
 	}
 
-	L::store_args();
+	L::callback_arguments();
 
 	params_cdc->enc->n_frames = this->params.src->n_frames;
 	if (params_cdc->pct != nullptr)

@@ -27,7 +27,7 @@ Distributions(const std::string& filename, Distribution_mode mode, bool read_all
 	read_noise_range();
 
 	if (read_all_at_init)
-		for(unsigned i = 0; i < this->noise_file_index.size(); i++)
+		for (unsigned i = 0; i < this->noise_file_index.size(); i++)
 			read_distribution_from_file(i);
 }
 
@@ -44,7 +44,7 @@ void my_getline(std::istream &is, std::string &line)
 	line.clear();
 	char c;
 
-	while(is.get(c))
+	while (is.get(c))
 	{
 		if (c != '\r')
 		{
@@ -277,14 +277,14 @@ read_distribution_from_file(unsigned index)
 
 	std::vector<R> v_x_R(v_x.size()) ;
 	std::vector<std::vector<R>> v_y_R(2);
-	for(auto& v : v_y_R)
+	for (auto& v : v_y_R)
 		v.resize(v_x.size());
 
 	size_t j = 0;
 	try
 	{
 		// convert string vector to 'R' vector
-		for(; j < v_x_R.size(); j++)
+		for (; j < v_x_R.size(); j++)
 		{
 			v_x_R   [j] = (R)std::stof(v_x [j]);
 			v_y_R[0][j] = (R)std::stof(v_y0[j]);

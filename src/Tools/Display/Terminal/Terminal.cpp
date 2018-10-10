@@ -93,7 +93,7 @@ void Terminal
 	while (!terminal->stop_terminal)
 	{
 		std::unique_lock<std::mutex> lock(terminal->mutex_terminal);
-		if (terminal->cond_terminal.wait_for(lock, sleep_time) == std::cv_status::timeout)
+		if (terminal->cond_terminal.wait_for (lock, sleep_time) == std::cv_status::timeout)
 			terminal->temp_report(std::clog); // display statistics in the terminal
 	}
 }

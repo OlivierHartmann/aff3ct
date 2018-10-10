@@ -16,125 +16,135 @@ using namespace aff3ct::launcher;
 template <typename B, typename R, typename Q>
 BFER_std<B,R,Q>
 ::BFER_std(const int argc, const char **argv, std::ostream &stream)
-: Launcher(argc, argv, params, stream)
+: Launcher(argc, argv, stream)
 {
-	params.set_src(new factory::Source      ::parameters("src"));
-	params.set_crc(new factory::CRC         ::parameters("crc"));
-	params.set_mdm(new factory::Modem       ::parameters("mdm"));
-	params.set_chn(new factory::Channel     ::parameters("chn"));
-	params.set_qnt(new factory::Quantizer   ::parameters("qnt"));
+	params.set_src   (new factory::Source      ::parameters("src"));
+	params.set_crc   (new factory::CRC         ::parameters("crc"));
+	params.set_mdm   (new factory::Modem       ::parameters("mdm"));
+	params.set_chn   (new factory::Channel     ::parameters("chn"));
+	params.set_qnt   (new factory::Quantizer   ::parameters("qnt"));
 	params.set_mnt_mi(new factory::Monitor_MI  ::parameters("mnt"));
 	params.set_mnt_er(new factory::Monitor_BFER::parameters("mnt"));
-	params.set_ter(new factory::Terminal    ::parameters("ter"));
+	params.set_ter   (new factory::Terminal    ::parameters("ter"));
+
+	set_params(&params);
 }
 
 template <typename B, typename R, typename Q>
 void BFER_std<B,R,Q>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	Launcher::get_description_args();
+	Launcher::register_arguments(app);
 
-	params.     get_description(this->args);
-	params.src->get_description(this->args);
-	params.crc->get_description(this->args);
-	params.mdm->get_description(this->args);
-	params.chn->get_description(this->args);
+	params.        register_arguments(app);
+	params.src   ->register_arguments(app);
+	params.crc   ->register_arguments(app);
+	params.mdm   ->register_arguments(app);
+	params.chn   ->register_arguments(app);
 	if (std::is_integral<Q>())
-	params.qnt->get_description(this->args);
-	params.mnt_er->get_description(this->args);
-	params.mnt_mi->get_description(this->args);
-	params.ter->get_description(this->args);
+	params.qnt   ->register_arguments(app);
+	params.mnt_er->register_arguments(app);
+	params.mnt_mi->register_arguments(app);
+	params.ter   ->register_arguments(app);
 
-	auto psrc = params.src     ->get_prefix();
-	auto pcrc = params.crc     ->get_prefix();
-	auto penc = params.cdc->enc->get_prefix();
-	auto ppct = std::string("pct");
-	auto pmdm = params.mdm     ->get_prefix();
-	auto pchn = params.chn     ->get_prefix();
-	auto pqnt = params.qnt     ->get_prefix();
-	auto pmnt = params.mnt_er  ->get_prefix(); // same than mnt_mi
-	auto pter = params.ter     ->get_prefix();
+	auto sub_src = app.get_subcommand(params.src     ->get_prefix());
+	auto sub_crc = app.get_subcommand(params.crc     ->get_prefix());
+	auto sub_enc = app.get_subcommand(params.cdc->enc->get_prefix());
+	auto sub_mdm = app.get_subcommand(params.mdm     ->get_prefix());
+	auto sub_chn = app.get_subcommand(params.chn     ->get_prefix());
+	auto sub_mnt = app.get_subcommand(params.mnt_er  ->get_prefix()); // same than mnt_mi
+	// auto sub_ter = app.get_subcommand(params.ter     ->get_prefix());
 
-	if (this->args.exist({penc+"-info-bits", "K"}) || this->args.exist({ppct+"-info-bits", "K"}))
-		this->args.erase({psrc+"-info-bits", "K"});
-	this->args.erase({psrc+"-seed",      "S"});
-	this->args.erase({pcrc+"-info-bits", "K"});
-	this->args.erase({pcrc+"-fra",       "F"});
-	this->args.erase({pmdm+"-fra-size",  "N"});
-	this->args.erase({pmdm+"-fra",       "F"});
-	this->args.erase({pmdm+"-noise"         });
-	this->args.erase({pchn+"-fra-size",  "N"});
-	this->args.erase({pchn+"-fra",       "F"});
-	this->args.erase({pchn+"-noise"         });
-	this->args.erase({pchn+"-seed",      "S"});
-	this->args.erase({pchn+"-add-users"     });
-	this->args.erase({pchn+"-complex"       });
-	this->args.erase({pqnt+"-size",      "N"});
-	this->args.erase({pqnt+"-fra",       "F"});
-	this->args.erase({pmnt+"-info-bits", "K"});
-	this->args.erase({pmnt+"-fra-size",  "N"});
-	this->args.erase({pmnt+"-fra",       "F"});
-	this->args.erase({pmnt+"-max-frame", "n"});
-	this->args.erase({pmnt+"-trials",    "n"});
-	this->args.erase({pter+"-info-bits", "K"});
-	this->args.erase({pter+"-cw-size",   "N"});
+	CLI::App* sub_pct = nullptr;
+	if (params.cdc->pct != nullptr && CLI::has_subcommand(app, params.cdc->pct->get_prefix()))
+		sub_pct = app.get_subcommand(params.cdc->pct->get_prefix());
+
+	CLI::App* sub_qnt = nullptr;
+	if (CLI::has_subcommand(app, params.qnt->get_prefix()))
+		sub_qnt = app.get_subcommand(params.qnt->get_prefix());
+
+	if (CLI::has_option(sub_enc, "--info-bits") || CLI::has_option(sub_pct, "--info-bits"))
+		CLI::remove_option(sub_src, "--info-bits");
+	CLI::remove_option(sub_src, "--seed"     );
+
+	CLI::remove_option(sub_crc, "--info-bits");
+	CLI::remove_option(sub_crc, "--fra"      );
+
+	CLI::remove_option(sub_mdm, "--fra-size" );
+	CLI::remove_option(sub_mdm, "--fra"      );
+	CLI::remove_option(sub_mdm, "--noise"    );
+
+	CLI::remove_option(sub_chn, "--fra-size" );
+	CLI::remove_option(sub_chn, "--fra"      );
+	CLI::remove_option(sub_chn, "--noise"    );
+	CLI::remove_option(sub_chn, "--seed"     );
+	CLI::remove_option(sub_chn, "--add-users");
+	CLI::remove_option(sub_chn, "--complex"  );
+
+	CLI::remove_option(sub_qnt, "--size"     );
+	CLI::remove_option(sub_qnt, "--fra"      );
+
+	CLI::remove_option(sub_mnt, "--info-bits");
+	CLI::remove_option(sub_mnt, "--fra-size" );
+	CLI::remove_option(sub_mnt, "--fra"      );
+	CLI::remove_option(sub_mnt, "--max-frame");
+	CLI::remove_option(sub_mnt, "--trials"   );
+
+#ifdef ENABLE_MPI
+	CLI::remove_option(sub_ter, "--freq"     );
+#endif
+
 }
 
 template <typename B, typename R, typename Q>
 void BFER_std<B,R,Q>
-::store_args()
+::callback_arguments()
 {
-	Launcher::store_args();
+	Launcher::callback_arguments();
 
-	params.store(this->arg_vals);
+	params.callback_arguments();
 
 	params.src->seed = params.local_seed;
 
-	params.src->store(this->arg_vals);
 
-	auto psrc = params.src->get_prefix();
-
-	auto K    = this->args.exist({psrc+"-info-bits", "K"}) ? params.src->K : params.cdc->K;
-	auto N    = this->args.exist({psrc+"-info-bits", "K"}) ? params.src->K : params.cdc->N;
-	auto N_cw = this->args.exist({psrc+"-info-bits", "K"}) ? params.src->K : params.cdc->N_cw;
-
-	params.crc->store(this->arg_vals);
+	auto K    = params.src->K != 0 ? params.src->K : params.cdc->K;
+	auto N    = params.src->K != 0 ? params.src->K : params.cdc->N;
+	auto N_cw = params.src->K != 0 ? params.src->K : params.cdc->N_cw;
 
 	params.crc->K = K - params.crc->size;
-	params.src->K = params.src->K == 0 ? params.crc->K : params.src->K;
-	params.mdm->N = N;
+	params.crc->callback_arguments();
 
-	params.mdm->store(this->arg_vals);
+	params.src->K = params.src->K != 0 ? params.src->K : params.crc->K;
+	params.src->callback_arguments();
+
+
+	params.mdm->N = N;
+	params.mdm->callback_arguments();
 
 	params.chn->N         = params.mdm->N_mod;
 	params.chn->complex   = params.mdm->complex;
 	params.chn->add_users = params.mdm->type == "SCMA";
 	params.chn->seed      = params.local_seed;
+	params.chn->callback_arguments();
 
-	params.chn->store(this->arg_vals);
-
-	auto psim = params.get_prefix();
-	if (!this->arg_vals.exist({psim+"-noise-type", "E"}))
-	{
-		if (params.chn->type == "OPTICAL")
-			params.noise->type = "ROP";
-		else if (params.chn->type == "BEC" || params.chn->type == "BSC")
-			params.noise->type = "EP";
-		// else let the default value EBN0 or ESNO
-	}
+	if (params.chn->type == "OPTICAL")
+		params.noise->type = "ROP";
+	else if (params.chn->type == "BEC" || params.chn->type == "BSC")
+		params.noise->type = "EP";
+	// else let the default value EBN0 or ESNO
 
 	params.qnt->size = params.mdm->N;
 
 	if (std::is_integral<Q>())
-		params.qnt->store(this->arg_vals);
+		params.qnt->callback_arguments();
 
 	params.mnt_er->K = params.coded_monitoring ? N_cw : params.src->K;
 	params.mnt_mi->N = N;
+	params.mnt_er->callback_arguments();
+	params.mnt_mi->callback_arguments();
 
-	params.mnt_er->store(this->arg_vals);
-	params.mnt_mi->store(this->arg_vals);
 
-	params.ter->store(this->arg_vals);
+	params.ter->callback_arguments();
 
 	if (!std::is_integral<Q>())
 		params.qnt->type = "NO";
@@ -185,9 +195,7 @@ void BFER_std<B,R,Q>
 	params.mnt_mi->n_trials  = 0;
 
 #ifdef ENABLE_MPI
-	auto pter = params.ter->get_prefix();
-	if (!this->arg_vals.exist({pter+"-freq"}))
-		params.ter->frequency = params.mpi_comm_freq;
+	params.ter->frequency = params.mpi_comm_freq;
 #endif
 
 }

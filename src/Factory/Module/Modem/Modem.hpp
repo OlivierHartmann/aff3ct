@@ -33,7 +33,7 @@ struct Modem : public Factory
 		std::string const_path = "";        // PATH to constellation file (CSV file)
 		bool        complex    = true;      // true if the modulated signal is complex
 		int         bps        = 1;         // bits per symbol
-		int         upf        = 1;         // samples per symbol
+		int         ups        = 1;         // samples per symbol
 		// -------- CPM parameters
 		std::string cpm_std    = "";        // the selection of a default cpm standard hardly implemented (GSM)
 		std::string mapping    = "NATURAL"; // symbol mapping layout (natural, gray)
@@ -60,9 +60,9 @@ struct Modem : public Factory
 		Modem::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename R = float, typename Q = R>

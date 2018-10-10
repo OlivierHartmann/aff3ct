@@ -21,15 +21,15 @@ Flip_and_check_DB::parameters* Flip_and_check_DB::parameters
 }
 
 void Flip_and_check_DB::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Flip_and_check::parameters::get_description(args);
+	Flip_and_check::parameters::register_arguments(app);
 }
 
 void Flip_and_check_DB::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Flip_and_check::parameters::store(vals);
+	Flip_and_check::parameters::callback_arguments();
 }
 
 void Flip_and_check_DB::parameters

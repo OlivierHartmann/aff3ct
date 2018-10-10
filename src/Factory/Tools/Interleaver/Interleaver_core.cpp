@@ -33,59 +33,66 @@ Interleaver_core::parameters* Interleaver_core::parameters
 }
 
 void Interleaver_core::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-size"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of symbols to interleave.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"--size",
+		size,
+		"Number of symbols to interleave.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-type"},
-		tools::Text(tools::Including_set("LTE", "CCSDS", "DVB-RCS1", "DVB-RCS2", "RANDOM", "GOLDEN", "USER", "RAND_COL", "ROW_COL", "COL_ROW", "NO")),
-		"type of the interleaver to use in the simulation.");
+	sub->add_set(
+		"--type",
+		type,
+		{"LTE", "CCSDS", "DVB-RCS1", "DVB-RCS2", "RANDOM", "GOLDEN", "USER", "RAND_COL", "ROW_COL", "COL_ROW", "NO"},
+		"Type of the interleaver to use in the simulation.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-path"},
-		tools::File(tools::openmode::read),
-		"specify the path to the interleaver file (to use with \"--itl-type USER\").");
+	sub->add_option(
+		"--path",
+		path,
+		"Path to the interleaver file (to use with \"--itl-type USER\").")
+		->check(CLI::ExistingFile)
+		->group("Standard");
 
-	args.add(
-		{p+"-cols"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"specify the number of columns used for the RAND_COL, ROW_COL or COL_ROW interleaver.");
+	sub->add_option(
+		"--cols",
+		n_cols,
+		"Specify the number of columns used for the RAND_COL, ROW_COL or COL_ROW interleaver.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-uni"},
-		tools::None(),
-		"enable the regeneration of the interleaver at each new frame.");
+	sub->add_flag(
+		"--uni",
+		uniform,
+		"Enable the regeneration of the interleaver for each new frame")
+		->group("Standard");
 
-	args.add(
-		{p+"-seed", "S"},
-		tools::Integer(tools::Positive()),
-		"seed used to initialize the pseudo random generators.");
+	sub->add_option(
+		"-S,--seed",
+		seed,
+		"Seed used to initialize the pseudo random generators.",
+		true)
+		->group("Standard");
 }
 
 void Interleaver_core::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-size"     })) this->size     = vals.to_int({p+"-size"     });
-	if(vals.exist({p+"-fra",  "F"})) this->n_frames = vals.to_int({p+"-fra",  "F"});
-	if(vals.exist({p+"-type"     })) this->type     = vals.at    ({p+"-type"     });
-	if(vals.exist({p+"-path"     })) this->path     = vals.at    ({p+"-path"     });
-	if(vals.exist({p+"-cols"     })) this->n_cols   = vals.to_int({p+"-cols"     });
-	if(vals.exist({p+"-seed", "S"})) this->seed     = vals.to_int({p+"-seed", "S"});
-	if(vals.exist({p+"-uni"      })) this->uniform  = true;
 }
 
 void Interleaver_core::parameters

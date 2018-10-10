@@ -17,7 +17,7 @@ using namespace aff3ct::launcher;
 template <typename B, typename R>
 EXIT<B,R>
 ::EXIT(const int argc, const char **argv, std::ostream &stream)
-: Launcher(argc, argv, params, stream)
+: Launcher(argc, argv, stream)
 {
 	params.set_src(new factory::Source      ::parameters("src"));
 	params.set_mdm(new factory::Modem       ::parameters("mdm"));
@@ -25,20 +25,22 @@ EXIT<B,R>
 	params.set_qnt(new factory::Quantizer   ::parameters("qnt"));
 	params.set_mnt(new factory::Monitor_EXIT::parameters("mnt"));
 	params.set_ter(new factory::Terminal    ::parameters("ter"));
+
+	set_params(&params);
 }
 
 template <typename B, typename R>
 void EXIT<B,R>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	Launcher::get_description_args();
+	Launcher::register_arguments(app);
 
-	params.     get_description(this->args);
-	params.src->get_description(this->args);
-	params.mdm->get_description(this->args);
-	params.chn->get_description(this->args);
-	params.mnt->get_description(this->args);
-	params.ter->get_description(this->args);
+	params.     register_arguments(app);
+	params.src->register_arguments(app);
+	params.mdm->register_arguments(app);
+	params.chn->register_arguments(app);
+	params.mnt->register_arguments(app);
+	params.ter->register_arguments(app);
 
 	auto psrc = params.src     ->get_prefix();
 	auto penc = params.cdc->enc->get_prefix();
@@ -66,15 +68,15 @@ void EXIT<B,R>
 
 template <typename B, typename R>
 void EXIT<B,R>
-::store_args()
+::callback_arguments()
 {
-	Launcher::store_args();
+	Launcher::callback_arguments();
 
-	params.store(this->arg_vals);
+	params.callback_arguments();
 
 	params.src->seed = params.local_seed;
 
-	params.src->store(this->arg_vals);
+	params.src->callback_arguments();
 
 	auto psrc = params.src->get_prefix();
 
@@ -84,20 +86,20 @@ void EXIT<B,R>
 	params.src->K = params.src->K == 0 ? K : params.src->K;
 	params.mdm->N = N;
 
-	params.mdm->store(this->arg_vals);
+	params.mdm->callback_arguments();
 
 	params.chn->N         = params.mdm->N_mod;
 	params.chn->complex   = params.mdm->complex;
 	params.chn->add_users = params.mdm->type == "SCMA";
 	params.chn->seed      = params.local_seed;
 
-	params.chn->store(this->arg_vals);
+	params.chn->callback_arguments();
 
 	params.mnt->size = K;
 
-	params.mnt->store(this->arg_vals);
+	params.mnt->callback_arguments();
 
-	params.ter->store(this->arg_vals);
+	params.ter->callback_arguments();
 
 	if (params.src->type == "AZCW" || params.cdc->enc->type == "AZCW")
 	{

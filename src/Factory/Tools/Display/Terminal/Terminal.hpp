@@ -32,9 +32,9 @@ struct Terminal : Factory
 		virtual Terminal::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		tools::Terminal* build(const std::vector<std::unique_ptr<tools::Reporter>> &reporters) const;

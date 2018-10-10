@@ -34,7 +34,7 @@ void Terminal_std
 {
 	std::vector<const Reporter::group_t*> cols_groups;
 
-	for(auto& r : this->reporters)
+	for (auto& r : this->reporters)
 		if (r != nullptr)
 			for (auto& g : r->get_groups())
 				cols_groups.push_back(&g);

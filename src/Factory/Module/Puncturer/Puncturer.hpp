@@ -2,6 +2,7 @@
 #define FACTORY_PONCTURER_HPP_
 
 #include <string>
+#include <set>
 
 #include "Module/Puncturer/Puncturer.hpp"
 
@@ -20,23 +21,24 @@ struct Puncturer : Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         K        = 0;
-		int         N        = 0;
+		unsigned    K        = 0;
+		unsigned    N        = 0;
 
 		// optional parameters
 		std::string type     = "NO";
-		int         N_cw     = 0;
-		int         n_frames = 1;
+		unsigned    N_cw     = 0;
+		unsigned    n_frames = 1;
 
+		std::set<std::string> type_set = {"NO"};
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Puncturer_prefix);
 		virtual ~parameters() = default;
 		virtual Puncturer::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B, typename Q>

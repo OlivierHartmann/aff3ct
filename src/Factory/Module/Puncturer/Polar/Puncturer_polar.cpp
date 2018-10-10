@@ -14,7 +14,7 @@ Puncturer_polar::parameters
 ::parameters(const std::string &prefix)
 : Puncturer::parameters(Puncturer_polar_name, prefix)
 {
-	this->type = "SHORTLAST";
+	type = "SHORTLAST";
 }
 
 Puncturer_polar::parameters* Puncturer_polar::parameters
@@ -24,23 +24,21 @@ Puncturer_polar::parameters* Puncturer_polar::parameters
 }
 
 void Puncturer_polar::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Puncturer::parameters::get_description(args);
+	Puncturer::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
-
-	tools::add_options(args.at({p+"-type"}), 0, "SHORTLAST");
+	type_set.insert("SHORTLAST");
 }
 
 void Puncturer_polar::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Puncturer::parameters::store(vals);
-	this->N_cw = (int)std::exp2((int)std::ceil(std::log2(this->N)));
+	Puncturer::parameters::callback_arguments();
+	N_cw = (unsigned)std::exp2(std::ceil(std::log2(N)));
 
-	if (this->N == this->N_cw)
-		this->type = "NO";
+	if (N == N_cw)
+		type = "NO";
 }
 
 void Puncturer_polar::parameters
@@ -53,7 +51,7 @@ template <typename B, typename Q>
 module::Puncturer_polar_shortlast<B,Q>* Puncturer_polar::parameters
 ::build(const tools::Frozenbits_generator &fb_generator) const
 {
-	if (this->type == "SHORTLAST") return new module::Puncturer_polar_shortlast<B,Q>(this->K, this->N, fb_generator, this->n_frames);
+	if (type == "SHORTLAST") return new module::Puncturer_polar_shortlast<B,Q>(K, N, fb_generator, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

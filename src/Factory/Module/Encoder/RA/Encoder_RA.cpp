@@ -48,13 +48,13 @@ std::vector<std::string> Encoder_RA::parameters
 }
 
 void Encoder_RA::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -68,16 +68,16 @@ void Encoder_RA::parameters
 }
 
 void Encoder_RA::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 
 	if (itl != nullptr)
 	{
 		this->itl->core->size     = this->N_cw;
 		this->itl->core->n_frames = this->n_frames;
 
-		this->itl->store(vals);
+		this->itl->callback_arguments();
 	}
 }
 

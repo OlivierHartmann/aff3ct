@@ -107,7 +107,7 @@ void AList
 }
 
 void AList
-::read_matrix_size(std::istream &stream, int& H, int& N)
+::read_matrix_size(std::istream &stream, unsigned& H, unsigned& N)
 {
 	std::string line;
 
@@ -174,11 +174,11 @@ std::vector<unsigned> AList
 }
 
 std::vector<unsigned> AList
-::read_info_bits_pos(std::istream &stream, const int K, const int N)
+::read_info_bits_pos(std::istream &stream, const unsigned K, const unsigned N)
 {
 	auto info_bits_pos = read_info_bits_pos(stream);
 
-	if (info_bits_pos.size() != (unsigned)K)
+	if (info_bits_pos.size() != K)
 	{
 		std::stringstream message;
 		message << "'info_bits_pos.size()' has to be equal to 'K' ('info_bits_pos.size()' = " << info_bits_pos.size()
@@ -187,7 +187,7 @@ std::vector<unsigned> AList
 	}
 
 	for (auto pos : info_bits_pos)
-		if (pos >= (unsigned)N)
+		if (pos >= N)
 		{
 			std::stringstream message;
 			message << "'pos' has to be smaller than 'N' ('pos' = " << pos << ", 'N' = " << N << ").";

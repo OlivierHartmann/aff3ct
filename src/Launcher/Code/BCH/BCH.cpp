@@ -17,29 +17,29 @@ BCH<L,B,R,Q>
 
 template <class L, typename B, typename R, typename Q>
 void BCH<L,B,R,Q>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	params_cdc->get_description(this->args);
+	params_cdc->register_arguments(app);
 
-	auto penc = params_cdc->enc->get_prefix();
-	auto pdec = params_cdc->dec->get_prefix();
+	// auto sub_dec = app.get_subcommand(params_cdc->dec->get_prefix());
+	auto sub_enc = app.get_subcommand(params_cdc->enc->get_prefix());
 
-	this->args.erase({penc+"-fra",  "F"});
-	this->args.erase({penc+"-seed", "S"});
+	CLI::remove_option(sub_enc, "--fra" );
+	CLI::remove_option(sub_enc, "--seed");
 
-	L::get_description_args();
+	L::register_arguments(app);
 }
 
 template <class L, typename B, typename R, typename Q>
 void BCH<L,B,R,Q>
-::store_args()
+::callback_arguments()
 {
-	params_cdc->store(this->arg_vals);
+	params_cdc->callback_arguments();
 
 	if (params_cdc->dec->implem == "FAST")
 		this->params.src->n_frames = mipp::N<B>();
 
-	L::store_args();
+	L::callback_arguments();
 
 	params_cdc->enc->n_frames = this->params.src->n_frames;
 	params_cdc->dec->n_frames = this->params.src->n_frames;

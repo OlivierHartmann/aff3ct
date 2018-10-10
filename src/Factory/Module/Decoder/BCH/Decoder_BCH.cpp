@@ -18,8 +18,8 @@ Decoder_BCH::parameters
 ::parameters(const std::string &prefix)
 : Decoder::parameters(Decoder_BCH_name, prefix)
 {
-	this->type   = "ALGEBRAIC";
-	this->implem = "STD";
+	type   = "ALGEBRAIC";
+	implem = "STD";
 }
 
 Decoder_BCH::parameters* Decoder_BCH::parameters
@@ -29,49 +29,54 @@ Decoder_BCH::parameters* Decoder_BCH::parameters
 }
 
 void Decoder_BCH::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-corr-pow", "T"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"correction power of the BCH code.");
+	sub->add_option(
+		"-T,--corr-pow",
+		t,
+		"Correction power of the BCH code.")
+		->check(CLI::StrictlyPositiveRange(0u))
+		->excludes(sub->get_option("--info-bits"))
+		->group("Standard");
 
-	args.add_link({p+"-corr-pow", "T"}, {p+"-info-bits", "K"});
-
-	tools::add_options(args.at({p+"-type", "D"}), 0, "ALGEBRAIC");
-	tools::add_options(args.at({p+"-implem"   }), 0, "GENIUS", "FAST");
+	type_set  .insert("ALGEBRAIC");
+	implem_set.insert({"GENIUS", "FAST"});
 }
 
 void Decoder_BCH::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
-
-	this->m = (int)std::ceil(std::log2(this->N_cw));
-	if (this->m == 0)
+	if (N_cw == 0)
 	{
 		std::stringstream message;
-		message << "The Galois Field order is null (because N_cw = " << this->N_cw << ").";
+		message << "The size of the codeword 'N_cw' is null.";
 		throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
 	}
 
-	if (vals.exist({p+"-corr-pow", "T"}))
+	m = (int)std::ceil(std::log2((float)N_cw));
+	if (m == 0)
 	{
-		this->t = vals.to_int({p + "-corr-pow", "T"});
+		std::stringstream message;
+		message << "The Galois Field order 'm' is null (because 'N_cw' = " << N_cw << ").";
+		throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
+	}
+
+	if (t != 0)
+	{
 		if (K == 0)
 		{
-			this->K = this->N_cw - tools::BCH_polynomial_generator<>(this->N_cw, this->t).get_n_rdncy();
-			this->R = (float) this->K / (float) this->N_cw;
+			K = N_cw - tools::BCH_polynomial_generator<>(N_cw, t).get_n_rdncy();
+			R = (float) K / (float) N_cw;
 		}
 	}
 	else
-		this->t = (this->N_cw - this->K) / this->m;
+		t = (N_cw - K) / m;
 }
 
 void Decoder_BCH::parameters
@@ -79,12 +84,12 @@ void Decoder_BCH::parameters
 {
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
+	if (type != "ML" && type != "CHASE")
 	{
-		auto p = this->get_prefix();
+		auto p = get_prefix();
 
-		headers[p].push_back(std::make_pair("Galois field order (m)", std::to_string(this->m)));
-		headers[p].push_back(std::make_pair("Correction power (T)",   std::to_string(this->t)));
+		headers[p].push_back(std::make_pair("Galois field order (m)", std::to_string(m)));
+		headers[p].push_back(std::make_pair("Correction power (T)",   std::to_string(t)));
 	}
 }
 
@@ -113,14 +118,14 @@ template <typename B, typename Q>
 module::Decoder_SIHO_HIHO<B,Q>* Decoder_BCH::parameters
 ::build_hiho(const tools::BCH_polynomial_generator<B> &GF, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "ALGEBRAIC")
+	if (type == "ALGEBRAIC")
 	{
-		if (this->implem == "STD" ) return new module::Decoder_BCH_std <B,Q>(this->K, this->N_cw, GF, this->n_frames);
-		if (this->implem == "FAST") return new module::Decoder_BCH_fast<B,Q>(this->K, this->N_cw, GF, this->n_frames);
+		if (implem == "STD" ) return new module::Decoder_BCH_std <B,Q>(K, N_cw, GF, n_frames);
+		if (implem == "FAST") return new module::Decoder_BCH_fast<B,Q>(K, N_cw, GF, n_frames);
 
 		if (encoder)
 		{
-			if (this->implem == "GENIUS") return new module::Decoder_BCH_genius<B,Q>(this->K, this->N_cw, this->t, *encoder, this->n_frames);
+			if (implem == "GENIUS") return new module::Decoder_BCH_genius<B,Q>(K, N_cw, t, *encoder, n_frames);
 		}
 	}
 

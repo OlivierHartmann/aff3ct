@@ -29,7 +29,7 @@ Decoder_polar_SCL_naive<B,R,F,G>
 {
 	const std::string name = "Decoder_polar_SCL_naive";
 	this->set_name(name);
-	
+
 	if (!tools::is_power_of_2(this->N))
 	{
 		std::stringstream message;
@@ -189,7 +189,7 @@ void Decoder_polar_SCL_naive<B,R,F,G>
 				{
 					cur_path = std::get<0>(*it);
 
-					auto it_double = std::find_if(it +1, metrics_vec.end(),
+					auto it_double = std::find_if (it +1, metrics_vec.end(),
 						[cur_path](std::tuple<int,B,R> x){
 							return std::get<0>(x) == cur_path;
 						});
@@ -205,7 +205,7 @@ void Decoder_polar_SCL_naive<B,R,F,G>
 				{
 					cur_path = std::get<0>(*it);
 
-					auto it_double = std::find_if(it +1, metrics_vec.end(),
+					auto it_double = std::find_if (it +1, metrics_vec.end(),
 						[cur_path](std::tuple<int,B,R> x){
 							return std::get<0>(x) == cur_path;
 						});
@@ -300,10 +300,10 @@ void Decoder_polar_SCL_naive<B,R,F,G>
 	if (depth != 0)
 		recursive_compute_llr(node_cur->get_father(), --depth);
 
-	if(node_cur->is_left())
+	if (node_cur->is_left())
 		this->apply_f((tools::Binary_node<Contents_SCL<B,R>>*)node_cur->get_father());
 
-	if(node_cur->is_right())
+	if (node_cur->is_right())
 		this->apply_g((tools::Binary_node<Contents_SCL<B,R>>*)node_cur->get_father());
 }
 
@@ -311,7 +311,7 @@ template <typename B, typename R, tools::proto_f<R> F, tools::proto_g<B,R> G>
 void Decoder_polar_SCL_naive<B,R,F,G>
 ::propagate_sums(const tools::Binary_node<Contents_SCL<B, R> >* node_cur)
 {
-	if(!node_cur->is_leaf())
+	if (!node_cur->is_leaf())
 		this->compute_sums((tools::Binary_node<Contents_SCL<B,R>>*)node_cur);
 
 	if (node_cur->is_right() && !node_cur->is_root())
@@ -326,7 +326,7 @@ void Decoder_polar_SCL_naive<B,R,F,G>
 {
 	node_b->get_c()->lambda = node_a->get_c()->lambda;
 
-	if(!node_a->get_father()->is_root())
+	if (!node_a->get_father()->is_root())
 		this->recursive_duplicate_tree_llr(node_a->get_father(), node_b->get_father());
 }
 
@@ -339,7 +339,7 @@ void Decoder_polar_SCL_naive<B,R,F,G>
 	if (node_a->get_left() != node_caller && !node_a->is_leaf())
 		node_b->get_left()->get_c()->s = node_a->get_left()->get_c()->s;
 
-	if(!node_a->is_root())
+	if (!node_a->is_root())
 		this->recursive_duplicate_tree_sums(node_a->get_father(), node_b->get_father(), node_a);
 }
 
@@ -379,14 +379,14 @@ void Decoder_polar_SCL_naive<B,R,F,G>
 
 template <typename B, typename R, tools::proto_f<R> F, tools::proto_g<B,R> G>
 void Decoder_polar_SCL_naive<B,R,F,G>
-::select_best_path() 
+::select_best_path()
 {
 	int best_path = 0;
 	if (active_paths.size() >= 1)
 		best_path = *active_paths.begin();
 
 	for (int path : active_paths)
-		if(polar_trees[path]->get_path_metric() < polar_trees[best_path]->get_path_metric())
+		if (polar_trees[path]->get_path_metric() < polar_trees[best_path]->get_path_metric())
 			best_path = path;
 
 	active_paths.clear();

@@ -62,9 +62,9 @@ std::vector<std::string> Decoder_turbo_DB::parameters
 }
 
 void Decoder_turbo_DB::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -72,7 +72,7 @@ void Decoder_turbo_DB::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = this->itl->get_prefix();
 
@@ -88,13 +88,13 @@ void Decoder_turbo_DB::parameters
 		tools::Integer(tools::Positive(), tools::Non_zero()),
 		"maximal number of iterations in the turbo.");
 
-	sf->get_description(args);
+	sf->register_arguments(app);
 
 	auto psf = sf->get_prefix();
 
 	args.erase({psf+"-ite"});
 
-	fnc->get_description(args);
+	fnc->register_arguments(app);
 
 	auto pfnc = fnc->get_prefix();
 
@@ -102,7 +102,7 @@ void Decoder_turbo_DB::parameters
 	args.erase({pfnc+"-fra",  "F"});
 	args.erase({pfnc+"-ite",  "i"});
 
-	sub->get_description(args);
+	sub->register_arguments(app);
 
 	auto ps = sub->get_prefix();
 
@@ -112,18 +112,18 @@ void Decoder_turbo_DB::parameters
 }
 
 void Decoder_turbo_DB::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-ite", "i"})) this->n_ite = vals.to_int({p+"-ite", "i"});
+	if (vals.exist({p+"-ite", "i"})) this->n_ite = vals.to_int({p+"-ite", "i"});
 
 	this->sub->K        = this->K;
 	this->sub->n_frames = this->n_frames;
 
-	sub->store(vals);
+	sub->callback_arguments();
 
 	this->N_cw = 2 * this->sub->N_cw - this->K;
 	this->R    = (float)this->K / (float)this->N_cw;
@@ -133,7 +133,7 @@ void Decoder_turbo_DB::parameters
 		this->itl->core->size     = this->K >> 1;
 		this->itl->core->n_frames = this->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 
 		if (this->sub->implem == "DVB-RCS1" && !vals.exist({"itl-type"}))
 			this->itl->core->type = "DVB-RCS1";
@@ -144,13 +144,13 @@ void Decoder_turbo_DB::parameters
 
 	this->sf->n_ite = this->n_ite;
 
-	sf->store(vals);
+	sf->callback_arguments();
 
 	this->fnc->size     = this->K;
 	this->fnc->n_frames = this->n_frames;
 	this->fnc->n_ite    = this->n_ite;
 
-	fnc->store(vals);
+	fnc->callback_arguments();
 }
 
 void Decoder_turbo_DB::parameters

@@ -71,9 +71,9 @@ std::vector<std::string> Decoder_turbo::parameters<D1,D2>
 
 template <class D1, class D2>
 void Decoder_turbo::parameters<D1,D2>
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -81,7 +81,7 @@ void Decoder_turbo::parameters<D1,D2>
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -108,13 +108,13 @@ void Decoder_turbo::parameters<D1,D2>
 		"enable the json output trace.");
 
 
-	sf->get_description(args);
+	sf->register_arguments(app);
 
 	auto psf = sf->get_prefix();
 
 	args.erase({psf+"-ite"});
 
-	fnc->get_description(args);
+	fnc->register_arguments(app);
 
 	auto pfnc = fnc->get_prefix();
 
@@ -122,7 +122,7 @@ void Decoder_turbo::parameters<D1,D2>
 	args.erase({pfnc+"-fra",  "F"});
 	args.erase({pfnc+"-ite",  "i"});
 
-	sub1->get_description(args);
+	sub1->register_arguments(app);
 
 	auto ps1 = sub1->get_prefix();
 
@@ -142,23 +142,23 @@ void Decoder_turbo::parameters<D1,D2>
 
 template <class D1, class D2>
 void Decoder_turbo::parameters<D1,D2>
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-ite", "i"})) this->n_ite          = vals.to_int({p+"-ite", "i"});
-	if(vals.exist({p+"-sc"      })) this->self_corrected = true;
-	if(vals.exist({p+"-json"    })) this->enable_json    = true;
+	if (vals.exist({p+"-ite", "i"})) this->n_ite          = vals.to_int({p+"-ite", "i"});
+	if (vals.exist({p+"-sc"      })) this->self_corrected = true;
+	if (vals.exist({p+"-json"    })) this->enable_json    = true;
 
 	this->sub1->K        = this->K;
 	this->sub2->K        = this->K;
 	this->sub1->n_frames = this->n_frames;
 	this->sub2->n_frames = this->n_frames;
 
-	sub1->store(vals);
-	sub2->store(vals);
+	sub1->callback_arguments();
+	sub2->callback_arguments();
 
 	if (this->enable_json)
 	{
@@ -177,7 +177,7 @@ void Decoder_turbo::parameters<D1,D2>
 		this->itl->core->size     = this->K;
 		this->itl->core->n_frames = this->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 
 		if (this->sub1->standard == "LTE" && !vals.exist({"itl-type"}))
 			this->itl->core->type = "LTE";
@@ -188,13 +188,13 @@ void Decoder_turbo::parameters<D1,D2>
 
 	this->sf->n_ite = this->n_ite;
 
-	sf->store(vals);
+	sf->callback_arguments();
 
 	this->fnc->size     = this->K;
 	this->fnc->n_frames = this->n_frames;
 	this->fnc->n_ite    = this->n_ite;
 
-	fnc->store(vals);
+	fnc->callback_arguments();
 }
 
 template <class D1, class D2>

@@ -303,7 +303,7 @@ void Modem_CPM<B,R,Q,MAX>
 		for (auto i = 0; i < (int)projection.size() ; i++)
 			projection[i] *= factor;
 	}
-	//else if(filters_type == "ORTHO_NORM")
+	//else if (filters_type == "ORTHO_NORM")
 	//{
 	//}
 	else

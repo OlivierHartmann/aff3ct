@@ -20,15 +20,15 @@ struct Quantizer : public Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         size       = 0;
+		unsigned    size       = 0;
 
 		// optional parameters
 		std::string type       = "POW2";
 		std::string implem     = "STD";
 		float       range      = 0.f;
-		int         n_bits     = 8;
-		int         n_decimals = 3;
-		int         n_frames   = 1;
+		unsigned    n_bits     = 8;
+		unsigned    n_decimals = 3;
+		unsigned    n_frames   = 1;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Quantizer_prefix);
@@ -36,9 +36,9 @@ struct Quantizer : public Factory
 		Quantizer::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename R = float, typename Q = R>

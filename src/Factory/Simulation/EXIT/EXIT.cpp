@@ -21,16 +21,6 @@ EXIT::parameters* EXIT::parameters
 ::clone() const
 {
 	return new EXIT::parameters(*this);
-
-	// if (src != nullptr) { clone->src = src->clone(); }
-	// if (cdc != nullptr) { clone->cdc = dynamic_cast<Codec_SISO::parameters*>(cdc->clone()); }
-	// if (mdm != nullptr) { clone->mdm = mdm->clone(); }
-	// if (chn != nullptr) { clone->chn = chn->clone(); }
-	// if (qnt != nullptr) { clone->qnt = qnt->clone(); }
-	// if (mnt != nullptr) { clone->mnt = mnt->clone(); }
-	// if (ter != nullptr) { clone->ter = ter->clone(); }
-
-	// return clone;
 }
 
 std::vector<std::string> EXIT::parameters
@@ -76,54 +66,66 @@ std::vector<std::string> EXIT::parameters
 }
 
 void EXIT::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Simulation::parameters::get_description(args);
+	Simulation::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-siga-range"},
-		tools::Matlab_vector<float>(tools::Real(tools::Positive()), std::make_tuple(tools::Length(1)), std::make_tuple(tools::Length(1,3))),
-		"sigma range used in EXIT charts (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).",
-		tools::arg_rank::REQ);
+	auto opt_siga_range =
+	sub->add_option(
+		"--siga-range",
+		sig_a_range,
+		"Sigma range used in EXIT charts (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).")
+		->required()
+		->check(CLI::PositiveRange(0.f))
+		->group("Standard");
 
-	args.add(
-		{p+"-siga-min", "a"},
-		tools::Real(tools::Positive()),
-		"sigma min value used in EXIT charts.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-a,--siga-min",
+		sig_a_min,
+		"Sigma min value used in EXIT charts.")
+		->required()
+		->check(CLI::PositiveRange(0.f))
+		->excludes(opt_siga_range)
+		->group("Standard");
 
-	args.add(
-		{p+"-siga-max", "A"},
-		tools::Real(tools::Positive()),
-		"sigma max value used in EXIT charts.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-A,--siga-max",
+		sig_a_max,
+		"Sigma max value used in EXIT charts.")
+		->required()
+		->check(CLI::PositiveRange(0.f))
+		->excludes(opt_siga_range)
+		->group("Standard");
 
-	args.add(
-		{p+"-siga-step"},
-		tools::Real(tools::Positive(), tools::Non_zero()),
-		"sigma step value used in EXIT charts.");
-
-	args.add_link({p+"-siga-range"}, {p+"-siga-min",  "a"});
-	args.add_link({p+"-siga-range"}, {p+"-siga-max",  "A"});
+	sub->add_option(
+		"--siga-step",
+		sig_a_step,
+		"Sigma step value used in EXIT charts.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0.f))
+		->excludes(opt_siga_range)
+		->group("Standard");
 }
 
 void EXIT::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Simulation::parameters::store(vals);
+	Simulation::parameters::callback_arguments();
+
+	this->n_threads = 1;
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-siga-range"}))
+	if (vals.exist({p+"-siga-range"}))
 		this->sig_a_range = tools::generate_range(vals.to_list<std::vector<float>>({p+"-siga-range"}), 0.1f);
 	else
 	{
 		float sig_a_min = 0.f, sig_a_max = 0.f, sig_a_step = 0.1f;
-		if(vals.exist({p+"-siga-min",  "a"})) sig_a_min  = vals.to_float({p+"-siga-min",  "a"});
-		if(vals.exist({p+"-siga-max",  "A"})) sig_a_max  = vals.to_float({p+"-siga-max",  "A"});
-		if(vals.exist({p+"-siga-step"     })) sig_a_step = vals.to_float({p+"-siga-step"     });
+		if (vals.exist({p+"-siga-min",  "a"})) sig_a_min  = vals.to_float({p+"-siga-min",  "a"});
+		if (vals.exist({p+"-siga-max",  "A"})) sig_a_max  = vals.to_float({p+"-siga-max",  "A"});
+		if (vals.exist({p+"-siga-step"     })) sig_a_step = vals.to_float({p+"-siga-step"     });
 
 		this->sig_a_range = tools::generate_range({{sig_a_min, sig_a_max}}, sig_a_step);
 	}

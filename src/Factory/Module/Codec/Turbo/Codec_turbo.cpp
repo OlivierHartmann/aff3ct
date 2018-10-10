@@ -36,15 +36,15 @@ void Codec_turbo::parameters
 }
 
 void Codec_turbo::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SIHO::parameters::get_description(args);
+	Codec_SIHO::parameters::register_arguments(app);
 
 	auto dec_tur = dynamic_cast<Decoder_turbo::parameters<>*>(dec.get());
 
 	if (pct != nullptr)
 	{
-		pct->get_description(args);
+		pct->register_arguments(app);
 
 		auto ppct = pct->get_prefix();
 
@@ -54,8 +54,8 @@ void Codec_turbo::parameters
 		args.erase({ppct+"-tail-length"   });
 	}
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec_tur->get_prefix();
 	auto pdes = dec_tur->sub1->get_prefix();
@@ -71,7 +71,7 @@ void Codec_turbo::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -81,14 +81,14 @@ void Codec_turbo::parameters
 }
 
 void Codec_turbo::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SIHO::parameters::store(vals);
+	Codec_SIHO::parameters::callback_arguments();
 
 	auto enc_tur = dynamic_cast<Encoder_turbo::parameters<>*>(enc.get());
 	auto dec_tur = dynamic_cast<Decoder_turbo::parameters<>*>(dec.get());
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	if (pct != nullptr)
 	{
@@ -96,11 +96,11 @@ void Codec_turbo::parameters
 
 		pct_tur->K           = enc_tur->K;
 		pct_tur->N_cw        = enc_tur->N_cw;
-		pct_tur->buffered    = enc_tur->sub1->buffered;
+		pct_tur->no_buffered = !enc_tur->sub1->buffered;
 		pct_tur->n_frames    = enc_tur->n_frames;
 		pct_tur->tail_length = enc_tur->tail_length;
 
-		pct->store(vals);
+		pct->callback_arguments();
 	}
 
 	dec_tur->K                 = enc_tur->K;
@@ -119,7 +119,7 @@ void Codec_turbo::parameters
 	dec_tur->sub2->standard    = enc_tur->sub2->standard;
 	dec_tur->enable_json       =!enc_tur->json_path.empty();
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	K           = enc->K;
 	N_cw        = enc->N_cw;
@@ -131,7 +131,7 @@ void Codec_turbo::parameters
 		itl->core->size     = enc->K;
 		itl->core->n_frames = enc->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 
 		if (enc_tur->sub1->standard == "LTE" && !vals.exist({"itl-type"}))
 			itl->core->type = "LTE";

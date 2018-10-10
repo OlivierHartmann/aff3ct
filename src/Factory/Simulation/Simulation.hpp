@@ -29,11 +29,10 @@ struct Simulation : Launcher
 		tools::auto_cloned_unique_ptr<Noise::parameters> noise;
 
 		// optional parameters
-#ifdef ENABLE_MPI
 		std::chrono::milliseconds mpi_comm_freq   = std::chrono::milliseconds(1000);
-		int                       mpi_rank        = 0;
-		int                       mpi_size        = 1;
-#endif
+		unsigned                  mpi_rank        = 0;
+		unsigned                  mpi_size        = 1;
+
 		std::chrono::seconds      stop_time       = std::chrono::seconds(0);
 		std::string               meta            = "";
 		unsigned                  max_frame       = 0;
@@ -41,11 +40,11 @@ struct Simulation : Launcher
 		bool                      debug_hex       = false;
 		bool                      statistics      = false;
 		bool                      crit_nostop     = false;
-		int                       n_threads       = 1;
-		int                       local_seed      = 0;
-		int                       global_seed     = 0;
-		int                       debug_limit     = 0;
-		int                       debug_precision = 2;
+		unsigned                  n_threads       = 0;
+		unsigned                  local_seed      = 0;
+		unsigned                  global_seed     = 0;
+		unsigned                  debug_limit     = 0;
+		unsigned                  debug_precision = 2;
 
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
@@ -53,9 +52,9 @@ struct Simulation : Launcher
 		virtual Simulation::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 	protected:
 		parameters(const std::string &n = Simulation_name, const std::string &p = Simulation_prefix);

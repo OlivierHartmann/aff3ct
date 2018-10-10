@@ -26,152 +26,150 @@ Noise::parameters* Noise::parameters
 }
 
 void Noise::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-			{p+"-noise-range", "R"},
-			tools::Matlab_vector<float>(tools::Real(), std::make_tuple(tools::Length(1)), std::make_tuple(tools::Length(1,3))),
-			"noise energy range to run (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).",
-			tools::arg_rank::REQ);
+	noise_range_option =
+	sub->add_option(
+		"-R,--noise-range",
+		str_range,
+		"Noise energy range to run (Matlab style: \"{0.5:2.5,2.55,2.6:0.05:3}\" with a default step of 0.1).")
+		// ->required()
+		->group("Standard");
 
-	args.add(
-			{p+"-noise-min", "m"},
-			tools::Real(),
-			"minimal noise energy to simulate.",
-			tools::arg_rank::REQ);
+	noise_min_option =
+	sub->add_option(
+		"-m,--noise-min",
+		noise_min,
+		"Minimal noise energy to simulate.")
+		// ->required()
+		->group("Standard");
 
-	args.add(
-			{p+"-noise-max", "M"},
-			tools::Real(),
-			"maximal noise energy to simulate.",
-			tools::arg_rank::REQ);
+	noise_max_option =
+	sub->add_option(
+		"-M,--noise-max",
+		noise_max,
+		"Maximal noise energy to simulate.")
+		// ->required()
+		->group("Standard");
 
-	args.add(
-			{p+"-noise-step", "s"},
-			tools::Real(tools::Positive(), tools::Non_zero()),
-			"noise energy step between each simulation iteration.");
+	noise_step_option =
+	sub->add_option(
+		"-s,--noise-step",
+		noise_step,
+		"Noise energy step between each simulation iteration.",
+		true)
+		->check(CLI::StrictlyPositiveRange((float)0))
+		->group("Standard");
 
-	args.add(
-			{p+"-pdf-path"},
-			tools::File(tools::openmode::read),
-			"A file that contains PDF for different SNR. Set the SNR range from the given ones. "
-			"Overwritten by -R or limited by -m and -M with a minimum step of -s");
+	pdf_path_option =
+	sub->add_option(
+		"--pdf-path",
+		pdf_path,
+		"A file that contains PDF for different SNR. Set the SNR range from the given ones."
+		" Overwritten by -R or limited by -m and -M with a minimum step of -s")
+		->check(CLI::ExistingFile)
+		->group("Standard");
 
 
-	args.add_link({p+"-noise-range", "R"}, {p+"-noise-min", "m"});
-	args.add_link({p+"-noise-range", "R"}, {p+"-noise-max", "M"});
-	args.add_link({p+"-pdf-path"        }, {p+"-noise-range", "R"});
-	args.add_link({p+"-pdf-path"        }, {p+"-noise-min",   "m"});
-	args.add_link({p+"-pdf-path"        }, {p+"-noise-max",   "M"});
+	noise_range_option->excludes(noise_min_option );
+	noise_range_option->excludes(noise_max_option );
+	noise_range_option->excludes(noise_step_option);
+
+	pdf_path_option->excludes(noise_range_option);
+	pdf_path_option->excludes(noise_min_option  );
+	pdf_path_option->excludes(noise_max_option  );
+	pdf_path_option->excludes(noise_step_option );
 
 
-	args.add(
-			{p+"-noise-type", "E"},
-			tools::Text(tools::Including_set("ESN0", "EBN0", "ROP", "EP")),
-			"select the type of NOISE: SNR per Symbol / SNR per information Bit"
-			" / Received Optical Power / Erasure Probability.");
-
+	sub->add_set(
+		"-E,--noise-type",
+		type,
+		{"ESN0", "EBN0", "ROP", "EP"},
+		"Select the type of NOISE: SNR per Symbol / SNR per information Bit"
+		" / Received Optical Power / Erasure Probability.",
+		true)
+		->group("Standard");
 }
 
 void Noise::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
+	range = str_range;
 
-	if (vals.exist({p+"-pdf-path"}))
+	if (!pdf_path_option->empty())
 	{
-		this->pdf_path = vals.at({p+"-pdf-path"});
-		this->range = tools::Distributions<>(this->pdf_path).get_noise_range();
-
-		if(vals.exist({p+"-noise-range", "R"}))
+		if (range.empty())
 		{
-			this->range = tools::generate_range(vals.to_list<std::vector<float>>({p+"-noise-range", "R"}), 0.1f);
+			range = tools::Distributions<>(pdf_path).get_noise_range();
 		}
 		else
 		{
-			if (vals.exist({p+"-noise-min",  "m"}))
+			if (!noise_min_option->empty())
 			{
-				auto it = std::lower_bound(this->range.begin(), this->range.end(), vals.to_float({p+"-noise-min",  "m"}));
-				this->range.erase(this->range.begin(), it);
+				auto it = std::lower_bound(range.begin(), range.end(), noise_min);
+				range.erase(range.begin(), it);
 			}
 
-			if (vals.exist({p+"-noise-max",  "M"}))
+			if (!noise_max_option->empty())
 			{
-				auto it = std::upper_bound(this->range.begin(), this->range.end(), vals.to_float({p+"-noise-max",  "M"}));
-				this->range.erase(it, this->range.end());
+				auto it = std::upper_bound(range.begin(), range.end(), noise_max);
+				range.erase(it, range.end());
 			}
 
-			if (vals.exist({p+"-noise-step", "s"}))
+			if (!noise_step_option->empty())
 			{
-				float step = vals.to_float({p+"-noise-step", "s"});
-
-				auto it = this->range.begin();
+				auto it = range.begin();
 				float start_val = *it++;
 
-				while(it != this->range.end())
+				while (it != range.end())
 				{
-					if ((start_val + step) > *it) // then original step is too short
-						it = this->range.erase(it);
+					if ((start_val + noise_step) > *it) // then original step is too short
+						it = range.erase(it);
 					else
 						start_val = *it++; // step large enough, take this new val as new comparative point
 				}
 			}
 		}
 	}
-	else
+	else if (range.empty() && !noise_min_option->empty() && !noise_max_option->empty())
 	{
-		if(vals.exist({p+"-noise-range", "R"}))
-		{
-			this->range = tools::generate_range(vals.to_list<std::vector<float>>({p+"-noise-range", "R"}), 0.1f);
-		}
-		else if(vals.exist({p+"-noise-min",  "m"}) && vals.exist({p+"-noise-max",  "M"}))
-		{
-			float noise_min  = vals.to_float({p+"-noise-min",  "m"});
-			float noise_max  = vals.to_float({p+"-noise-max",  "M"});
-			float noise_step = 0.1f;
-
-			if(vals.exist({p+"-noise-step", "s"})) noise_step = vals.to_float({p+"-noise-step", "s"});
-
-			this->range = tools::generate_range({{noise_min, noise_max}}, noise_step);
-		}
+		range = tools::generate_range({{noise_min, noise_max}}, noise_step);
 	}
-
-	if(vals.exist({p+"-noise-type", "E"})) this->type = vals.at({p+"-noise-type", "E"});
 }
 
 void Noise::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	if (!this->range.empty())
+	if (!range.empty())
 	{
 		std::stringstream range_str;
-		range_str << this->range.front() << " -> " << this->range.back() << " dB";
+		range_str << *range.begin() << " -> " << *range.rbegin() << " dB";
 		headers[p].push_back(std::make_pair("Noise range", range_str.str()));
 	}
 
-	headers[p].push_back(std::make_pair("Noise type (E)", this->type));
+	headers[p].push_back(std::make_pair("Noise type (E)", type));
 
-	if (!this->pdf_path.empty())
-		headers[p].push_back(std::make_pair("PDF path", this->pdf_path));
+	if (!pdf_path.empty())
+		headers[p].push_back(std::make_pair("PDF path", pdf_path));
 }
 
 template <typename R>
 tools::Noise<R>* Noise::parameters
 ::build(R noise_val, R bit_rate, int bps, int upf) const
 {
-	if (this->type == "EBN0" || this->type == "ESN0")
+	if (type == "EBN0" || type == "ESN0")
 	{
 		R esn0, ebn0;
-		if (this->type == "EBN0")
+		if (type == "EBN0")
 		{
 			ebn0 = noise_val;
 			esn0 = tools::ebn0_to_esn0(ebn0, bit_rate, bps);
 		}
-		else // (this->type == "ESN0")
+		else // (type == "ESN0")
 		{
 			esn0 = noise_val;
 			ebn0 = tools::esn0_to_ebn0(esn0, bit_rate, bps);
@@ -182,11 +180,11 @@ tools::Noise<R>* Noise::parameters
 		return new tools::Sigma<R>(sigma, ebn0, esn0);
 	}
 
-	if (this->type == "ROP") return new tools::Received_optical_power<R>(noise_val);
-	if (this->type == "EP" ) return new tools::Event_probability     <R>(noise_val);
+	if (type == "ROP") return new tools::Received_optical_power<R>(noise_val);
+	if (type == "EP" ) return new tools::Event_probability     <R>(noise_val);
 
 	std::stringstream message;
-	message << "Unknown noise type ('noise_type' = " << this->type << ").";
+	message << "Unknown noise type ('noise_type' = " << type << ").";
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__, message.str());
 }
 

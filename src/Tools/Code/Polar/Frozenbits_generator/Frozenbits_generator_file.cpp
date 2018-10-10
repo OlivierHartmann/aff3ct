@@ -28,7 +28,7 @@ Frozenbits_generator_file
 void Frozenbits_generator_file
 ::evaluate()
 {
-	if(!load_channels_file(filename))
+	if (!load_channels_file(filename))
 		throw invalid_argument(__FILE__, __LINE__, __func__, "'" + filename + "' file does not exist.");
 }
 

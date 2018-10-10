@@ -43,7 +43,7 @@ void Puncturer_turbo_DB<B,Q>
 	{
 		std::copy(X_N1, X_N1 + 2 * this->K, X_N2);
 		auto j =  2 * this->K;
-		for(auto i = 0; i < this->K; i+=4)
+		for (auto i = 0; i < this->K; i+=4)
 		{
 			X_N2[j++] = X_N1[2 * this->K + i    ];
 			X_N2[j++] = X_N1[2 * this->K + i + 1];
@@ -53,7 +53,7 @@ void Puncturer_turbo_DB<B,Q>
 	{
 		std::copy(X_N1, X_N1 + this->K, X_N2);
 		auto j =  this->K;
-		for(auto i = 0; i < this->K; i+=4)
+		for (auto i = 0; i < this->K; i+=4)
 		{
 			X_N2[j++] = X_N1[this->K + i    ];
 			X_N2[j++] = X_N1[this->K + i + 1];
@@ -63,7 +63,7 @@ void Puncturer_turbo_DB<B,Q>
 	{
 		std::copy(X_N1, X_N1 + this->K, X_N2);
 		auto j =  this->K;
-		for(auto i = 0; i < this->K; i+=8)
+		for (auto i = 0; i < this->K; i+=8)
 		{
 			X_N2[j++] = X_N1[this->K + i    ];
 			X_N2[j++] = X_N1[this->K + i + 1];
@@ -85,7 +85,7 @@ void Puncturer_turbo_DB<B,Q>
 		std::copy(Y_N1              , Y_N1 + 2 * this->K, Y_N2);
 		std::fill(Y_N2 + 2 * this->K, Y_N2 + 3 * this->K, (Q)0);
 		auto j =  2 * this->K;
-		for(auto i = 0; i < this->K; i+=4)
+		for (auto i = 0; i < this->K; i+=4)
 		{
 			Y_N2[2 * this->K + i    ] = Y_N1[j++];
 			Y_N2[2 * this->K + i + 1] = Y_N1[j++];
@@ -96,7 +96,7 @@ void Puncturer_turbo_DB<B,Q>
 		std::copy(Y_N1          , Y_N1 +     this->K, Y_N2);
 		std::fill(Y_N2 + this->K, Y_N2 + 3 * this->K, (Q)0);
 		auto j =  this->K;
-		for(auto i = 0; i < this->K; i+=4)
+		for (auto i = 0; i < this->K; i+=4)
 		{
 			Y_N2[this->K + i    ] = Y_N1[j++];
 			Y_N2[this->K + i + 1] = Y_N1[j++];
@@ -107,7 +107,7 @@ void Puncturer_turbo_DB<B,Q>
 		std::copy(Y_N1          , Y_N1 +     this->K, Y_N2);
 		std::fill(Y_N2 + this->K, Y_N2 + 3 * this->K, (Q)0);
 		auto j =  this->K;
-		for(auto i = 0; i < this->K; i+=8)
+		for (auto i = 0; i < this->K; i+=8)
 		{
 			Y_N2[this->K + i    ] = Y_N1[j++];
 			Y_N2[this->K + i + 1] = Y_N1[j++];

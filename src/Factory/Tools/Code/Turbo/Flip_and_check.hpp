@@ -20,17 +20,17 @@ struct Flip_and_check : public Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int  size                = -1;
+		unsigned size                = 0;
 
 		// optional parameters
-		bool enable              = false;
-		int  q                   = 10;
-		int  n_ite               = 6;
-		int  ite_min             = 3;
-		int  ite_max             = 10;
-		int  ite_step            = 1;
-		int  start_crc_check_ite = 2;
-		int  n_frames            = 1;
+		bool     enable              = false;
+		unsigned q                   = 10;
+		unsigned n_ite               = 6;
+		unsigned ite_min             = 3;
+		unsigned ite_max             = 10;
+		unsigned ite_step            = 1;
+		unsigned start_crc_check_ite = 2;
+		unsigned n_frames            = 1;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Flip_and_check_prefix);
@@ -38,9 +38,9 @@ struct Flip_and_check : public Factory
 		virtual Flip_and_check::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>
@@ -48,6 +48,9 @@ struct Flip_and_check : public Factory
 
 	protected:
 		parameters(const std::string &n, const std::string &p);
+
+	private:
+		CLI::Option* ite_M_option;
 	};
 
 	template <typename B = int, typename Q = float>

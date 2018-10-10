@@ -789,7 +789,7 @@ template <typename B, typename Q>
 module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 ::build_gen(module::CRC<B> *crc, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->systematic)
+	if (!this->not_systematic)
 	{
 		if (this->simd_strategy == "INTER" && this->type == "SC")
 		{

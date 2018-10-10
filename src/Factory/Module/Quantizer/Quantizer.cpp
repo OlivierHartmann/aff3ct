@@ -28,59 +28,77 @@ Quantizer::parameters* Quantizer::parameters
 }
 
 void Quantizer::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-size", "N"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of real to quantize.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-N,--size",
+		size,
+		"Number of real to quantize.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-type"},
-		tools::Text(tools::Including_set("POW2", "CUSTOM")),
-		"type of the quantizer to use in the simulation.");
+	sub->add_set(
+		"--type",
+		type,
+		{"POW2", "CUSTOM"},
+		"Type of the quantizer to use in the simulation.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-implem"},
-		tools::Text(tools::Including_set("STD", "FAST")),
-		"select the implementation of quantizer.");
+	sub->add_set(
+		"--implem",
+		implem,
+		{"STD", "FAST"},
+		"Select the implementation of quantizer.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-dec"},
-		tools::Integer(tools::Positive()),
-		"the position of the fixed point in the quantified representation.");
+	sub->add_option(
+		"--dec",
+		n_decimals,
+		"The position of the fixed point in the quantified representation.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-bits"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"the number of bits used for the quantizer.");
+	sub->add_option(
+		"--bits",
+		n_bits,
+		"The number of bits used for the quantizer.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-range"},
-		tools::Real(tools::Positive(), tools::Non_zero()),
-		"the min/max bound for the tricky quantizer.");
+	sub->add_option(
+		"--range",
+		range,
+		"The min/max bound for the tricky quantizer.",
+		true)
+		->check(CLI::NotNullSymetricRange(0))
+		->group("Standard");
 }
 
 void Quantizer::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-range"    })) this->range      = vals.to_float({p+"-range"    });
-	if(vals.exist({p+"-size", "N"})) this->size       = vals.to_int  ({p+"-size", "N"});
-	if(vals.exist({p+"-fra",  "F"})) this->n_frames   = vals.to_int  ({p+"-fra",  "F"});
-	if(vals.exist({p+"-dec"      })) this->n_decimals = vals.to_int  ({p+"-dec"      });
-	if(vals.exist({p+"-bits"     })) this->n_bits     = vals.to_int  ({p+"-bits"     });
-	if(vals.exist({p+"-type"     })) this->type       = vals.at      ({p+"-type"     });
-	if(vals.exist({p+"-implem"   })) this->implem     = vals.at      ({p+"-implem"   });
+	if (vals.exist({p+"-range"    })) this->range      = vals.to_float({p+"-range"    });
+	if (vals.exist({p+"-size", "N"})) this->size       = vals.to_int  ({p+"-size", "N"});
+	if (vals.exist({p+"-fra",  "F"})) this->n_frames   = vals.to_int  ({p+"-fra",  "F"});
+	if (vals.exist({p+"-dec"      })) this->n_decimals = vals.to_int  ({p+"-dec"      });
+	if (vals.exist({p+"-bits"     })) this->n_bits     = vals.to_int  ({p+"-bits"     });
+	if (vals.exist({p+"-type"     })) this->type       = vals.at      ({p+"-type"     });
+	if (vals.exist({p+"-implem"   })) this->implem     = vals.at      ({p+"-implem"   });
 }
 
 void Quantizer::parameters

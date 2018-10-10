@@ -24,10 +24,10 @@ struct Decoder_RS : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		int t = 5; // correction power of the RS
+		unsigned t = 5; // correction power of the RS
 
 		// deduced parameters
-		int m = 0; // Gallois field order
+		unsigned m = 0; // Gallois field order
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_RS_prefix);
@@ -35,9 +35,9 @@ struct Decoder_RS : public Decoder
 		Decoder_RS::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>

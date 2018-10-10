@@ -14,7 +14,7 @@ using namespace aff3ct::tools;
 void aff3ct::tools::sse_trans_float(float *A, float *B, int n)
 {
 	int i = n/4;
-	while( i-- ){
+	while ( i-- ){
 		__m128 row1 = _mm_load_ps(A        );
 		__m128 row2 = _mm_load_ps(A +     n);
 		__m128 row3 = _mm_load_ps(A + 2 * n);
@@ -35,7 +35,7 @@ void aff3ct::tools::sse_trans_float(float *A, float *B, int n)
 void aff3ct::tools::sse_itrans_float(float *A, float *B, int n)
 {
 	int i = n/4;
-	while( i-- ){
+	while ( i-- ){
 		__m128 row1 = _mm_load_ps(A     );
 		__m128 row2 = _mm_load_ps(A +  4);
 		__m128 row3 = _mm_load_ps(A +  8);
@@ -67,7 +67,7 @@ void aff3ct::tools::uchar_transpose_sse(const __m128i *src, __m128i *dst, int n)
 	__m128i *p_output = dst;
 	int loop = N;
 
-	while( loop-- )
+	while ( loop-- )
 	{
 		__m128i *copy_p_input  = p_input;
 
@@ -202,7 +202,7 @@ void aff3ct::tools::uchar_itranspose_sse(const __m128i *src, __m128i *dst, int n
 	__m128i *p_output = dst;
 	int loop = N;
 
-	while( loop-- )
+	while ( loop-- )
 	{
 		// STAGE 2 DU BUTTERFLY
 		__m128i a             = LOAD_SIMD_FX(p_input);

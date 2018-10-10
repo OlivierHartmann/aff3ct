@@ -52,7 +52,7 @@ double Frozenbits_generator_GA
 {
 	if (t < phi_pivot)
 		return std::exp(0.0564 * t * t - 0.48560 * t);
-	else // if(t >= phi_pivot)
+	else // if (t >= phi_pivot)
 		return std::exp(alpha * std::pow(t, gamma) + beta);
 }
 

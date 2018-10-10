@@ -30,21 +30,25 @@ struct Launcher : public Factory
 
 		// optional parameters
 		std::string sim_type         = "BFER";
-		int         sim_prec         = 32;
-		bool        display_help     = false;
-		bool        display_adv_help = false;
+		unsigned    sim_prec         = 32;
 		bool        display_version  = false;
-		bool        display_legend   = true;
+		bool        hide_legend      = false;
+		bool        full_legend      = false;
+		bool        disable_bt       = false;
+		bool        enable_full_bt   = false;
+		bool        disable_colors   = false;
+		bool        help             = false;
+		bool        advanced_help    = false;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
-		explicit parameters(const std::string &p = Launcher_prefix);
+		explicit parameters(const std::string &p = Launcher_prefix, const std::string &n = Launcher_name);
 		virtual ~parameters() = default;
 		virtual Launcher::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename R = float, typename Q = R>

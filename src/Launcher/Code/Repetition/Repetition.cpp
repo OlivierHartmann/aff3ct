@@ -17,23 +17,23 @@ Repetition<L,B,R,Q>
 
 template <class L, typename B, typename R, typename Q>
 void Repetition<L,B,R,Q>
-::get_description_args()
+::register_arguments(CLI::App &app)
 {
-	params_cdc->get_description(this->args);
+	params_cdc->register_arguments(app);
 
 	auto penc = params_cdc->enc->get_prefix();
 
 	this->args.erase({penc+"-fra",  "F"});
 	this->args.erase({penc+"-seed", "S"});
 
-	L::get_description_args();
+	L::register_arguments(app);
 }
 
 template <class L, typename B, typename R, typename Q>
 void Repetition<L,B,R,Q>
-::store_args()
+::callback_arguments()
 {
-	params_cdc->store(this->arg_vals);
+	params_cdc->callback_arguments();
 
 	if (std::is_same<Q,int8_t>() || std::is_same<Q,int16_t>())
 	{
@@ -41,7 +41,7 @@ void Repetition<L,B,R,Q>
 		this->params.qnt->n_decimals = 2;
 	}
 
-	L::store_args();
+	L::callback_arguments();
 
 	params_cdc->enc->n_frames = this->params.src->n_frames;
 	params_cdc->dec->n_frames = this->params.src->n_frames;

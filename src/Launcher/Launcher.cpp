@@ -35,9 +35,8 @@
 using namespace aff3ct;
 using namespace aff3ct::launcher;
 
-Launcher::Launcher(const int argc, const char **argv, factory::Simulation::parameters &params_common,
-                   std::ostream &stream)
-: simu(nullptr), ah(argc, argv), params_common(params_common), stream(stream)
+Launcher::Launcher(const int argc, const char **argv, std::ostream &stream)
+: simu(nullptr), argc(argc), argv((char**)argv), params_simu(nullptr), ah(argc, argv), stream(stream)
 {
 	cmd_line += std::string(argv[0]) + std::string(" ");
 	for (auto i = 1; i < argc; i++)
@@ -51,68 +50,61 @@ Launcher::Launcher(const int argc, const char **argv, factory::Simulation::param
 	}
 }
 
-void Launcher::get_description_args()
+void Launcher::set_params(factory::Simulation::parameters *params)
+{
+	params_simu = params;
+}
+
+void Launcher::register_arguments(CLI::App &app)
 {
 }
 
-void Launcher::store_args()
+void Launcher::callback_arguments()
 {
 }
 
-int Launcher::read_arguments()
+int Launcher::generate_arguments()
 {
-	this->get_description_args();
+	auto app = factory::Factory::make_argument_handler();
 
-	std::vector<std::string> cmd_error;
-
-	this->arg_vals = ah.parse_arguments(this->args, this->cmd_warn, cmd_error);
+	this->register_arguments(*app);
 
 	try
 	{
-		this->store_args();
+		app->parse(argc, argv);
 	}
-	catch(const std::exception& e)
+	catch (const CLI::ParseError &e)
 	{
-		auto save = tools::exception::no_backtrace;
-		tools::exception::no_backtrace = true;
-		cmd_error.emplace_back(e.what());
-		tools::exception::no_backtrace = save;
+		if (params_simu->mpi_rank == 0)
+			app->exit(e);
+		return EXIT_FAILURE;
 	}
 
-#ifdef ENABLE_MPI
-	if (this->params_common.mpi_rank == 0)
+	if (params_simu->advanced_help)
 	{
-#endif
-		if (params_common.display_help)
-		{
-			auto grps = factory::Factory::create_groups({&params_common});
-			ah.print_help(this->args, grps, params_common.display_adv_help);
-		}
+		auto app = factory::Factory::make_argument_handler();
 
-		// print usage
-		if (!cmd_error.empty() && !params_common.display_help)
-			ah.print_usage(this->args);
+		this->register_arguments(*app);
 
-		// print the errors
-		if (!cmd_error.empty()) std::cerr << std::endl;
-		for (unsigned e = 0; e < cmd_error.size(); e++)
-			std::cerr << rang::tag::error << cmd_error[e] << std::endl;
-
-		// print the help tags
-		if (!cmd_error.empty() && !params_common.display_help)
-		{
-			tools::Argument_tag help_tag = {"help", "h"};
-
-			std::string message = "For more information please display the help (\"";
-			message += tools::Argument_handler::print_tag(help_tag) += "\").";
-
-			std::cerr << std::endl << rang::tag::info << message << std::endl;
-		}
-#ifdef ENABLE_MPI
+		app->exit(CLI::CallForAllHelp());
+		return EXIT_FAILURE;
 	}
-#endif
+	else if (params_simu->help)
+	{
+		auto app = factory::Factory::make_argument_handler();
 
-	return (!cmd_error.empty() || params_common.display_help) ? EXIT_FAILURE : EXIT_SUCCESS;
+		this->register_arguments(*app);
+
+		app->exit(CLI::CallForHelp());
+		return EXIT_FAILURE;
+	}
+
+	this->callback_arguments();
+
+	for (auto& name : app->remaining(true))
+		std::cerr << rang::tag::warning << name << std::endl;
+
+	return EXIT_SUCCESS;
 }
 
 void Launcher::print_header()
@@ -122,7 +114,7 @@ void Launcher::print_header()
 	stream << rang::tag::comment << rang::style::bold << "---- A FAST FORWARD ERROR CORRECTION TOOLBOX >> ----" << std::endl;
 	stream << rang::tag::comment << rang::style::bold << "----------------------------------------------------" << std::endl;
 	stream << rang::tag::comment << rang::style::bold << rang::style::underline << "Parameters :"<< rang::style::reset << std::endl;
-	factory::Header::print_parameters({&params_common}, false, this->stream);
+	factory::Header::print_parameters({params_simu}, params_simu->full_legend, this->stream);
 	this->stream << rang::tag::comment << std::endl;
 }
 
@@ -154,49 +146,33 @@ std::string remove_argument(std::string cmd, const std::vector<std::string>& arg
 
 int Launcher::launch()
 {
+	if (params_simu == nullptr)
+		tools::runtime_error(__FILE__, __LINE__, __func__, "'params_simu' is a nullptr.");
+
 	int exit_code = EXIT_SUCCESS;
 
-	std::srand((unsigned)this->params_common.global_seed);
+	std::srand((unsigned)params_simu->global_seed);
 
-	if (this->read_arguments() == EXIT_FAILURE)
-	{
-		// print the warnings
-#ifdef ENABLE_MPI
-		if (this->params_common.mpi_rank == 0)
-#endif
-			for (unsigned w = 0; w < this->cmd_warn.size(); w++)
-				std::clog << rang::tag::warning << this->cmd_warn[w] << std::endl;
+	if (this->generate_arguments() == EXIT_FAILURE)
 		return EXIT_FAILURE;
-	}
 
-	// write the command and he curve name in the PyBER format
-#ifdef ENABLE_MPI
-	if (this->params_common.mpi_rank == 0)
-#endif
-	if (!this->params_common.meta.empty())
-	{
-		stream << "[metadata]" << std::endl;
-		stream << "command=" << remove_argument(cmd_line, {"--sim-meta", "-t", "--ter-freq"}) << std::endl;
-		stream << "title=" << this->params_common.meta << std::endl;
-		stream << std::endl << "[trace]" << std::endl;
-	}
+	// write the metadata: command and the curve name for PyBER
+	if (params_simu->mpi_rank == 0)
+		if (!params_simu->meta.empty())
+		{
+			stream << "[metadata]" << std::endl;
+			stream << "command=" << remove_argument(cmd_line, {"--sim-meta", "-t", "--ter-freq"}) << std::endl;
+			stream << "title=" << params_simu->meta << std::endl;
+			stream << std::endl << "[trace]" << std::endl;
+		}
 
-	if (this->params_common.display_legend)
-#ifdef ENABLE_MPI
-		if (this->params_common.mpi_rank == 0)
-#endif
+	if (!params_simu->hide_legend)
+		if (params_simu->mpi_rank == 0)
 			this->print_header();
-
-	// print the warnings
-#ifdef ENABLE_MPI
-	if (this->params_common.mpi_rank == 0)
-#endif
-		for (unsigned w = 0; w < this->cmd_warn.size(); w++)
-			std::clog << rang::tag::warning << this->cmd_warn[w] << std::endl;
 
 	try
 	{
-		simu.reset(this->build_simu());
+		// simu.reset(this->build_simu());
 	}
 	catch(const std::exception& e)
 	{
@@ -207,15 +183,13 @@ int Launcher::launch()
 	if (simu != nullptr)
 	{
 		// launch the simulation
-		if (this->params_common.display_legend)
-#ifdef ENABLE_MPI
-			if (this->params_common.mpi_rank == 0)
-#endif
+		if (!params_simu->hide_legend)
+			if (params_simu->mpi_rank == 0)
 				stream << rang::tag::comment << "The simulation is running..." << std::endl;
 
 		try
 		{
-			simu->launch();
+			// simu->launch();
 			if (simu->is_error())
 				exit_code = EXIT_FAILURE;
 		}
@@ -226,10 +200,8 @@ int Launcher::launch()
 		}
 	}
 
-	if (this->params_common.display_legend)
-#ifdef ENABLE_MPI
-		if (this->params_common.mpi_rank == 0)
-#endif
+	if (!params_simu->hide_legend)
+		if (params_simu->mpi_rank == 0)
 			stream << rang::tag::comment << "End of the simulation." << std::endl;
 
 	return exit_code;

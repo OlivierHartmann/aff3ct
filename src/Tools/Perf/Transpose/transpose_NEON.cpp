@@ -58,7 +58,7 @@ void aff3ct::tools::uchar_transpose_neon(const DATA_TYPE *src, DATA_TYPE *dst, i
 	t_u8x16 *p_output = dst;
 	int loop = N;
 
-	while( loop-- )
+	while ( loop-- )
 	{
 		t_u8x16 *copy_p_input  = p_input;
 
@@ -228,7 +228,7 @@ void aff3ct::tools::uchar_itranspose_neon(const DATA_TYPE *src, DATA_TYPE *dst, 
 	t_u8x16 *p_output = dst;
 	int loop = N;
 
-	while( loop-- )
+	while ( loop-- )
 	{
 		// STAGE 2 DU BUTTERFLY
 		t_u8x16 a             = LOAD_SIMD_FX(p_input); p_input += 1;

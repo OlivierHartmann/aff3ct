@@ -378,7 +378,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left != paths[i])
+					if (array_left != paths[i])
 					{
 						const auto& sleft = (path_2_array_s[array_left][rev_depth -1] == array_left) ? s : s2;
 						API_polar::xo (sleft[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
@@ -387,7 +387,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left == paths[i])
+					if (array_left == paths[i])
 						API_polar::xo (s[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
 				}
 				break;
@@ -395,7 +395,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto is_left = (((off_s / n_elmts) % 2) == 0);
-					if(is_left)
+					if (is_left)
 						path_2_array_s[paths[i]][rev_depth]     = paths[i];
 					API_polar::xo0(s[paths[i]],        off_s + n_elm_2, off_s, n_elm_2);
 				}
@@ -405,7 +405,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left != paths[i])
+					if (array_left != paths[i])
 					{
 						const auto& sleft = (path_2_array_s[array_left][rev_depth -1] == array_left) ? s : s2;
 						API_polar::xo (sleft[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
@@ -414,7 +414,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left == paths[i])
+					if (array_left == paths[i])
 						API_polar::xo (s[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
 				}
 				break;
@@ -505,7 +505,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left != paths[i])
+					if (array_left != paths[i])
 					{
 						const auto& sleft = (path_2_array_s[array_left][rev_depth -1] == array_left) ? s : s2;
 						API_polar::xo (sleft[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
@@ -514,7 +514,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left == paths[i])
+					if (array_left == paths[i])
 						API_polar::xo (s[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
 				}
 				break;
@@ -522,7 +522,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto is_left = (((off_s / n_elmts) % 2) == 0);
-					if(is_left)
+					if (is_left)
 						path_2_array_s[paths[i]][rev_depth]     = paths[i];
 					API_polar::xo0(s[paths[i]],        off_s + n_elm_2, off_s, n_elm_2);
 				}
@@ -532,7 +532,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left != paths[i])
+					if (array_left != paths[i])
 					{
 						const auto& sleft = (path_2_array_s[array_left][rev_depth -1] == array_left) ? s : s2;
 						API_polar::xo (sleft[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
@@ -541,7 +541,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 				for (auto i = 0; i < n_active_paths; i++)
 				{
 					const auto array_left = path_2_array_s[paths[i]][rev_depth -1];
-					if(array_left == paths[i])
+					if (array_left == paths[i])
 						API_polar::xo (s[array_left].data() + off_s, s[paths[i]].data() + off_s + n_elm_2, s[paths[i]].data() + off_s, n_elm_2);
 				}
 				break;
@@ -550,7 +550,7 @@ void Decoder_polar_SCL_MEM_fast_sys<B,R,API_polar>
 		}
 
 		const auto is_left = (((off_s / n_elmts) % 2) == 0);
-		if(is_left)
+		if (is_left)
 			for (auto i = 0; i < n_active_paths; i++)
 			{
 				path_2_array_s[paths[i]][rev_depth] = paths[i];

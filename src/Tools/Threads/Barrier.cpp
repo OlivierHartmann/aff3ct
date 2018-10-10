@@ -39,7 +39,7 @@ void Barrier
 		while (cur_gen == generation)
 		{
 			// release the lock
-			if (cond_barrier.wait_for(lock, std::chrono::milliseconds(6000)) == std::cv_status::timeout)
+			if (cond_barrier.wait_for (lock, std::chrono::milliseconds(6000)) == std::cv_status::timeout)
 			{
 				std::stringstream message;
 				message << "aff3ct::tools::Barrier: some threads did not reach the barrier (counter_barrier = "

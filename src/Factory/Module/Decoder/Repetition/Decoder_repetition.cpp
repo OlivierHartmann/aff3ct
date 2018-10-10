@@ -26,9 +26,9 @@ Decoder_repetition::parameters* Decoder_repetition::parameters
 }
 
 void Decoder_repetition::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -42,13 +42,13 @@ void Decoder_repetition::parameters
 }
 
 void Decoder_repetition::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-no-buff"})) this->buffered = false;
+	if (vals.exist({p+"-no-buff"})) this->buffered = false;
 }
 
 void Decoder_repetition::parameters

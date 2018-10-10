@@ -90,7 +90,7 @@ unsigned CRC_polynomial<B>
 {
 	if (known_polynomials.find(poly_key) != known_polynomials.end())
 		return std::get<0>(known_polynomials.at(poly_key));
-	else if(poly_key.length() > 2 && poly_key[0] == '0' && poly_key[1] == 'x')
+	else if (poly_key.length() > 2 && poly_key[0] == '0' && poly_key[1] == 'x')
 		return (unsigned)std::stoul(poly_key, 0, 16);
 	else
 		return 0;

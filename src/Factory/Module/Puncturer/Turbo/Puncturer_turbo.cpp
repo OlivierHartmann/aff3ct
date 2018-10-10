@@ -25,7 +25,7 @@ Puncturer_turbo::parameters
 ::parameters(const std::string &prefix)
 : Puncturer::parameters(Puncturer_turbo_name, prefix)
 {
-	this->type = "TURBO";
+	type = "TURBO";
 }
 
 Puncturer_turbo::parameters* Puncturer_turbo::parameters
@@ -34,62 +34,67 @@ Puncturer_turbo::parameters* Puncturer_turbo::parameters
 	return new Puncturer_turbo::parameters(*this);
 }
 
-struct sub_same_length
-{
-	template <typename T>
-	static void check(const std::vector<T>& v)
-	{
-		for(unsigned i = 0; i < v.size(); i++)
-			if (v[i].size() != v[0].size())
-				throw std::runtime_error("all elements do not have the same length");
-	}
-};
+// struct sub_same_length
+// {
+// 	template <typename T>
+// 	static void check(const std::vector<T>& v)
+// 	{
+// 		for (unsigned i = 0; i < v.size(); i++)
+// 			if (v[i].size() != v[0].size())
+// 				throw std::runtime_error("all elements do not have the same length");
+// 	}
+// };
+
 
 void Puncturer_turbo::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Puncturer::parameters::get_description(args);
+	Puncturer::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.erase({p+"-fra-size", "N"});
+	sub->remove_option(sub->get_option("--fra-size"));
 
-	tools::add_options(args.at({p+"-type"}), 0, "TURBO");
+	type_set.insert("TURBO");
 
-	args.add(
-		{p+"-pattern"},
-		tools::List2D<bool>(tools::Boolean(),
-		                    std::make_tuple(tools::Length(3, 3), tools::Function<sub_same_length>("elements of same length")),
-		                    std::make_tuple(tools::Length(1))),
-		"puncturing pattern for the turbo encoder (ex: \"11,10,01\").");
+	sub->add_option(
+		"--pattern",
+		str_pattern,
+		"Puncturing pattern for the turbo encoder (ex: \"11,10,01\").",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-tail-length"},
-		tools::Integer(tools::Positive()),
-		"total number of tail bits at the end of the frame.");
+	// args.add(
+	// 	{p+"-pattern"},
+	// 	tools::List2D<bool>(tools::Boolean(),
+	// 	                    std::make_tuple(tools::Length(3, 3), tools::Function<sub_same_length>("elements of same length")),
+	// 	                    std::make_tuple(tools::Length(1))),
+	// 	"puncturing pattern for the turbo encoder (ex: \"11,10,01\").");
 
-	args.add(
-		{p+"-no-buff"},
-		tools::None(),
-		"does not suppose a buffered encoding.");
+	sub->add_option(
+		"--tail-length",
+		tail_length,
+		"Total number of tail bits at the end of the frame.",
+		true)
+		->group("Standard");
+
+	sub->add_flag(
+		"--no-buff",
+		no_buffered,
+		"Does not suppose a buffered encoding")
+		->group("Standard");
 }
 
 void Puncturer_turbo::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Puncturer::parameters::store(vals);
+	Puncturer::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	N_cw = 3 * K + tail_length;
+	N    = PT::compute_N(K, tail_length, pattern);
 
-	if(vals.exist({p+"-pattern"    })) this->pattern     = vals.to_list<std::vector<bool>>({p+"-pattern"    });
-	if(vals.exist({p+"-tail-length"})) this->tail_length = vals.to_int({p+"-tail-length"});
-	if(vals.exist({p+"-no-buff"    })) this->buffered    = false;
-
-	this->N_cw = 3 * this->K + this->tail_length;
-	this->N    = PT::compute_N(this->K, this->tail_length, this->pattern);
-
-	if (this->N == this->N_cw)
-		this->type = "NO";
+	if (N == N_cw)
+		type = "NO";
 }
 
 void Puncturer_turbo::parameters
@@ -97,13 +102,13 @@ void Puncturer_turbo::parameters
 {
 	Puncturer::parameters::get_headers(headers, full);
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	if (this->type != "NO")
+	if (type != "NO")
 	{
-		headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + PT::display_pattern(this->pattern) + "}")));
-		if (full) headers[p].push_back(std::make_pair(std::string("Tail length"), std::to_string(this->tail_length)));
-		if (full) headers[p].push_back(std::make_pair(std::string("Buffered"), this->buffered ? "on" : "off"));
+		headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + PT::display_pattern(pattern) + "}")));
+		if (full) headers[p].push_back(std::make_pair(std::string("Tail length"), std::to_string(tail_length)));
+		if (full) headers[p].push_back(std::make_pair(std::string("Buffered"), no_buffered ? "off" : "on"));
 	}
 }
 
@@ -111,7 +116,7 @@ template <typename B, typename Q>
 module::Puncturer<B,Q>* Puncturer_turbo::parameters
 ::build() const
 {
-	if (this->type == "TURBO") return new module::Puncturer_turbo<B,Q>(this->K, this->N, this->tail_length, this->pattern, this->buffered, this->n_frames);
+	if (type == "TURBO") return new module::Puncturer_turbo<B,Q>(K, N, tail_length, pattern, !no_buffered, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

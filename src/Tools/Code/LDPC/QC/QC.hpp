@@ -24,7 +24,7 @@ public:
 	 * @H is the height of the matrix
 	 * @N is the width of the matrix
 	 */
-	static void read_matrix_size(std::istream &stream, int& H, int& N);
+	static void read_matrix_size(std::istream &stream, unsigned& H, unsigned& N);
 
 private:
 	static Sparse_matrix _read(std::istream &stream);

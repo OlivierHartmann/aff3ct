@@ -36,11 +36,15 @@ private:
 	std::string                      cmd_line;
 	std::vector<std::string>         cmd_warn;
 
+	int argc;
+	char **argv;
+
+	factory::Simulation::parameters *params_simu;  /*!< A structure of parameters to store and pass to the simulation. */
+
 protected:
 	tools::Argument_handler         ah;       /*!< An argument reader to manage the parsing and the documentation of the command line parameters. */
 	tools::Argument_map_info        args;     /*!< List of the arguments to find in the command line */
 	tools::Argument_map_value       arg_vals; /*!< List of the arguments with their values */
-	factory::Simulation::parameters &params_common;  /*!< A structure of parameters to store and pass to the simulation. */
 	std::ostream                    &stream;  /*!< The dedicated stream in which the Launcher writes the parameters. */
 
 public:
@@ -53,8 +57,7 @@ public:
 	 * \param argv:   array of arguments
 	 * \param stream: the stream in which the Launcher writes the parameters.
 	 */
-	Launcher(const int argc, const char **argv, factory::Simulation::parameters &params_common,
-	         std::ostream &stream = std::cout);
+	Launcher(const int argc, const char **argv, std::ostream &stream = std::cout);
 
 	/*!
 	 * \brief Destructor.
@@ -74,14 +77,15 @@ protected:
 	 *
 	 * This method can be overloaded to be extended.
 	 */
-	virtual void get_description_args();
+	virtual void register_arguments(CLI::App &app);
+
 
 	/*!
-	 * \brief Stores the values from the command line to the internal parameters.
+	 * \brief Post command line parse process on arguments if needed
 	 *
 	 * This method can be overloaded to be extended.
 	 */
-	virtual void store_args();
+	virtual void callback_arguments();
 
 	/*!
 	 * \brief Allocates a specific simulation.
@@ -94,8 +98,9 @@ protected:
 
 	void print_header();
 
+	void set_params(factory::Simulation::parameters *params_simu);
 private:
-	int read_arguments();
+	int generate_arguments();
 };
 }
 }

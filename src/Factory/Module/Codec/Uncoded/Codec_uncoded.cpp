@@ -24,12 +24,12 @@ Codec_uncoded::parameters* Codec_uncoded::parameters
 }
 
 void Codec_uncoded::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SISO_SIHO::parameters::get_description(args);
+	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto penc = enc->get_prefix();
 	auto pdec = dec->get_prefix();
@@ -44,13 +44,13 @@ void Codec_uncoded::parameters
 }
 
 void Codec_uncoded::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SISO_SIHO::parameters::store(vals);
+	Codec_SISO_SIHO::parameters::callback_arguments();
 
 	enc->type = "NO";
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	enc->N_cw     = enc->K;
 
@@ -60,7 +60,7 @@ void Codec_uncoded::parameters
 	dec->N_cw     = enc->N_cw;
 	dec->n_frames = enc->n_frames;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	K    = enc->K;
 	N_cw = enc->N_cw;

@@ -2,6 +2,7 @@
 #define FACTORY_ENCODER_HPP
 
 #include <string>
+#include <set>
 
 #include "Module/Encoder/Encoder.hpp"
 
@@ -20,20 +21,22 @@ struct Encoder : public Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         K           = 0;
-		int         N_cw        = 0;
+		unsigned    K           = 0;
+		unsigned    N_cw        = 0;
 
 		// optional parameters
 		std::string type        = "NO";
 		std::string path        = "";
-		bool        systematic  = true;
-		int         n_frames    = 1;
-		int         seed        = 0;
-		int         tail_length = 0;
-		int         start_idx   = 0;
+		unsigned    n_frames    = 1;
+		unsigned    seed        = 0;
+		unsigned    tail_length = 0;
+		unsigned    start_idx   = 0;
+		bool        not_systematic = false;
 
 		// deduced parameters
 		float       R           = -1.f;
+
+		std::set<std::string> type_set = {"NO", "USER", "AZCW", "COSET"};
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_prefix);
@@ -41,9 +44,9 @@ struct Encoder : public Factory
 		virtual Encoder::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int>

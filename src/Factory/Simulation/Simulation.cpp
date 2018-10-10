@@ -23,130 +23,121 @@ Simulation::parameters* Simulation::parameters
 ::clone() const
 {
 	return new Simulation::parameters(*this);
-
-	// if (noise != nullptr) {clone->noise = noise->clone(); }
-
-	// return clone;
 }
 
 void Simulation::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Launcher::parameters::get_description(args);
+	Launcher::parameters::register_arguments(app);
 
-	noise->get_description(args);
+	noise->register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-meta"},
-		tools::Text(),
-		"print the output with metadata, takes the simulation title.");
+	sub->add_option(
+		"--meta",
+		meta,
+		"Print the output with metadata, takes the simulation title.")
+		->group("Standard");
 
-	args.add(
-		{p+"-stop-time"},
-		tools::Integer(tools::Positive()),
-		"time in sec after what the current simulatated noise stops (0 is infinite).",
-		tools::arg_rank::ADV);
+	sub->add_option(
+		"--stop-time",
+		stop_time,
+		"Time in sec after what the current simulatated noise stops (0 is infinite).")
+		->group("Advanced");
 
-	args.add(
-		{p+"-max-frame", "n"},
-		tools::Integer(tools::Positive()),
-		"maximum number of frames to play after what the current simulatated noise stops (0 is infinite).",
-		tools::arg_rank::ADV);
+	sub->add_option(
+		"--max-frame",
+		max_frame,
+		"Maximum number of frames to play after what the current simulatated noise stops (0 is infinite).")
+		->group("Advanced");
 
-	args.add(
-		{p+"-crit-nostop"},
-		tools::None(),
+	sub->add_flag(
+		"--crit-nostop",
+		crit_nostop,
 		"The stop criteria arguments -stop-time or -max-frame kill the current simulatated noise point"
-		" but not the simulation.",
-		tools::arg_rank::ADV);
+		" but not the simulation.")
+		->group("Advanced");
 
-	args.add(
-		{p+"-debug"},
-		tools::None(),
-		"enable debug mode: print array values after each step.");
 
-	args.add(
-		{p+"-debug-hex"},
-		tools::None(),
-		"debug mode prints values in the hexadecimal format.");
 
-	args.add(
-		{p+"-debug-prec"},
-		tools::Integer(tools::Positive()),
-		"set the precision of real elements when displayed in debug mode.");
+	sub->add_flag(
+		"--debug",
+		debug,
+		"Enable debug mode: print array values after each step.")
+		->group("Standard");
 
-	args.add(
-		{p+"-debug-limit", "d"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the max number of elements to display in the debug mode.");
+	sub->add_flag(
+		"--debug-hex",
+		debug_hex,
+		"Enable debug mode: prints values in the hexadecimal format.")
+		->group("Standard");
 
-	args.add(
-		{p+"-stats"},
-		tools::None(),
-		"display statistics module by module.");
+	sub->add_option(
+		"-d,--debug-limit",
+		debug_limit,
+		"Enable debug mode: set the max number of elements to display in the debug mode (0 is all).")
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-threads", "t"},
-		tools::Integer(tools::Positive()),
-		"enable multi-threaded mode and specify the number of threads (0 means the maximum supported by the core.");
+	sub->add_option(
+		"--debug-prec",
+		debug_precision,
+		"Set the precision of real elements when displayed in debug mode.",
+		true)
+		->check(CLI::Range(10))
+		->group("Standard");
 
-	args.add(
-		{p+"-seed", "S"},
-		tools::Integer(tools::Positive()),
-		"seed used in the simulation to initialize the pseudo random generators in general.");
+
+	sub->add_flag(
+		"--stats",
+		statistics,
+		"Display statistics module by module.")
+		->group("Standard");
+
+
+
+	sub->add_option(
+		"-t,--threads",
+		n_threads,
+		"Enable multi-threaded mode and specify the number of threads (0 means the maximum supported by the core).",
+		true)
+		->group("Standard");
+
+	sub->add_option(
+		"-S,--seed",
+		global_seed,
+		"Seed used in the simulation to initialize the pseudo random generators in general.",
+		true)
+		->group("Standard");
 
 #ifdef ENABLE_MPI
-	args.add(
-		{p+"-mpi-comm"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"MPI communication frequency between the nodes (in millisec).");
+	sub->add_option(
+		"--mpi-comm",
+		mpi_comm_freq,
+		"MPI communication frequency between the nodes (in millisec).")
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Advanced");
 #endif
 }
 
 void Simulation::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
 	using namespace std::chrono;
 
-	Launcher::parameters::store(vals);
+	Launcher::parameters::callback_arguments();
 
-	noise->store(vals);
+	noise->callback_arguments();
 
-	auto p = this->get_prefix();
+	debug = debug || debug_limit || debug_hex;
+	if (debug)
+		n_threads = 1;
 
-	if(vals.exist({p+"-meta"            })) this->meta        =         vals.at    ({p+"-meta"          });
-	if(vals.exist({p+"-stop-time"       })) this->stop_time   = seconds(vals.to_int({p+"-stop-time"     }));
-	if(vals.exist({p+"-max-frame",   "n"})) this->max_frame   =         vals.to_int({p+"-max-frame", "n"});
-	if(vals.exist({p+"-seed",        "S"})) this->global_seed =         vals.to_int({p+"-seed",      "S"});
-	if(vals.exist({p+"-stats"           })) this->statistics  = true;
-	if(vals.exist({p+"-debug"           })) this->debug       = true;
-	if(vals.exist({p+"-crit-nostop"     })) this->crit_nostop = true;
-	if(vals.exist({p+"-debug-limit", "d"}))
-	{
-		this->debug = true;
-		this->debug_limit = vals.to_int({p+"-debug-limit", "d"});
-	}
-	if(vals.exist({p+"-debug-hex"}))
-	{
-		this->debug = true;
-		this->debug_hex = true;
-	}
-	if(vals.exist({p+"-debug-prec"}))
-	{
-		this->debug = true;
-		this->debug_precision = vals.to_int({p+"-debug-prec"});
-	}
-
-	if(vals.exist({p+"-threads", "t"}) && vals.to_int({p+"-threads", "t"}) > 0)
-		if(vals.exist({p+"-threads", "t"})) this->n_threads = vals.to_int({p+"-threads", "t"});
 
 #ifdef ENABLE_MPI
 	MPI_Comm_size(MPI_COMM_WORLD, &this->mpi_size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &this->mpi_rank);
-
-	if(vals.exist({p+"-mpi-comm"})) this->mpi_comm_freq = milliseconds(vals.to_int({p+"-mpi-comm"}));
 
 	int max_n_threads_global;
 	int max_n_threads_local = this->n_threads;
@@ -166,14 +157,6 @@ void Simulation::parameters
 #else
 	this->local_seed = this->global_seed;
 #endif
-
-#ifdef MULTI_PREC
-	if(vals.exist({p+"-prec", "p"})) this->sim_prec = vals.to_int({p+"-prec", "p"});
-#endif
-
-	if (this->debug && !(vals.exist({p+"-threads", "t"}) && vals.to_int({p+"-threads", "t"}) > 0))
-		// check if debug is asked and if n_thread kept its default value
-		this->n_threads = 1;
 }
 
 void Simulation::parameters

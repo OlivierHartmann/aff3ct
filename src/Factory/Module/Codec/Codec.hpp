@@ -30,10 +30,10 @@ struct Codec : Factory
 		tools::auto_cloned_unique_ptr<Interleaver::parameters> itl;
 
 		// deduced parameters
-		int K           = 0;
-		int N           = 0;
-		int N_cw        = 0;
-		int tail_length = 0;
+		unsigned K           = 0;
+		unsigned N           = 0;
+		unsigned N_cw        = 0;
+		unsigned tail_length = 0;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Codec_prefix);
@@ -46,9 +46,9 @@ struct Codec : Factory
 		virtual std::vector<std::string> get_prefixes   () const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 	protected:
 		parameters(const std::string &n = Codec_name, const std::string &p = Codec_prefix);
@@ -62,6 +62,10 @@ struct Codec : Factory
 		void set_dec(tools::auto_cloned_unique_ptr<Decoder    ::parameters>&& dec);
 		void set_pct(tools::auto_cloned_unique_ptr<Puncturer  ::parameters>&& pct);
 		void set_itl(tools::auto_cloned_unique_ptr<Interleaver::parameters>&& itl);
+
+		CLI::App * sub_enc = nullptr;
+		CLI::App * sub_dec = nullptr;
+		CLI::App * sub_pct = nullptr;
 	};
 };
 }

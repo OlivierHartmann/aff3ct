@@ -32,9 +32,9 @@ struct Decoder_turbo : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		bool self_corrected = false;
-		bool enable_json    = false;
-		int  n_ite          = 6;
+		bool      self_corrected = false;
+		bool      enable_json    = false;
+		unsigned  n_ite          = 6;
 
 		// depending parameters
 		tools::auto_cloned_unique_ptr<typename D1   ::parameters> sub1;
@@ -53,9 +53,9 @@ struct Decoder_turbo : public Decoder
 		virtual std::vector<std::string> get_prefixes   () const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>

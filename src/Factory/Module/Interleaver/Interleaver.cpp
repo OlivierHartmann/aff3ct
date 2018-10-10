@@ -22,15 +22,15 @@ Interleaver::parameters* Interleaver::parameters
 }
 
 void Interleaver::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	core->get_description(args);
+	core->register_arguments(app);
 }
 
 void Interleaver::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	core->store(vals);
+	core->callback_arguments();
 }
 
 void Interleaver::parameters

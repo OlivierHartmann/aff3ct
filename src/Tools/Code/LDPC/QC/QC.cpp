@@ -155,7 +155,7 @@ void QC
 }
 
 void QC
-::read_matrix_size(std::istream &stream, int& H, int& N)
+::read_matrix_size(std::istream &stream, unsigned& H, unsigned& N)
 {
 	std::string line;
 

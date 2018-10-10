@@ -49,8 +49,8 @@ const std::string aff3ct::factory::Launcher_name   = "Launcher";
 const std::string aff3ct::factory::Launcher_prefix = "lch";
 
 factory::Launcher::parameters
-::parameters(const std::string &prefix)
-: Factory::parameters(Launcher_name, Launcher_name, prefix)
+::parameters(const std::string &prefix, const std::string &name)
+: Factory::parameters(name, name, prefix)
 {
 }
 
@@ -67,110 +67,113 @@ factory::Launcher::parameters* factory::Launcher::parameters
 }
 
 void factory::Launcher::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	app.add_flag(
+		"-h,--help",
+		help,
+		"Print the help.")
+		->group("Standard");
 
-	args.add(
-		{p+"-cde-type", "C"},
-		tools::Text(tools::Including_set("POLAR", "TURBO", "TURBO_DB", "TURBO_PROD", "LDPC", "REP", "RA", "RSC", "RSC_DB", "BCH", "UNCODED", "RS")),
-		"select the code type you want to use.",
-		tools::arg_rank::REQ);
+	app.add_flag(
+		"-H,--Help",
+		advanced_help,
+		"Print this help with the advanced arguments.")
+		->group("Standard");
 
-	args.add(
-		{p+"-type"},
-#if !defined(PREC_8_BIT) && !defined(PREC_16_BIT)
-		tools::Text(tools::Including_set("BFER", "BFERI", "EXIT")),
-#else
-		tools::Text(tools::Including_set("BFER", "BFERI")),
-#endif
-		"select the type of simulation to launch (default is BFER).");
-
-#ifdef MULTI_PREC
-	args.add(
-		{p+"-prec", "p"},
-		tools::Integer(tools::Including_set(8, 16, 32, 64)),
-		"the simulation precision in bits.");
-#endif
-
-	args.add(
-		{"help", "h"},
-		tools::None(),
-		"print this help.");
-
-	args.add(
-		{"Help", "H"},
-		tools::None(),
-		"print this help with the advanced arguments.");
-
-	args.add(
-		{"version", "v"},
-		tools::None(),
-		"print informations about the version of the code.");
+	app.add_flag(
+		"-v,--version",
+		display_version,
+		"Print informations about the code version.")
+		->group("Standard");
 
 #ifdef ENABLE_BACK_TRACE
-	args.add(
-		{"except-no-bt"},
-		tools::None(),
-		"do not print the backtrace when displaying exception.",
-		tools::arg_rank::ADV);
-#endif
+	app.add_flag(
+		"--disable-bt",
+		disable_bt,
+		"Disable the backtrace when displaying exception.")
+		->group("Advanced");
 
 #ifndef NDEBUG
-	args.add(
-		{"except-a2l"},
-		tools::None(),
-		"enhance the backtrace when displaying exception by changing program addresses into "
-		" file names and lines (may take some seconds).",
-		tools::arg_rank::ADV);
+	app.add_flag(
+		"--full-bt",
+		enable_full_bt,
+		"Enable full backtrace with file names and lines (may take additional time).")
+		->group("Advanced");
+#endif
 #endif
 
-	args.add(
-		{p+"-no-legend"},
-		tools::None(),
-		"Do not display any legend when launching the simulation.",
-		tools::arg_rank::ADV);
+	auto no_legend_option =
+	app.add_flag(
+		"--no-legend",
+		hide_legend,
+		"Do not display any legend when launching the simulation.")
+		->group("Advanced");
 
+	app.add_flag(
+		"--full-legend",
+		full_legend,
+		"Display fully the legend when launching the simulation.")
+		->excludes(no_legend_option)
+		->group("Advanced");
 
 #ifdef ENABLE_COOL_BASH
-	args.add(
-		{p+"-no-colors"},
-		tools::None(),
-		"disable the colors in the shell.");
+	app.add_flag(
+		"--no-colors",
+		disable_colors,
+		"Disable the colors in the shell.")
+		->group("Advanced");
 #endif
+
+
+
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+
+	sub->add_set(
+			"-C,--cde-type",
+			cde_type,
+			{"POLAR", "TURBO", "TURBO_DB", "LDPC", "REP", "RA", "RSC", "RSC_DB", "BCH", "UNCODED"},
+			"Select the code type you want to use.")
+			->required()
+			->group("Standard");
+
+ 	sub->add_set(
+		"--type",
+		sim_type,
+#if !defined(PREC_8_BIT) && !defined(PREC_16_BIT)
+		{"BFER", "BFERI", "EXIT"},
+#else
+		{"BFER", "BFERI"},
+#endif
+		"Select the type of simulation to launch (default is BFER).",
+		true)
+		->group("Standard");
+
+#ifdef MULTI_PREC
+	sub->add_set(
+		"-p,--prec",
+		sim_prec,
+#if defined(__x86_64) || defined(__x86_64__) || defined(_WIN64) || defined(__aarch64__)
+		{8, 16, 32, 64},
+#else
+		{8, 16, 32},
+#endif
+		"The simulation precision in bits.",
+		true)
+		->group("Standard");
+#endif
+
 }
 
 void factory::Launcher::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-cde-type", "C"})) this->cde_type        = vals.at({p+"-cde-type", "C"}); // required
-	if(vals.exist({p+"-type"         })) this->sim_type        = vals.at({p+"-type"         });
-	if(vals.exist({"version",     "v"})) this->display_version = true;
-	if(vals.exist({p+"-no-legend"    })) this->display_legend  = false;
-
-	if(vals.exist({"help", "h"}))
-	{
-		this->display_help     = true;
-		this->display_adv_help = false;
-	}
-
-	if(vals.exist({"Help", "H"}))
-	{
-		this->display_help     = true;
-		this->display_adv_help = true;
-	}
-
-#ifdef MULTI_PREC
-	if(vals.exist({p+"-prec", "p"})) this->sim_prec = vals.to_int({p+"-prec", "p"});
-#endif
-
-	tools::exception::no_backtrace    =  vals.exist({"except-no-bt"});
-	tools::exception::no_addr_to_line = !vals.exist({"except-a2l"  });
+	tools::exception::no_backtrace    =  disable_bt;
+	tools::exception::no_addr_to_line = !enable_full_bt;
 
 #ifdef ENABLE_COOL_BASH
-	if (vals.exist({p+"-no-colors"})) rang::setControlMode(rang::control::Off);
+	if (disable_colors)
+		rang::setControlMode(rang::control::Off);
 #else
 	rang::setControlMode(rang::control::Off);
 #endif

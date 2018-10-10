@@ -42,7 +42,10 @@ struct EXIT : Simulation
 		std::vector<float> sig_a_range;
 
 		// optional parameters
-		std::string snr_type   = "ES";
+		std::string snr_type = "ES";
+		float sig_a_min  = 0.f;
+		float sig_a_max  = 0.f;
+		float sig_a_step = 0.1f;
 
 		// module parameters
 		tools::auto_cloned_unique_ptr<Source      ::parameters> src;
@@ -72,9 +75,9 @@ struct EXIT : Simulation
 		void set_ter(Terminal     ::parameters *ter);
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename R = float>

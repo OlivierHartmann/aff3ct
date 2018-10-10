@@ -20,15 +20,15 @@ struct Monitor_BFER : public Monitor
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         K = 0;
+		unsigned    K = 0;
 
 		// optional parameters
 		std::string type           = "STD";
 		std::string err_hist_path  = "hist";
-		int         err_hist       = -1;
-		int         n_frame_errors = 100;
-		int         max_frame      = 0;
-		int         n_frames       = 1;
+		unsigned    err_hist       = -1;
+		unsigned    n_frame_errors = 100;
+		unsigned    max_frame      = 0;
+		unsigned    n_frames       = 1;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Monitor_BFER_prefix);
@@ -36,9 +36,9 @@ struct Monitor_BFER : public Monitor
 		Monitor_BFER::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int>

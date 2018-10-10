@@ -56,7 +56,7 @@ template <typename T>
 void Full_matrix<T>
 ::rm_connection(const size_t row_index, const size_t col_index)
 {
-	if(!at(row_index, col_index))
+	if (!at(row_index, col_index))
 		return;
 
 	(*this)[row_index][col_index] = 0;

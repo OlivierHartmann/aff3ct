@@ -108,7 +108,7 @@ public:
 
 		void * p_val = nullptr;
 
-		for(unsigned i = 0; i < list.size(); i++)
+		for (unsigned i = 0; i < list.size(); i++)
 		{
 			p_val = val_type->get_val(list[i]);
 

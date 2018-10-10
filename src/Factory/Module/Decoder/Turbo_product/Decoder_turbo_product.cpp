@@ -69,9 +69,9 @@ struct Real_splitter
 };
 
 void Decoder_turbo_product::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -80,7 +80,7 @@ void Decoder_turbo_product::parameters
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = this->itl->get_prefix();
 
@@ -135,7 +135,7 @@ void Decoder_turbo_product::parameters
 		tools::List<float,Real_splitter>(tools::Real(), tools::Length(5,5)),
 		"the 5 Chase Pyndiah constant coefficients \"a,b,c,d,e\".");
 
-	sub->get_description(args);
+	sub->register_arguments(app);
 
 	auto ps = sub->get_prefix();
 
@@ -143,29 +143,29 @@ void Decoder_turbo_product::parameters
 }
 
 void Decoder_turbo_product::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-ite", "i"})) this->n_ite                      = vals.to_int({p+"-ite", "i"});
-	if(vals.exist({p+"-p"       })) this->n_least_reliable_positions = vals.to_int({p+"-p"       });
+	if (vals.exist({p+"-ite", "i"})) this->n_ite                      = vals.to_int({p+"-ite", "i"});
+	if (vals.exist({p+"-p"       })) this->n_least_reliable_positions = vals.to_int({p+"-p"       });
 
-	if(vals.exist({p+"-t"}))
+	if (vals.exist({p+"-t"}))
 		this->n_test_vectors = vals.to_int({p+"-t"});
 	else
 		this->n_test_vectors = 1<<this->n_least_reliable_positions;
 
-	if(vals.exist({p+"-c"}))
+	if (vals.exist({p+"-c"}))
 		this->n_competitors = vals.to_int({p+"-c"});
 	else
 		this->n_competitors = this->n_test_vectors;
 
-	if(vals.exist({p+"-ext"})) this->parity_extended = true;
+	if (vals.exist({p+"-ext"})) this->parity_extended = true;
 
 
-	if(vals.exist({p+"-alpha"}))
+	if (vals.exist({p+"-alpha"}))
 	{
 		this->alpha = vals.to_list<float>({p+"-alpha"});
 		this->alpha.resize(this->n_ite*2, alpha.back());
@@ -176,7 +176,7 @@ void Decoder_turbo_product::parameters
 		this->alpha.resize(this->n_ite*2, 0.5f);
 	}
 
-	if(vals.exist({p+"-beta"}))
+	if (vals.exist({p+"-beta"}))
 	{
 		this->beta = vals.to_list<float>({p+"-beta"});
 		this->beta.resize(this->n_ite*2, beta.back());
@@ -187,7 +187,7 @@ void Decoder_turbo_product::parameters
 	}
 
 
-	if(vals.exist({p+"-cp-coef"}))
+	if (vals.exist({p+"-cp-coef"}))
 		this->cp_coef = vals.to_list<float>({p+"-cp-coef"});
 	else
 	{
@@ -199,7 +199,7 @@ void Decoder_turbo_product::parameters
 
 	// this->sub->n_frames = this->n_frames;
 
-	sub->store(vals);
+	sub->callback_arguments();
 
 	this->K = this->sub->K * this->sub->K;
 
@@ -218,7 +218,7 @@ void Decoder_turbo_product::parameters
 		this->itl->core->size = this->itl->core->n_cols * this->itl->core->n_cols;
 		this->N_cw = this->itl->core->size;
 
-		itl->store(vals);
+		itl->callback_arguments();
 	}
 }
 

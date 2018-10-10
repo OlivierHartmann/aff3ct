@@ -18,8 +18,8 @@ public:
 	virtual ~Turbo() = default;
 
 protected:
-	virtual void get_description_args();
-	virtual void store_args();
+	virtual void register_arguments(CLI::App &app);
+	virtual void callback_arguments();
 };
 }
 }

@@ -21,13 +21,13 @@ struct CRC : public Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         K             = 0;
+		unsigned    K             = 0;
 
 		// optional parameters
 		std::string type          = "NO"; // "32-GZIP"; // type is the polynomial
 		std::string implem        = "FAST";
-		int         size          = 0;
-		int         n_frames      = 1;
+		unsigned    size          = 0;
+		unsigned    n_frames      = 1;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = CRC_prefix);
@@ -35,9 +35,9 @@ struct CRC : public Factory
 		CRC::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int>

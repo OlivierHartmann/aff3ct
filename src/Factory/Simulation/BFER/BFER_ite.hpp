@@ -30,8 +30,8 @@ struct BFER_ite : BFER
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		int n_ite     = 15;
-		int crc_start = 2;
+		unsigned n_ite     = 15;
+		unsigned crc_start = 2;
 
 		// module parameters
 		tools::auto_cloned_unique_ptr<Interleaver::parameters> itl;
@@ -53,9 +53,9 @@ struct BFER_ite : BFER
 
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename R = float, typename Q = R>

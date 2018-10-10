@@ -6,8 +6,8 @@
 
 #include "transpose_AVX.h"
 
-inline void _MM_TRANSPOSE8_PS(__m256 &row0, __m256 &row1, __m256 &row2, __m256 &row3, __m256 &row4, __m256 &row5, 
-                              __m256 &row6, __m256 &row7) 
+inline void _MM_TRANSPOSE8_PS(__m256 &row0, __m256 &row1, __m256 &row2, __m256 &row3, __m256 &row4, __m256 &row5,
+                              __m256 &row6, __m256 &row7)
 {
 	__m256 __t0, __t1, __t2, __t3, __t4, __t5, __t6, __t7;
 	__m256 __tt0, __tt1, __tt2, __tt3, __tt4, __tt5, __tt6, __tt7;
@@ -43,7 +43,7 @@ inline void _MM_TRANSPOSE8_PS(__m256 &row0, __m256 &row1, __m256 &row2, __m256 &
 void aff3ct::tools::avx_trans_float(float *A, float *B, int n)
 {
 	int i = n/8;
-	while( i-- ){
+	while ( i-- ){
 		__m256 row1 = _mm256_load_ps(A        );
 		__m256 row2 = _mm256_load_ps(A +     n);
 		__m256 row3 = _mm256_load_ps(A + 2 * n);
@@ -72,7 +72,7 @@ void aff3ct::tools::avx_trans_float(float *A, float *B, int n)
 void aff3ct::tools::avx_itrans_float(float *A, float *B, int n)
 {
 	int i = n/8;
-	while( i-- ){
+	while ( i-- ){
 		__m256 row1 = _mm256_load_ps(A     );
 		__m256 row2 = _mm256_load_ps(A +  8);
 		__m256 row3 = _mm256_load_ps(A + 16);
@@ -115,7 +115,7 @@ void aff3ct::tools::uchar_transpose_avx(const __m256i *src, __m256i *dst, int n)
 	__m256i *p_output = dst;
 	int loop = constN;
 
-	while( loop-- )
+	while ( loop-- )
 	{
 		// STAGE 2 DU BUTTERFLY
 		__m256i *copy_p_input  = p_input;
@@ -403,7 +403,7 @@ void aff3ct::tools::uchar_itranspose_avx(const __m256i *src, __m256i *dst, int n
 	__m256i *p_output = dst;
 	int loop = constN;
 
-	while( loop-- )
+	while ( loop-- )
 	{
 		__m256i a = LOAD_SIMD_FX(p_input +  0);
 		_mm_prefetch((const char*)(p_input+16), _MM_HINT_NTA);

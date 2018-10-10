@@ -29,9 +29,9 @@ Encoder_LDPC::parameters* Encoder_LDPC::parameters
 }
 
 void Encoder_LDPC::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -73,15 +73,15 @@ void Encoder_LDPC::parameters
 }
 
 void Encoder_LDPC::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-h-path"   })) this->H_path    = vals.at({p+"-h-path"   });
-	if(vals.exist({p+"-g-path"   })) this->G_path    = vals.at({p+"-g-path"   });
-	if(vals.exist({p+"-h-reorder"})) this->H_reorder = vals.at({p+"-h-reorder"});
-	if(vals.exist({p+"-g-method" })) this->G_method  = vals.at({p+"-g-method" });
-	if(vals.exist({p+"-save-g"   })) this->G_save    = vals.at({p+"-save-g"   });
+	if (vals.exist({p+"-h-path"   })) this->H_path    = vals.at({p+"-h-path"   });
+	if (vals.exist({p+"-g-path"   })) this->G_path    = vals.at({p+"-g-path"   });
+	if (vals.exist({p+"-h-reorder"})) this->H_reorder = vals.at({p+"-h-reorder"});
+	if (vals.exist({p+"-g-method" })) this->G_method  = vals.at({p+"-g-method" });
+	if (vals.exist({p+"-save-g"   })) this->G_save    = vals.at({p+"-save-g"   });
 
 	if (!this->G_path.empty())
 	{
@@ -92,7 +92,7 @@ void Encoder_LDPC::parameters
 	}
 	else if (!this->H_path.empty())
 	{
-		int M;
+		unsigned M;
 		tools::LDPC_matrix_handler::read_matrix_size(this->H_path, M, this->N_cw);
 
 		if (M > this->N_cw)
@@ -101,7 +101,7 @@ void Encoder_LDPC::parameters
 		this->K = this->N_cw - M; // considered as regular so M = N - K
 	}
 
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 }
 
 void Encoder_LDPC::parameters

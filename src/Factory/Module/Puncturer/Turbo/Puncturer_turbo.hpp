@@ -21,9 +21,10 @@ struct Puncturer_turbo : public Puncturer
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		std::vector<std::vector<bool>> pattern = {{1,1,1},{1,1,1},{1,1,1}};
-		bool        buffered    = true;
-		int         tail_length = 0;
+		std::vector<std::vector<bool>> pattern     = {{1,1,1},{1,1,1},{1,1,1}};
+		bool                           no_buffered = false;
+		unsigned                       tail_length = 0;
+		std::vector<std::string> str_pattern;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Puncturer_turbo_prefix);
@@ -31,9 +32,9 @@ struct Puncturer_turbo : public Puncturer
 		Puncturer_turbo::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>

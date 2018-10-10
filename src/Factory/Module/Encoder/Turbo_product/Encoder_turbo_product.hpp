@@ -27,7 +27,7 @@ struct Encoder_turbo_product : public Encoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		int parity_extended = false;
+		bool parity_extended = false;
 
 		// depending parameters
 		tools::auto_cloned_unique_ptr<Encoder_BCH::parameters> sub;
@@ -43,15 +43,15 @@ struct Encoder_turbo_product : public Encoder
 		virtual std::vector<std::string> get_prefixes   () const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int>
 		module::Encoder_turbo_product<B>* build(const module::Interleaver<B> &itl,
-		                                                   module::Encoder_BCH<B> &enc_r,
-		                                                   module::Encoder_BCH<B> &enc_c) const;
+		                                              module::Encoder_BCH<B> &enc_r,
+		                                              module::Encoder_BCH<B> &enc_c) const;
 	};
 
 	template <typename B = int>

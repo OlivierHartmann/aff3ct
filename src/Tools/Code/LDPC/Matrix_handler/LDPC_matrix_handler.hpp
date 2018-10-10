@@ -43,15 +43,15 @@ public:
 	 * @H is the height of the matrix
 	 * @N is the width of the matrix
 	 */
-	static void read_matrix_size(const std::string& filename, int& H, int& N);
-	static void read_matrix_size(std::ifstream &file, int& H, int& N);
+	static void read_matrix_size(const std::string& filename, unsigned& H, unsigned& N);
+	static void read_matrix_size(std::ifstream &file, unsigned& H, unsigned& N);
 
 
 	/*
 	 * Check if the input info bits position are in the matrix dimensions (K*N)
 	 * when @throw_when_wrong is true and the check is wrong, then throw a runtim_error, else return false.
 	 */
-	static bool check_info_pos(const Positions_vector& info_bits_pos, int K, int N, bool throw_when_wrong = true);
+	static bool check_info_pos(const Positions_vector& info_bits_pos, unsigned K, unsigned N, bool throw_when_wrong = true);
 
 	/*
 	 * \brief Reorder rows and columns to create a diagonal of binary ones from the given origin of the matrix.

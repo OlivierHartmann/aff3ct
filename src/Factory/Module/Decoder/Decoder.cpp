@@ -23,62 +23,69 @@ Decoder::parameters* Decoder::parameters
 }
 
 void Decoder::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
 	auto p = this->get_prefix();
 
-	args.add(
-		{p+"-cw-size", "N"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"the codeword size.",
-		tools::arg_rank::REQ);
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-info-bits", "K"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"useful number of bit transmitted (information bits).",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-K,--info-bits",
+		K,
+		"Useful number of bit transmitted (information bits).")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-N,--cw-size",
+		N_cw,
+		"The codeword size.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-type", "D"},
-		tools::Text(tools::Including_set("ML", "CHASE")),
-		"select the algorithm you want to decode the codeword.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-implem"},
-		tools::Text(tools::Including_set("STD", "NAIVE")),
-		"select the implementation of the algorithm to decode.");
+	sub->add_set(
+		"-D,--type",
+		type,
+		type_set,
+		"Select the algorithm you want to decode the codeword.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-hamming"},
-		tools::None(),
-		"enable the computation of the Hamming distance instead of the Euclidean distance in the ML/CHASE decoders.");
+	sub->add_set(
+		"--implem",
+		implem,
+		implem_set,
+		"Select the implementation of the algorithm to decode.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-flips"},
-		tools::Integer(tools::Positive()),
-		"set the maximum number of flips in the CHASE decoder.");
+	sub->add_flag(
+		"--hamming",
+		hamming,
+		"Enable the computation of the Hamming distance instead of the Euclidean distance in the ML/CHASE decoders.")
+		->group("Standard");
+
+	sub->add_option(
+		"--flips",
+		flips,
+		"Set the maximum number of flips in the CHASE decoder.",
+		true)
+		->group("Standard");
 }
 
 void Decoder::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-info-bits", "K"})) this->K          = vals.to_int({p+"-info-bits", "K"});
-	if(vals.exist({p+"-cw-size",   "N"})) this->N_cw       = vals.to_int({p+"-cw-size",   "N"});
-	if(vals.exist({p+"-fra",       "F"})) this->n_frames   = vals.to_int({p+"-fra",       "F"});
-	if(vals.exist({p+"-flips"         })) this->flips      = vals.to_int({p+"-flips"         });
-	if(vals.exist({p+"-type",      "D"})) this->type       = vals.at    ({p+"-type",      "D"});
-	if(vals.exist({p+"-implem"        })) this->implem     = vals.at    ({p+"-implem"        });
-	if(vals.exist({p+"-no-sys"        })) this->systematic = false;
-	if(vals.exist({p+"-hamming"       })) this->hamming    = true;
-
 	this->R = (float)this->K / (float)this->N_cw;
 }
 
@@ -88,15 +95,17 @@ void Decoder::parameters
 	auto p = this->get_prefix();
 
 	headers[p].push_back(std::make_pair("Type (D)",this->type));
-	if(this->implem.size()) headers[p].push_back(std::make_pair("Implementation", this->implem));
-	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(this->K)));
+	if (this->implem.size()) headers[p].push_back(std::make_pair("Implementation", this->implem));
+
+	if (full) headers[p].push_back(std::make_pair("Info. bits (K)",    std::to_string(this->K)));
 	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(this->N_cw)));
-	if (full) headers[p].push_back(std::make_pair("Code rate (R)", std::to_string(this->R)));
-	headers[p].push_back(std::make_pair("Systematic", ((this->systematic) ? "yes" : "no")));
+	if (full) headers[p].push_back(std::make_pair("Code rate (R)",     std::to_string(this->R)));
+
+	headers[p].push_back(std::make_pair("Systematic", ((this->not_systematic) ? "no" : "yes")));
 	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
-	if(this->type == "ML" || this->type == "CHASE")
+	if (this->type == "ML" || this->type == "CHASE")
 		headers[p].push_back(std::make_pair("Distance", this->hamming ? "Hamming" : "Euclidean"));
-	if(this->type == "CHASE")
+	if (this->type == "CHASE")
 		headers[p].push_back(std::make_pair("Max flips", std::to_string(this->flips)));
 }
 

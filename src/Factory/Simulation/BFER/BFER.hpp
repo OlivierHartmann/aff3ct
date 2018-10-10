@@ -29,7 +29,7 @@ struct BFER : Simulation
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
 		std::string err_track_path      = "error_tracker";
-		int         err_track_threshold = 0;
+		unsigned    err_track_threshold = 0;
 		bool        err_track_revert    = false;
 		bool        err_track_enable    = false;
 		bool        coset               = false;
@@ -69,9 +69,9 @@ struct BFER : Simulation
 		const Codec::parameters* get_cdc() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 	protected:
 		parameters(const std::string &n = BFER_name, const std::string &p = BFER_prefix);

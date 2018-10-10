@@ -23,58 +23,66 @@ Monitor_BFER::parameters* Monitor_BFER::parameters
 }
 
 void Monitor_BFER::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Monitor::parameters::get_description(args);
+	Monitor::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-info-bits", "K"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of bits to check.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-K,--info-bits",
+		K,
+		"Number of bits to check.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
 
-	args.add(
-		{p+"-max-fe", "e"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"max number of frame errors for each noise point simulation.");
+	if (!CLI::has_option(sub, "--fra"))
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-max-frame", "n"},
-		tools::Integer(tools::Positive()),
-		"maximum number of frames for each noise point simulation.",
-		tools::arg_rank::ADV);
+	sub->add_option(
+		"-e,--max-fe",
+		n_frame_errors,
+		"Max number of frame errors for each noise point simulation.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-err-hist"},
-		tools::Integer(tools::Positive()),
-		"activate the histogram of the number of errors per frame. Set the max number of bit error per frame included in the histogram (0 is no limit).");
+	sub->add_option(
+		"--max-frame",
+		max_frame,
+		"Maximum number of frames for each noise point simulation (0 means no limit).",
+		true)
+		->check(CLI::PositiveRange(0))
+		->group("Advanced");
 
-	args.add(
-		{p+"-err-hist-path"},
-		tools::File(tools::openmode::write),
-		"path to the output histogram (default is './hist', add automatically the current noise value and the extension '.txt')");
+	sub->add_option(
+		"--err-hist",
+		err_hist,
+		"Activate the histogram of the number of errors per frame. Set the max number of bit error per frame"
+		" included in the histogram (0 is no limit).")
+		->check(CLI::PositiveRange(0))
+		->group("Advanced");
+
+	sub->add_option(
+		"--err-hist-path",
+		err_hist_path,
+		"Path to the output histogram (add automatically the current noise value and the extension '.txt').",
+		true)
+		->group("Standard");
 }
 
 void Monitor_BFER::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Monitor::parameters::store(vals);
-
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-info-bits", "K"})) this->K              = vals.to_int({p+"-info-bits", "K"});
-	if(vals.exist({p+"-fra",       "F"})) this->n_frames       = vals.to_int({p+"-fra",       "F"});
-	if(vals.exist({p+"-max-fe",    "e"})) this->n_frame_errors = vals.to_int({p+"-max-fe",    "e"});
-	if(vals.exist({p+"-err-hist"      })) this->err_hist       = vals.to_int({p+"-err-hist"      });
-	if(vals.exist({p+"-err-hist-path" })) this->err_hist_path  = vals.at    ({p+"-err-hist-path" });
-	if(vals.exist({p+"-max-frame", "n"})) this->max_frame      = vals.to_int({p+"-max-frame", "n"});
+	Monitor::parameters::callback_arguments();
 }
 
 void Monitor_BFER::parameters
@@ -82,21 +90,21 @@ void Monitor_BFER::parameters
 {
 	Monitor::parameters::get_headers(headers, full);
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	headers[p].push_back(std::make_pair("Frame error count (e)", std::to_string(this->n_frame_errors)));
-	if (full) headers[p].push_back(std::make_pair("Size (K)",          std::to_string(this->K       )));
-	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
+	headers[p].push_back(std::make_pair("Frame error count (e)", std::to_string(n_frame_errors)));
+	if (full) headers[p].push_back(std::make_pair("Size (K)",          std::to_string(K       )));
+	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(n_frames)));
 
-	if (this->err_hist >= 0)
-		headers[p].push_back(std::make_pair("Error histogram path", this->err_hist_path));
+	if (err_hist != (unsigned)-1)
+		headers[p].push_back(std::make_pair("Error histogram path", err_hist_path));
 }
 
 template <typename B>
 module::Monitor_BFER<B>* Monitor_BFER::parameters
 ::build(bool count_unknown_values) const
 {
-	if (this->type == "STD") return new module::Monitor_BFER<B>(this->K, this->n_frame_errors, this->max_frame, count_unknown_values, this->n_frames);
+	if (type == "STD") return new module::Monitor_BFER<B>(K, n_frame_errors, max_frame, count_unknown_values, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

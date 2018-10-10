@@ -27,9 +27,9 @@ Decoder_NO::parameters* Decoder_NO::parameters
 }
 
 void Decoder_NO::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -38,9 +38,9 @@ void Decoder_NO::parameters
 }
 
 void Decoder_NO::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 }
 
 void Decoder_NO::parameters

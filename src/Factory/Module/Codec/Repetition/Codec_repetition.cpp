@@ -25,12 +25,12 @@ Codec_repetition::parameters* Codec_repetition::parameters
 }
 
 void Codec_repetition::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SIHO::parameters::get_description(args);
+	Codec_SIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
 	auto pdec = dec->get_prefix();
 
@@ -41,21 +41,21 @@ void Codec_repetition::parameters
 }
 
 void Codec_repetition::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SIHO::parameters::store(vals);
+	Codec_SIHO::parameters::callback_arguments();
 
 	auto enc_r = dynamic_cast<Encoder_repetition::parameters*>(enc.get());
 	auto dec_r = dynamic_cast<Decoder_repetition::parameters*>(dec.get());
 
-	enc->store(vals);
+	enc->callback_arguments();
 
 	dec_r->K        = enc_r->K;
 	dec_r->N_cw     = enc_r->N_cw;
 	dec_r->buffered = enc_r->buffered;
 	dec_r->n_frames = enc_r->n_frames;
 
-	dec->store(vals);
+	dec->callback_arguments();
 
 	K    = enc->K;
 	N_cw = enc->N_cw;

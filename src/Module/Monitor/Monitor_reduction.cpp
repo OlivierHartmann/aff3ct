@@ -36,7 +36,7 @@ void Monitor_reduction
 	Monitor_reduction::t_last_reduction = std::chrono::steady_clock::now();
 	Monitor_reduction::stop_loop        = false;
 
-	for(auto& m : Monitor_reduction::monitors)
+	for (auto& m : Monitor_reduction::monitors)
 		m->reset_mr();
 }
 
@@ -50,7 +50,7 @@ bool Monitor_reduction
 
 	bool is_done = false;
 
-	for(auto& m : Monitor_reduction::monitors)
+	for (auto& m : Monitor_reduction::monitors)
 		is_done |= m->is_done_mr();
 
 	if (is_done)
@@ -70,7 +70,7 @@ void Monitor_reduction
 {
 	Monitor_reduction::set_stop_loop();
 
-	while(!__reduce__(fully, true));
+	while (!__reduce__(fully, true));
 }
 
 void Monitor_reduction
@@ -131,7 +131,7 @@ bool Monitor_reduction
 	        && (std::chrono::steady_clock::now() - Monitor_reduction::t_last_reduction) >= Monitor_reduction::d_reduce_frequency)
 	   )
 	{
-		for(auto& m : Monitor_reduction::monitors)
+		for (auto& m : Monitor_reduction::monitors)
 			m->_reduce(fully);
 
 		all_process_on_last = reduce_stop_loop();

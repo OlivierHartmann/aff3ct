@@ -69,12 +69,12 @@ std::vector<std::string> Codec::parameters
 }
 
 void Codec::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
 }
 
 void Codec::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
 }
 

@@ -18,8 +18,8 @@ struct Frozenbits_generator : public Factory
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		int         K       = -1;
-		int         N_cw    = -1;
+		unsigned    K       = 0;
+		unsigned    N_cw    = 0;
 
 		// optional parameters
 		std::string type    = "GA";
@@ -33,9 +33,9 @@ struct Frozenbits_generator : public Factory
 		Frozenbits_generator::parameters* clone() const;
 
 		// parameters construction
-		void get_description(tools::Argument_map_info &args) const;
-		void store          (const tools::Argument_map_value &vals);
-		void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		void register_arguments(CLI::App &app);
+		void callback_arguments();
+		void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		tools::Frozenbits_generator* build() const;

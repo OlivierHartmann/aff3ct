@@ -24,59 +24,61 @@ Frozenbits_generator::parameters* Frozenbits_generator::parameters
 }
 
 void Frozenbits_generator::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto sub = make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-info-bits", "K"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"useful number of bit transmitted (information bits).",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-K,--info-bits",
+		K,
+		"Useful number of bit transmitted (information bits).")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-cw-size", "N"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"the codeword size.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-N,--cw-size",
+		N_cw,
+		"The codeword size.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-sigma"},
-		tools::Real(tools::Positive(), tools::Non_zero()),
-		"sigma value for the polar codes generation (adaptive frozen bits if sigma is not set).");
+	sub->add_option(
+		"--sigma",
+		sigma,
+		"Sigma value for the polar codes generation (adaptive frozen bits if sigma is not set)")
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-gen-method"},
-		tools::Text(tools::Including_set("GA", "FILE", "TV")),
-		"select the frozen bits generation method.");
+	sub->add_set(
+		"--gen-method",
+		type,
+		{"GA", "FILE", "TV"},
+		"Select the frozen bits generation method.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-awgn-path"},
-		tools::Path(tools::openmode::read),
-		"path to a file or a directory containing the best channels to use for information bits.");
+	sub->add_option(
+		"--awgn-path",
+		path_fb,
+		"Path to a file or a directory containing the best channels to use for information bits.")
+		->check(CLI::ExistingFile)
+		->group("Standard");
 
 #ifdef ENABLE_POLAR_BOUNDS
-	args.add(
-		{p+"-pb-path"},
-		tools::File(tools::openmode::read),
-		"path of the polar bounds code generator (generates best channels to use).");
+	sub->add_option(
+		"--pb-path",
+		path_pb,
+		"Path of the polar bounds code generator (generates best channels to use).")
+		->check(CLI::ExistingFile)
+		->group("Standard");
 #endif
 }
 
 void Frozenbits_generator::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-info-bits", "K"})) this->K       = vals.to_int  ({p+"-info-bits", "K"});
-	if(vals.exist({p+"-cw-size",   "N"})) this->N_cw    = vals.to_int  ({p+"-cw-size",   "N"});
-	if(vals.exist({p+"-sigma"         })) this->sigma   = vals.to_float({p+"-sigma"         });
-	if(vals.exist({p+"-awgn-path"     })) this->path_fb = vals.at      ({p+"-awgn-path"     });
-	if(vals.exist({p+"-gen-method"    })) this->type    = vals.at      ({p+"-gen-method"    });
-
-#ifdef ENABLE_POLAR_BOUNDS
-	if(vals.exist({p+"-pb-path"})) this->path_pb = vals.at({p+"-pb-path"});
-#endif
 }
 
 void Frozenbits_generator::parameters

@@ -28,9 +28,9 @@ Encoder_RSC::parameters* Encoder_RSC::parameters
 }
 
 void Encoder_RSC::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -55,14 +55,14 @@ void Encoder_RSC::parameters
 }
 
 void Encoder_RSC::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-no-buff"})) this->buffered = false;
-	if(vals.exist({p+"-std"    })) this->standard = vals.at({p+"-std"});
+	if (vals.exist({p+"-no-buff"})) this->buffered = false;
+	if (vals.exist({p+"-std"    })) this->standard = vals.at({p+"-std"});
 
 	if (this->standard == "LTE")
 		this->poly = {013, 015};

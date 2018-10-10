@@ -2,6 +2,7 @@
 #include <iostream>
 #include <exception>
 #include <string>
+#include <memory>
 #include <map>
 #include <mipp.h>
 
@@ -12,6 +13,8 @@
 #ifdef SYSTEMC
 #include <systemc>
 #endif
+
+#include <CLI/CLI.hpp>
 
 #include "Tools/types.h"
 #include "Tools/version.h"
@@ -79,48 +82,6 @@ void print_version()
 	exit(EXIT_SUCCESS);
 }
 
-int read_arguments(const int argc, const char** argv, factory::Launcher::parameters &params)
-{
-	tools::Argument_handler ah(argc, argv);
-
-	tools::Argument_map_info args;
-	tools::Argument_map_group arg_group;
-
-	std::vector<std::string> cmd_warn, cmd_error;
-
-	params.get_description(args);
-
-	auto arg_vals = ah.parse_arguments(args, cmd_warn, cmd_error);
-
-	bool display_help = false;
-	try
-	{
-		params.store(arg_vals);
-	}
-	catch(std::exception&)
-	{
-		display_help = true;
-	}
-
-	if (params.display_version)
-		print_version();
-
-	if (cmd_error.size() || display_help)
-	{
-		arg_group["sim"] = "Simulation parameter(s)";
-		ah.print_help(args, arg_group, params.display_adv_help);
-
-		if (cmd_error.size()) std::cerr << std::endl;
-		for (auto w = 0; w < (int)cmd_error.size(); w++)
-			std::cerr << rang::tag::error << cmd_error[w] << std::endl;
-
-		if (cmd_warn.size()) std::cerr << std::endl;
-		for (auto w = 0; w < (int)cmd_warn.size(); w++)
-			std::cerr << rang::tag::warning << cmd_warn[w] << std::endl;
-	}
-	return (cmd_error.size() || display_help) ? EXIT_FAILURE : EXIT_SUCCESS;
-}
-
 #ifndef SYSTEMC
 int main(int argc, char **argv)
 #else
@@ -128,39 +89,74 @@ int sc_main(int argc, char **argv)
 #endif
 {
 	int exit_code = EXIT_SUCCESS;
+
 #ifdef ENABLE_MPI
 	MPI_Init(nullptr, nullptr);
 #endif
 
-	factory::Launcher::parameters params("sim");
-	if (read_arguments(argc, (const char**)argv, params) == EXIT_FAILURE)
-		return EXIT_FAILURE;
+	auto app = factory::Factory::make_argument_handler();
+
+	factory::Launcher::parameters params("sim", "Simulation");
+	params.register_arguments(*app);
+
 
 	try
 	{
-		launcher::Launcher *launcher;
-#ifdef MULTI_PREC
-		switch (params.sim_prec)
-		{
-			case 8 : launcher = factory::Launcher::build<B_8, R_8, Q_8 >(params, argc, (const char**)argv); break;
-			case 16: launcher = factory::Launcher::build<B_16,R_16,Q_16>(params, argc, (const char**)argv); break;
-			case 32: launcher = factory::Launcher::build<B_32,R_32,Q_32>(params, argc, (const char**)argv); break;
-			case 64: launcher = factory::Launcher::build<B_64,R_64,Q_64>(params, argc, (const char**)argv); break;
-			default: launcher = nullptr; break;
-		}
-#else
-		launcher = factory::Launcher::build<B,R,Q>(params, argc, (const char**)argv);
-#endif
-		if (launcher != nullptr)
-		{
-			exit_code = launcher->launch();
-			delete launcher;
-		}
+		app->parse(argc, argv);
 	}
-	catch(std::exception const& e)
+	catch (const CLI::ParseError &e)
 	{
-		rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
+		app->exit(e);
+		exit_code = EXIT_FAILURE;
 	}
+
+
+	if (exit_code == EXIT_SUCCESS)
+	{
+		try
+		{
+			std::unique_ptr<launcher::Launcher> launcher;
+		#ifdef MULTI_PREC
+			switch (params.sim_prec)
+			{
+				case 8 : launcher.reset(factory::Launcher::build<B_8, R_8, Q_8 >(params, argc, (const char**)argv)); break;
+				case 16: launcher.reset(factory::Launcher::build<B_16,R_16,Q_16>(params, argc, (const char**)argv)); break;
+				case 32: launcher.reset(factory::Launcher::build<B_32,R_32,Q_32>(params, argc, (const char**)argv)); break;
+				case 64: launcher.reset(factory::Launcher::build<B_64,R_64,Q_64>(params, argc, (const char**)argv)); break;
+				default: launcher.reset(nullptr); break;
+			}
+		#else
+			launcher.reset(factory::Launcher::build<B,R,Q>(params, argc, (const char**)argv));
+		#endif
+			if (launcher != nullptr)
+				exit_code = launcher->launch();
+		}
+		catch(std::exception const& e)
+		{
+			if (params.advanced_help)
+			{
+				auto app = factory::Factory::make_argument_handler();
+				params.register_arguments(*app);
+
+				app->exit(CLI::CallForAllHelp());
+				exit_code = EXIT_FAILURE;
+			}
+			else if (params.help)
+			{
+				auto app = factory::Factory::make_argument_handler();
+				params.register_arguments(*app);
+
+				app->exit(CLI::CallForHelp());
+				exit_code = EXIT_FAILURE;
+			}
+			else
+			{
+				rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
+				//app->exit(CLI::CallForHelp());
+			}
+		}
+	}
+
 
 #ifdef ENABLE_MPI
 	MPI_Finalize();

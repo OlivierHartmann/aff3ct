@@ -24,9 +24,9 @@ Encoder_repetition::parameters* Encoder_repetition::parameters
 }
 
 void Encoder_repetition::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -39,13 +39,13 @@ void Encoder_repetition::parameters
 }
 
 void Encoder_repetition::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-no-buff"})) this->buffered = false;
+	if (vals.exist({p+"-no-buff"})) this->buffered = false;
 }
 
 void Encoder_repetition::parameters

@@ -28,8 +28,8 @@ struct Decoder_polar : public Decoder
 		std::string simd_strategy = "";
 		std::string polar_nodes   = "{R0,R0L,R1,REP,REPL,SPC}";
 		bool        full_adaptive = true;
-		int         n_ite         = 1;
-		int         L             = 8;
+		unsigned    n_ite         = 1;
+		unsigned    L             = 8;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_polar_prefix);
@@ -37,9 +37,9 @@ struct Decoder_polar : public Decoder
 		Decoder_polar::parameters* clone() const;
 
 		// parameters construction
-		virtual void get_description(tools::Argument_map_info &args) const;
-		virtual void store          (const tools::Argument_map_value &vals);
-		virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+		virtual void register_arguments(CLI::App &app);
+		virtual void callback_arguments();
+		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
 		// builder
 		template <typename B = int, typename Q = float>

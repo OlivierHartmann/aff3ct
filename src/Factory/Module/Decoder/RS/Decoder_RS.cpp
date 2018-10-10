@@ -28,9 +28,9 @@ Decoder_RS::parameters* Decoder_RS::parameters
 }
 
 void Decoder_RS::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -46,9 +46,9 @@ void Decoder_RS::parameters
 }
 
 void Decoder_RS::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 

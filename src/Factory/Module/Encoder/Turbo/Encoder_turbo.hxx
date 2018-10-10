@@ -63,9 +63,9 @@ std::vector<std::string> Encoder_turbo::parameters<E1,E2>
 
 template <class E1, class E2>
 void Encoder_turbo::parameters<E1,E2>
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::get_description(args);
+	Encoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -73,7 +73,7 @@ void Encoder_turbo::parameters<E1,E2>
 
 	if (itl != nullptr)
 	{
-		itl->get_description(args);
+		itl->register_arguments(app);
 
 		auto pi = itl->get_prefix();
 
@@ -89,7 +89,7 @@ void Encoder_turbo::parameters<E1,E2>
 		tools::File(tools::openmode::write),
 		"path to store the encoder and decoder traces formated in JSON.");
 
-	sub1->get_description(args);
+	sub1->register_arguments(app);
 
 	auto ps1 = sub1->get_prefix();
 
@@ -101,7 +101,7 @@ void Encoder_turbo::parameters<E1,E2>
 
 	if (!std::is_same<E1,E2>())
 	{
-		sub2->get_description(args);
+		sub2->register_arguments(app);
 
 		auto ps2 = sub2->get_prefix();
 
@@ -115,13 +115,13 @@ void Encoder_turbo::parameters<E1,E2>
 
 template <class E1, class E2>
 void Encoder_turbo::parameters<E1,E2>
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Encoder::parameters::store(vals);
+	Encoder::parameters::callback_arguments();
 
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-json-path"})) this->json_path = vals.at({p+"-json-path"});
+	if (vals.exist({p+"-json-path"})) this->json_path = vals.at({p+"-json-path"});
 
 	this->sub1->K        = this->K;
 	this->sub2->K        = this->K;
@@ -130,8 +130,8 @@ void Encoder_turbo::parameters<E1,E2>
 	this->sub1->seed     = this->seed;
 	this->sub2->seed     = this->seed;
 
-	sub1->store(vals);
-	sub2->store(vals);
+	sub1->callback_arguments();
+	sub2->callback_arguments();
 
 	if (!this->json_path.empty())
 	{
@@ -148,7 +148,7 @@ void Encoder_turbo::parameters<E1,E2>
 		this->itl->core->size     = this->K;
 		this->itl->core->n_frames = this->n_frames;
 
-		itl->store(vals);
+		itl->callback_arguments();
 
 		if (this->sub1->standard == "LTE" && !vals.exist({"itl-type"}))
 			this->itl->core->type = "LTE";

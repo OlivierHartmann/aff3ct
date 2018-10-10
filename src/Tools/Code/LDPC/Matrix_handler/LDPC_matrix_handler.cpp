@@ -106,7 +106,7 @@ Sparse_matrix LDPC_matrix_handler
 }
 
 void LDPC_matrix_handler
-::read_matrix_size(const std::string& filename, int& H, int& N)
+::read_matrix_size(const std::string& filename, unsigned& H, unsigned& N)
 {
 	std::ifstream file(filename);
 	if (!file.is_open())
@@ -120,7 +120,7 @@ void LDPC_matrix_handler
 }
 
 void LDPC_matrix_handler
-::read_matrix_size(std::ifstream &file, int& H, int& N)
+::read_matrix_size(std::ifstream &file, unsigned& H, unsigned& N)
 {
 	auto format = get_matrix_format(file);
 
@@ -142,7 +142,7 @@ void LDPC_matrix_handler
 }
 
 bool LDPC_matrix_handler
-::check_info_pos(const Positions_vector& info_bits_pos, int K, int N, bool throw_when_wrong)
+::check_info_pos(const Positions_vector& info_bits_pos, unsigned K, unsigned N, bool throw_when_wrong)
 {
 	if (info_bits_pos.size() != (unsigned)K)
 	{

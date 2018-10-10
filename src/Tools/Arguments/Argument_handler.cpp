@@ -40,7 +40,7 @@ bool Argument_handler
 	auto& links = args.get_links();
 
 	size_t tag_link_pos = 0;
-	while((tag_link_pos = links.find(tag, tag_link_pos)) < links.size())
+	while ((tag_link_pos = links.find(tag, tag_link_pos)) < links.size())
 	{
 		const auto& link = links[tag_link_pos];
 		auto other_tag = link.other_tag(tag);
@@ -136,7 +136,7 @@ std::vector<bool> Argument_handler
 					// else the tag is set previously in the command so overwrite it
 
 
-					if(it_arg_info->second->type->get_title() == "") // do not wait for a value after the tag
+					if (it_arg_info->second->type->get_title() == "") // do not wait for a value after the tag
 					{
 						// auto it = arg_v.find(it_arg_info->first);
 						// if (it == arg_v.end())
@@ -149,7 +149,7 @@ std::vector<bool> Argument_handler
 					}
 					else // wait for a value with the tag
 					{
-						if(ix_arg_val != (this->command.size() -1))
+						if (ix_arg_val != (this->command.size() -1))
 						{
 							// auto it = arg_v.find(it_arg_info->first);
 							// if (it == arg_v.end())
@@ -198,7 +198,7 @@ void Argument_handler
 		if (it->second->rank == arg_rank::REQ
 		 && std::find(existing_flags.begin(), existing_flags.end(), it->first.back()) == existing_flags.end())
 		{
-			if(it->second->type->get_title() != "")
+			if (it->second->type->get_title() != "")
 				help_os << " " + print_tag(it->first.back()) << " <" << it->second->type->get_short_title() << ">";
 			else
 				help_os << " " + print_tag(it->first.back());

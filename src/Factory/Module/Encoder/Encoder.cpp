@@ -32,62 +32,71 @@ Encoder::parameters* Encoder::parameters
 }
 
 void Encoder::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
 	auto p = this->get_prefix();
 
-	args.add(
-		{p+"-info-bits", "K"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"useful number of bit transmitted (information bits).",
-		tools::arg_rank::REQ);
+	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	args.add(
-		{p+"-cw-size", "N"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"the codeword size.",
-		tools::arg_rank::REQ);
+	sub->add_option(
+		"-K,--info-bits",
+		K,
+		"Useful number of bit transmitted (information bits).")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-fra", "F"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"set the number of inter frame level to process.");
+	sub->add_option(
+		"-N,--cw-size",
+		N_cw,
+		"The codeword size.")
+		->required()
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-type"},
-		tools::Text(tools::Including_set("NO", "USER", "AZCW", "COSET")),
-		"type of the encoder to use in the simulation.");
+	sub->add_option(
+		"-F,--fra",
+		n_frames,
+		"Set the number of inter frame level to process.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
 
-	args.add(
-		{p+"-path"},
-		tools::File(tools::openmode::read),
-		"path to a file containing one or a set of pre-computed codewords, to use with \"--enc-type USER\".");
+	sub->add_set(
+		"--type",
+		type,
+		type_set,
+		"Type of the encoder to use in the simulation.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-start-idx"},
-		tools::Integer(tools::Positive()),
-		"Start idx to use in the USER type encoder.");
+	sub->add_option(
+		"--path",
+		path,
+		"Path to a file containing one or a set of pre-computed codewords, to use with \"--enc-type USER\".")
+		->check(CLI::ExistingFile)
+		->group("Standard");
 
-	args.add(
-		{p+"-seed", "S"},
-		tools::Integer(tools::Positive()),
-		"seed used to initialize the pseudo random generators.");
+	sub->add_option(
+		"--start-idx",
+		start_idx,
+		"Start idx to use in the USER type encoder.",
+		true)
+		->check(CLI::PositiveRange(0))
+		->group("Standard");
+
+	sub->add_option(
+		"-S,--seed",
+		seed,
+		"Seed used to initialize the pseudo random generators.",
+		true)
+		->check(CLI::PositiveRange(0))
+		->group("Standard");
 }
 
 void Encoder::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	auto p = this->get_prefix();
-
-	if(vals.exist({p+"-info-bits", "K"})) this->K          = vals.to_int({p+"-info-bits", "K"});
-	if(vals.exist({p+"-cw-size",   "N"})) this->N_cw       = vals.to_int({p+"-cw-size",   "N"});
-	if(vals.exist({p+"-fra",       "F"})) this->n_frames   = vals.to_int({p+"-fra",       "F"});
-	if(vals.exist({p+"-seed",      "S"})) this->seed       = vals.to_int({p+"-seed",      "S"});
-	if(vals.exist({p+"-type"          })) this->type       = vals.at    ({p+"-type"          });
-	if(vals.exist({p+"-path"          })) this->path       = vals.at    ({p+"-path"          });
-	if(vals.exist({p+"-no-sys"        })) this->systematic = false;
-	if(vals.exist({p+"-start-idx"     })) this->start_idx  = vals.to_int({p+"-start-idx"     });
-
 	this->R = (float)this->K / (float)this->N_cw;
 }
 
@@ -101,7 +110,7 @@ void Encoder::parameters
 	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(this->N_cw)));
 	if (full) headers[p].push_back(std::make_pair("Code rate (R)", std::to_string(this->R)));
 	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
-	headers[p].push_back(std::make_pair("Systematic", ((this->systematic) ? "yes" : "no")));
+	headers[p].push_back(std::make_pair("Systematic", ((this->not_systematic) ? "no" : "yes")));
 	if (this->type == "USER")
 		headers[p].push_back(std::make_pair("Path", this->path));
 	if (this->type == "COSET" && full)

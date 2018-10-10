@@ -55,9 +55,9 @@ Decoder_LDPC::parameters* Decoder_LDPC::parameters
 }
 
 void Decoder_LDPC::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::get_description(args);
+	Decoder::parameters::register_arguments(app);
 
 	auto p = this->get_prefix();
 
@@ -125,24 +125,24 @@ void Decoder_LDPC::parameters
 }
 
 void Decoder_LDPC::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
 	auto p = this->get_prefix();
 
-	if(vals.exist({p+"-h-path"    })) this->H_path          = vals.at      ({p+"-h-path"    });
-	if(vals.exist({p+"-h-reorder" })) this->H_reorder       = vals.at      ({p+"-h-reorder" });
-	if(vals.exist({p+"-simd"      })) this->simd_strategy   = vals.at      ({p+"-simd"      });
-	if(vals.exist({p+"-min"       })) this->min             = vals.at      ({p+"-min"       });
-	if(vals.exist({p+"-ite",   "i"})) this->n_ite           = vals.to_int  ({p+"-ite",   "i"});
-	if(vals.exist({p+"-synd-depth"})) this->syndrome_depth  = vals.to_int  ({p+"-synd-depth"});
-	if(vals.exist({p+"-off"       })) this->offset          = vals.to_float({p+"-off"       });
-	if(vals.exist({p+"-mwbf"      })) this->mwbf_factor     = vals.to_float({p+"-mwbf"       });
-	if(vals.exist({p+"-norm"      })) this->norm_factor     = vals.to_float({p+"-norm"      });
-	if(vals.exist({p+"-no-synd"   })) this->enable_syndrome = false;
+	if (vals.exist({p+"-h-path"    })) this->H_path          = vals.at      ({p+"-h-path"    });
+	if (vals.exist({p+"-h-reorder" })) this->H_reorder       = vals.at      ({p+"-h-reorder" });
+	if (vals.exist({p+"-simd"      })) this->simd_strategy   = vals.at      ({p+"-simd"      });
+	if (vals.exist({p+"-min"       })) this->min             = vals.at      ({p+"-min"       });
+	if (vals.exist({p+"-ite",   "i"})) this->n_ite           = vals.to_int  ({p+"-ite",   "i"});
+	if (vals.exist({p+"-synd-depth"})) this->syndrome_depth  = vals.to_int  ({p+"-synd-depth"});
+	if (vals.exist({p+"-off"       })) this->offset          = vals.to_float({p+"-off"       });
+	if (vals.exist({p+"-mwbf"      })) this->mwbf_factor     = vals.to_float({p+"-mwbf"       });
+	if (vals.exist({p+"-norm"      })) this->norm_factor     = vals.to_float({p+"-norm"      });
+	if (vals.exist({p+"-no-synd"   })) this->enable_syndrome = false;
 
 	if (!this->H_path.empty())
 	{
-		int M;
+		unsigned M;
 		tools::LDPC_matrix_handler::read_matrix_size(this->H_path, M, this->N_cw);
 
 		if (M > this->N_cw)
@@ -151,7 +151,7 @@ void Decoder_LDPC::parameters
 		this->K = this->N_cw - M; // considered as regular so M = N - K
 	}
 
-	Decoder::parameters::store(vals);
+	Decoder::parameters::callback_arguments();
 }
 
 void Decoder_LDPC::parameters

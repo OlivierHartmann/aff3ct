@@ -35,49 +35,52 @@ void Codec_LDPC::parameters
 }
 
 void Codec_LDPC::parameters
-::get_description(tools::Argument_map_info &args) const
+::register_arguments(CLI::App &app)
 {
-	Codec_SISO_SIHO::parameters::get_description(args);
+	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->get_description(args);
-	dec->get_description(args);
+	enc->register_arguments(app);
+	dec->register_arguments(app);
 
-	auto penc = enc->get_prefix();
-	auto pdec = dec->get_prefix();
+	auto sub_dec = app.get_subcommand(dec->get_prefix());
+	auto sub_enc = app.get_subcommand(enc->get_prefix());
 
-	args.erase({penc+"-h-path"           });
-	args.erase({penc+"-h-reorder"        });
-	args.erase({pdec+"-cw-size",   "N"   });
-	args.erase({pdec+"-info-bits", "K"   });
-	args.erase({pdec+"-fra",       "F"   });
+	sub_enc->remove_option(sub_enc->get_option("--h-path"   ));
+	sub_enc->remove_option(sub_enc->get_option("--h-reorder"));
 
-	args.add_link({pdec+"-h-path"}, {penc+"-info-bits", "K"});
-	args.add_link({pdec+"-h-path"}, {penc+"-cw-size",   "N"});
+	sub_dec->remove_option(sub_dec->get_option("--cw-size"  ));
+	sub_dec->remove_option(sub_dec->get_option("--info-bits"));
+	sub_dec->remove_option(sub_dec->get_option("--fra"      ));
+
+	auto h_path_option = sub_dec->get_option("--h-path");
+	h_path_option->needs(sub_enc->get_option("--info-bits"));
+	h_path_option->needs(sub_enc->get_option("--cw-size"  ));
+
 
 	if (pct != nullptr)
 	{
-		pct->get_description(args);
+		pct->register_arguments(app);
 
-		auto ppct = pct->get_prefix();
+		auto sub_pct = app.get_subcommand(pct->get_prefix());
 
-		args.erase({ppct+"-info-bits", "K"   });
-		args.erase({ppct+"-fra",       "F"   });
-		args.erase({ppct+"-cw-size",   "N_cw"});
+		sub_pct->remove_option(sub_pct->get_option("--info-bits"));
+		sub_pct->remove_option(sub_pct->get_option("--fra"      ));
+		sub_pct->remove_option(sub_pct->get_option("--cw-size"  ));
 
-		args.add_link({pdec+"-h-path"}, {ppct+"-fra-size", "N"});
+		h_path_option->needs(sub_pct->get_option("--fra-size"));
 	}
 }
 
 void Codec_LDPC::parameters
-::store(const tools::Argument_map_value &vals)
+::callback_arguments()
 {
-	Codec_SISO_SIHO::parameters::store(vals);
+	Codec_SISO_SIHO::parameters::callback_arguments();
 
 	auto enc_ldpc = dynamic_cast<Encoder_LDPC::parameters*>(enc.get());
 	auto dec_ldpc = dynamic_cast<Decoder_LDPC::parameters*>(dec.get());
 
-	enc->store(vals);
-	dec->store(vals);
+	enc->callback_arguments();
+	dec->callback_arguments();
 
 	if (enc->type == "LDPC_DVBS2" || enc->type == "LDPC")
 		dec->N_cw = enc->N_cw; // then the encoder knows the N_cw
@@ -113,7 +116,7 @@ void Codec_LDPC::parameters
 		pct->N_cw     = enc->N_cw;
 		pct->n_frames = enc->n_frames;
 
-		pct->store(vals);
+		pct->callback_arguments();
 	}
 
 	K    = enc->K;
