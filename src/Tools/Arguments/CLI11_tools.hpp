@@ -1,13 +1,10 @@
 #ifndef CLI11_TOOLS_HPP
 #define CLI11_TOOLS_HPP
 
+#include <sstream>
 #include <string>
 #include <chrono>
 #include <vector>
-
-#include <CLI/CLI.hpp>
-
-#include "Validators.hpp"
 
 namespace CLI
 {
@@ -15,6 +12,13 @@ namespace CLI
 std::istringstream &operator>>(std::istringstream &in, std::chrono::     seconds &val);
 std::istringstream &operator>>(std::istringstream &in, std::chrono::milliseconds &val);
 
+}
+
+#include <CLI/CLI.hpp>
+#include "Validators.hpp"
+
+namespace CLI
+{
 
 /**
  * \brief Return the subcommand in app if exists else create it.
