@@ -5,22 +5,6 @@
 
 using namespace CLI;
 
-std::istringstream &CLI::operator>>(std::istringstream &in, std::chrono::seconds &val)
-{
-    int v;
-    in >> v;
-    val = std::chrono::seconds(v);
-    return in;
-}
-
-std::istringstream &CLI::operator>>(std::istringstream &in, std::chrono::milliseconds &val)
-{
-    int v;
-    in >> v;
-    val = std::chrono::milliseconds(v);
-    return in;
-}
-
 
 CLI::App* CLI::make_subcommand(CLI::App& app, const std::string& command, const std::string& description)
 {

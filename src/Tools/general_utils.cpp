@@ -152,11 +152,18 @@ std::vector<R> aff3ct::tools::generate_range(const std::vector<std::vector<R>>& 
 		int max  = (int)(s.back () * float_precision);
 		int step = (int)(((s.size() == 3) ? s[1] : default_step) * float_precision);
 
-		if (min > max && step < 0)
+		if (step == 0)
 		{
-			std::swap(min, max);
-			step *= -1;
+			std::stringstream message;
+			message << "'step' is null.";
+			throw runtime_error(__FILE__, __LINE__, __func__, message.str());
 		}
+
+		if (step < 0)
+			step *= -1;
+
+		if (min > max)
+			std::swap(min, max);
 
 		for (int v = min; v <= max; v += step)
 			range.push_back(v);

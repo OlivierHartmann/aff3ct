@@ -13,7 +13,7 @@ Puncturer_LDPC<B,Q>
 ::Puncturer_LDPC(const int &K,
                  const int &N,
                  const int &N_cw,
-                 const std::vector<bool> &pattern,
+                 const std::vector<int8_t> &pattern,
                  const int n_frames)
 : Puncturer<B,Q>(K, N, N_cw, n_frames)
 {

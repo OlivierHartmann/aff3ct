@@ -19,6 +19,8 @@ Puncturer_LDPC::parameters
 : Puncturer::parameters(Puncturer_LDPC_name, prefix)
 {
 	type = "LDPC";
+
+	type_set.insert("LDPC");
 }
 
 Puncturer_LDPC::parameters* Puncturer_LDPC::parameters
@@ -35,43 +37,19 @@ void Puncturer_LDPC::parameters
 	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
 	sub->add_option(
-		"-N,--cw-size",
+		"--cw-size",
 		N_cw,
 		"The codeword size.")
 		->required()
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	type_set.insert("LDPC");
-
 	sub->add_option(
 		"--pattern",
-		str_pattern,
-		"Puncturing pattern for the LDPC encoder/decoder (size = N_Code/Z) (ex: \"1,1,1,0\").")
+		pattern,
+		"Puncturing pattern for the LDPC encoder/decoder (size = N_Code/Z) (ex: \"{1,1,1,0}\").")
+		->check(CLI::Boolean())
 		->group("Standard");
-}
-
-std::vector<bool> generate_punct_vector(const std::string &pattern)
-{
-	std::vector<std::string> str_array = aff3ct::tools::split(pattern, ',');
-	int N_pattern = (int)str_array.size();
-
-	if (N_pattern == 0)
-	{
-		std::stringstream message;
-		message << "'pattern' shouldn't be null and should be delimited by a comma ('pattern' = " << pattern
-		        << ", 'str_array.size()' = " << str_array.size() << ").";
-		throw tools::invalid_argument(__FILE__, __LINE__, __func__, message.str());
-	}
-
-	std::vector<bool> pattern_vector(N_pattern, true);
-
-	for (auto j = 0; j < N_pattern; j++)
-	{
-		char c[2] = {str_array[j][0], '\0'};
-		pattern_vector[j] = std::stoi(std::string(c)) ? true : false;
-	}
-	return pattern_vector;
 }
 
 void Puncturer_LDPC::parameters
@@ -79,11 +57,8 @@ void Puncturer_LDPC::parameters
 {
 	auto save_N_cw = N_cw;
 	Puncturer::parameters::callback_arguments();
-	if (save_N_cw > 0)
+	if (save_N_cw != 0)
 		N_cw = save_N_cw;
-
-	if (str_pattern.size() != 0)
-		pattern = generate_punct_vector(str_pattern);
 
 	if (N == N_cw)
 		type = "NO";

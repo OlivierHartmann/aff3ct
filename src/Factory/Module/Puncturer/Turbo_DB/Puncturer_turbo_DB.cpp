@@ -17,6 +17,8 @@ Puncturer_turbo_DB::parameters
 : Puncturer::parameters(Puncturer_turbo_DB_name, prefix)
 {
 	type = "TURBO_DB";
+
+	type_set.insert("TURBO_DB");
 }
 
 Puncturer_turbo_DB::parameters* Puncturer_turbo_DB::parameters
@@ -29,8 +31,6 @@ void Puncturer_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
 	Puncturer::parameters::register_arguments(app);
-
-	type_set.insert("TURBO_DB");
 }
 
 void Puncturer_turbo_DB::parameters

@@ -38,6 +38,12 @@ Channel::parameters
 ::parameters(const std::string &prefix)
 : Factory::parameters(Channel_name, Channel_name, prefix)
 {
+#ifdef CHANNEL_GSL
+	implem_set.insert("GSL");
+#endif
+#ifdef CHANNEL_MKL
+	implem_set.insert("MKL");
+#endif
 }
 
 Channel::parameters* Channel::parameters
@@ -85,13 +91,6 @@ void Channel::parameters
 		true)
 		->group("Standard");
 
-
-#ifdef CHANNEL_GSL
-	implem_set.insert("GSL");
-#endif
-#ifdef CHANNEL_MKL
-	implem_set.insert("MKL");
-#endif
 
 	sub->add_option(
 		"--path",

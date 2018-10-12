@@ -42,7 +42,7 @@ void Puncturer::parameters
 	sub->add_option(
 		"-N,--fra-size",
 		N,
-		"The codeword size.")
+		"The frame size.")
 		->required()
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");

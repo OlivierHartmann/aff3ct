@@ -42,7 +42,7 @@ struct PositiveRange : public Validator
 				T val;
 				detail::lexical_cast(input, val);
 				if (val < (T)0 || val > max)
-					return "Value " + input + " not a positive value with maximum " + std::to_string(max);
+					return "Value " + input + " not a positive value with maximum " + std::to_string(max) + ".";
 
 				return std::string();
 			};
@@ -62,7 +62,7 @@ struct StrictlyPositiveRange : public Validator
 
 			tname = out.str();
 			func = [](const std::string &input) {
-				T val;
+				auto val = (T)0;
 				detail::lexical_cast(input, val);
 				if (val <= (T)0)
 					return "Value " + input + " not a stritly positive value";
@@ -77,10 +77,10 @@ struct StrictlyPositiveRange : public Validator
 
 			tname = out.str();
 			func = [max](const std::string &input) {
-				T val;
+				auto val = (T)0;
 				detail::lexical_cast(input, val);
 				if (val <= (T)0 || val > max)
-					return "Value " + input + " not a strictly positive value with maximum " + std::to_string(max);
+					return "Value " + input + " not a strictly positive value with maximum " + std::to_string(max) + ".";
 
 				return std::string();
 			};
@@ -100,7 +100,7 @@ struct NotNullSymetricRange : public Validator
 
 			tname = out.str();
 			func = [](const std::string &input) {
-				T val;
+				auto val = (T)0;
 				detail::lexical_cast(input, val);
 				if (val == (T)0)
 					return "Value " + input + " is null.";
@@ -115,10 +115,10 @@ struct NotNullSymetricRange : public Validator
 
 			tname = out.str();
 			func = [max](const std::string &input) {
-				T val;
+				auto val = (T)0;
 				detail::lexical_cast(input, val);
 				if (val <= (T)0 || val > max)
-					return "Value " + input + " is null and can have a maximum of +-" + std::to_string(max);
+					return "Value " + input + " is null and can have a maximum of +-" + std::to_string(max) + ".";
 
 				return std::string();
 			};
@@ -131,20 +131,54 @@ struct NotNullSymetricRange : public Validator
 template <typename T>
 struct Power_of_two_minus_one : public CLI::Validator
 {
-    Power_of_two_minus_one()
-    {
-        tname = "Power of two minus one";
-        func = [](const std::string &str) {
-        	T val;
-        	detail::lexical_cast(str, val);
-            if(aff3ct::tools::is_power_of_2(val + (T)1))
-                return std::string();
-            else
-                return std::string("Value is not a power of two minus one");
-        };
-    }
+	Power_of_two_minus_one()
+	{
+		tname = "Power of two minus one";
+		func = [](const std::string &str)
+		{
+			auto val = (T)0;
+			detail::lexical_cast(str, val);
+
+			if(aff3ct::tools::is_power_of_2(val + (T)1))
+				return std::string();
+			else
+				return std::string("Value is not a power of two minus one.");
+		};
+	}
 };
 
+
+struct Boolean : public CLI::Validator
+{
+	Boolean()
+	{
+		std::stringstream out;
+		out << detail::type_name<bool>() << " in {true, 1, false, 0}";
+
+		tname = out.str();
+		func = [](const std::string &str)
+		{
+			auto val = false;
+
+			if(detail::lexical_cast(str, val))
+				return std::string();
+			else
+				return std::string("Value is not a boolean.");
+		};
+	}
+};
+
+
+
+/// Check for an existing file (returns error message if check fails)
+struct OutputFile : public Validator {
+	OutputFile() {
+		tname = "FILE";
+		func = [](const std::string &filename) {
+			return std::string();
+		};
+	}
+};
 
 }
 

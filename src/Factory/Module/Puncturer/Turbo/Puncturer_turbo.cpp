@@ -26,6 +26,8 @@ Puncturer_turbo::parameters
 : Puncturer::parameters(Puncturer_turbo_name, prefix)
 {
 	type = "TURBO";
+
+	type_set.insert("TURBO");
 }
 
 Puncturer_turbo::parameters* Puncturer_turbo::parameters
@@ -54,8 +56,6 @@ void Puncturer_turbo::parameters
 	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
 	sub->remove_option(sub->get_option("--fra-size"));
-
-	type_set.insert("TURBO");
 
 	sub->add_option(
 		"--pattern",

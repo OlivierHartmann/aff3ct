@@ -69,12 +69,14 @@ factory::Launcher::parameters* factory::Launcher::parameters
 void factory::Launcher::parameters
 ::register_arguments(CLI::App &app)
 {
+	if (!CLI::has_option(app, "--help"))
 	app.add_flag(
 		"-h,--help",
 		help,
 		"Print the help.")
 		->group("Standard");
 
+	if (!CLI::has_option(app, "--Help"))
 	app.add_flag(
 		"-H,--Help",
 		advanced_help,

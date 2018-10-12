@@ -51,7 +51,7 @@ LDPC_matrix_handler::Matrix_format LDPC_matrix_handler
 
 
 Sparse_matrix LDPC_matrix_handler
-::read(const std::string& filename, Positions_vector* info_bits_pos, std::vector<bool>* pct_pattern)
+::read(const std::string& filename, Positions_vector* info_bits_pos, std::vector<int8_t>* pct_pattern)
 {
 	std::ifstream file(filename);
 	if (!file.is_open())
@@ -65,7 +65,7 @@ Sparse_matrix LDPC_matrix_handler
 }
 
 Sparse_matrix LDPC_matrix_handler
-::read(std::ifstream& file, Positions_vector* info_bits_pos, std::vector<bool>* pct_pattern)
+::read(std::ifstream& file, Positions_vector* info_bits_pos, std::vector<int8_t>* pct_pattern)
 {
 	auto format = get_matrix_format(file);
 

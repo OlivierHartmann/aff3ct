@@ -27,10 +27,10 @@ public:
 	 * read the matrix from the given file
 	 */
 	static Sparse_matrix read(const std::string& filename, Positions_vector* info_bits_pos = nullptr,
-	                          std::vector<bool>* pct_pattern = nullptr);
+	                          std::vector<int8_t>* pct_pattern = nullptr);
 
 	static Sparse_matrix read(std::ifstream &file, Positions_vector* info_bits_pos = nullptr,
-	                          std::vector<bool>* pct_pattern = nullptr);
+	                          std::vector<int8_t>* pct_pattern = nullptr);
 
 	/*
 	 * try to guess the matrix format from the given input stream

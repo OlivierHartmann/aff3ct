@@ -214,8 +214,8 @@ std::unique_ptr<CLI::App> aff3ct::factory::Factory::make_argument_handler()
 	std::unique_ptr<CLI::App> app(new CLI::App{"A Fast Forward Error Correction Toolbox!"});
 
 	app->require_subcommand(0,0); // require at least one subcommand
-	app->fallthrough(false); // allow main argument (as help or version flags) to be given any where in the command
-	app->allow_extras(); // allow extra arguments
+	app->fallthrough(true); // allow main argument (as help or version flags) to be given any where in the command
+	app->allow_extras(); // allow extra arguments for multiple subcommands
 
 
 	app->formatter(std::make_shared<CLI::Help_formatter>());

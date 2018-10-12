@@ -15,9 +15,9 @@ namespace tools
 struct QC
 {
 public:
-	static Sparse_matrix     read            (                             std::istream &stream                );
-	static std::vector<bool> read_pct_pattern(                             std::istream &stream, int N_red = -1);
-	static void              write           (const Sparse_matrix &matrix, std::ostream &stream                );
+	static Sparse_matrix       read            (                             std::istream &stream                );
+	static std::vector<int8_t> read_pct_pattern(                             std::istream &stream, int N_red = -1);
+	static void                write           (const Sparse_matrix &matrix, std::ostream &stream                );
 
 	/*
 	 * get the matrix dimensions H and N from the input stream

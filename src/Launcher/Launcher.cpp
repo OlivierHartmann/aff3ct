@@ -35,7 +35,8 @@
 using namespace aff3ct;
 using namespace aff3ct::launcher;
 
-Launcher::Launcher(const int argc, const char **argv, std::ostream &stream)
+Launcher
+::Launcher(const int argc, const char **argv, std::ostream &stream)
 : simu(nullptr), argc(argc), argv((char**)argv), params_simu(nullptr), ah(argc, argv), stream(stream)
 {
 	cmd_line += std::string(argv[0]) + std::string(" ");
@@ -50,20 +51,49 @@ Launcher::Launcher(const int argc, const char **argv, std::ostream &stream)
 	}
 }
 
-void Launcher::set_params(factory::Simulation::parameters *params)
+void Launcher
+::set_params(factory::Simulation::parameters *params)
 {
 	params_simu = params;
 }
 
-void Launcher::register_arguments(CLI::App &app)
+void Launcher
+::register_arguments(CLI::App &app)
 {
 }
 
-void Launcher::callback_arguments()
+void Launcher
+::callback_arguments()
 {
 }
 
-int Launcher::generate_arguments()
+int Launcher
+::print_help(bool help, bool advanced)
+{
+	if (advanced)
+	{
+		auto app = factory::Factory::make_argument_handler();
+
+		this->register_arguments(*app);
+
+		app->exit(CLI::CallForAllHelp());
+		return EXIT_FAILURE;
+	}
+	else if (help)
+	{
+		auto app = factory::Factory::make_argument_handler();
+
+		this->register_arguments(*app);
+
+		app->exit(CLI::CallForHelp());
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+int Launcher
+::generate_arguments()
 {
 	auto app = factory::Factory::make_argument_handler();
 
@@ -75,29 +105,39 @@ int Launcher::generate_arguments()
 	}
 	catch (const CLI::ParseError &e)
 	{
+		std::cerr << "PARSING ERROR" << std::endl;
 		if (params_simu->mpi_rank == 0)
-			app->exit(e);
+		{
+			auto app2 = factory::Factory::make_argument_handler();
+			// add the help flags to shorcut required arguments or links if help is asked
+			app2->set_help_flag("-h,--help", "Print the help.");
+			app2->set_help_all_flag("-H,--Help", "Print this help with the advanced arguments.");
+
+			this->register_arguments(*app2);
+
+			try
+			{
+				app2->parse(argc, argv);
+			}
+			catch (const CLI::CallForAllHelp &e)
+			{
+				print_help(false, true);
+			}
+			catch (const CLI::CallForHelp &e)
+			{
+				print_help(true, false);
+			}
+			catch (const CLI::ParseError &e)
+			{
+			}
+			std::cerr << rang::tag::error << e.what() << std::endl;
+			// return EXIT_FAILURE;
+		}
 		return EXIT_FAILURE;
 	}
 
-	if (params_simu->advanced_help)
-	{
-		auto app = factory::Factory::make_argument_handler();
-
-		this->register_arguments(*app);
-
-		app->exit(CLI::CallForAllHelp());
+	if (print_help(params_simu->help, params_simu->advanced_help) == EXIT_FAILURE)
 		return EXIT_FAILURE;
-	}
-	else if (params_simu->help)
-	{
-		auto app = factory::Factory::make_argument_handler();
-
-		this->register_arguments(*app);
-
-		app->exit(CLI::CallForHelp());
-		return EXIT_FAILURE;
-	}
 
 	this->callback_arguments();
 
@@ -107,7 +147,8 @@ int Launcher::generate_arguments()
 	return EXIT_SUCCESS;
 }
 
-void Launcher::print_header()
+void Launcher
+::print_header()
 {
 	// display configuration and simulation parameters
 	stream << rang::tag::comment << rang::style::bold << "----------------------------------------------------" << std::endl;
@@ -144,7 +185,8 @@ std::string remove_argument(std::string cmd, const std::vector<std::string>& arg
 	return cmd;
 }
 
-int Launcher::launch()
+int Launcher
+::launch()
 {
 	if (params_simu == nullptr)
 		tools::runtime_error(__FILE__, __LINE__, __func__, "'params_simu' is a nullptr.");
@@ -172,7 +214,7 @@ int Launcher::launch()
 
 	try
 	{
-		// simu.reset(this->build_simu());
+		simu.reset(this->build_simu());
 	}
 	catch(const std::exception& e)
 	{
@@ -189,7 +231,7 @@ int Launcher::launch()
 
 		try
 		{
-			// simu->launch();
+			simu->launch();
 			if (simu->is_error())
 				exit_code = EXIT_FAILURE;
 		}

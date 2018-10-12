@@ -13,14 +13,14 @@ template <typename B = int, typename Q = float>
 class Puncturer_LDPC : public Puncturer<B,Q>
 {
 protected:
-	std::vector<bool> pattern_bits;
+	std::vector<int8_t> pattern_bits;
 	int               Z;
 
 public:
 	Puncturer_LDPC(const int &K,
 	               const int &N,
 	               const int &N_cw,
-	               const std::vector<bool> &pattern,
+	               const std::vector<int8_t> &pattern,
 	               const int n_frames = 1);
 	virtual ~Puncturer_LDPC() = default;
 

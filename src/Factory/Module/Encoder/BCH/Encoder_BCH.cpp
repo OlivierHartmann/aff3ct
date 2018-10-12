@@ -16,6 +16,8 @@ Encoder_BCH::parameters
 : Encoder::parameters(Encoder_BCH_name, prefix)
 {
 	type = "BCH";
+
+	type_set.insert("BCH");
 }
 
 Encoder_BCH::parameters* Encoder_BCH::parameters
@@ -30,8 +32,6 @@ void Encoder_BCH::parameters
 	Encoder::parameters::register_arguments(app);
 
 	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	type_set.insert("BCH");
 
 	sub->get_option("--cw-size")->check(CLI::Power_of_two_minus_one<decltype(N_cw)>());
 }

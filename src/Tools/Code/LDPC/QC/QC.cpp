@@ -111,11 +111,11 @@ Sparse_matrix QC
 	return H.transpose();
 }
 
-std::vector<bool> QC
+std::vector<int8_t> QC
 ::read_pct_pattern(std::istream &stream, int N_red)
 {
 	std::string line;
-	std::vector<bool> pattern;
+	std::vector<int8_t> pattern;
 
 	// try to get puncture pattern
 	try

@@ -20,6 +20,12 @@ LDPC<L,B,R,Q>
 
 	if (std::is_same<L, BFER_std<B,R,Q>>::value)
 		params_cdc->enable_puncturer();
+
+	if (std::is_same<Q,int8_t>() || std::is_same<Q,int16_t>())
+	{
+		this->params.qnt->n_bits     = 6;
+		this->params.qnt->n_decimals = 2;
+	}
 }
 
 bool enc_dvb_no_h_matrix(const void*, const void* enc_type)
@@ -36,13 +42,17 @@ void LDPC<L,B,R,Q>
 {
 	params_cdc->register_arguments(app);
 
-	auto penc = params_cdc->enc->get_prefix();
-	auto pdec = params_cdc->dec->get_prefix();
+	// auto sub_dec = app.get_subcommand(params_cdc->dec->get_prefix());
+	auto sub_enc = app.get_subcommand(params_cdc->enc->get_prefix());
 
-	this->args.erase({penc+"-fra",  "F"});
-	this->args.erase({penc+"-seed", "S"});
+	CLI::remove_option(sub_enc, "--fra" );
+	CLI::remove_option(sub_enc, "--seed");
 
-	this->args.add_link({pdec+"-h-path"}, {penc+"-type"}, enc_dvb_no_h_matrix);
+
+	sub_enc->get_option("--info-bits")->required(false);
+	sub_enc->get_option("--cw-size"  )->required(false);
+	// sub_dec.get_option("--h-path")->excludes(sub_dec.get_option("--type"));
+	// this->args.add_link({pdec+"-h-path"}, {penc+"-type"}, enc_dvb_no_h_matrix);
 
 
 	L::register_arguments(app);
@@ -58,12 +68,6 @@ void LDPC<L,B,R,Q>
 
 	if (dec_ldpc->simd_strategy == "INTER")
 		this->params.src->n_frames = mipp::N<Q>();
-
-	if (std::is_same<Q,int8_t>() || std::is_same<Q,int16_t>())
-	{
-		this->params.qnt->n_bits     = 6;
-		this->params.qnt->n_decimals = 2;
-	}
 
 	L::callback_arguments();
 

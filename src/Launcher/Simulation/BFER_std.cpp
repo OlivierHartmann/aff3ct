@@ -53,7 +53,6 @@ void BFER_std<B,R,Q>
 	auto sub_mdm = app.get_subcommand(params.mdm     ->get_prefix());
 	auto sub_chn = app.get_subcommand(params.chn     ->get_prefix());
 	auto sub_mnt = app.get_subcommand(params.mnt_er  ->get_prefix()); // same than mnt_mi
-	// auto sub_ter = app.get_subcommand(params.ter     ->get_prefix());
 
 	CLI::App* sub_pct = nullptr;
 	if (params.cdc->pct != nullptr && CLI::has_subcommand(app, params.cdc->pct->get_prefix()))
@@ -91,6 +90,7 @@ void BFER_std<B,R,Q>
 	CLI::remove_option(sub_mnt, "--trials"   );
 
 #ifdef ENABLE_MPI
+	auto sub_ter = app.get_subcommand(params.ter     ->get_prefix());
 	CLI::remove_option(sub_ter, "--freq"     );
 #endif
 

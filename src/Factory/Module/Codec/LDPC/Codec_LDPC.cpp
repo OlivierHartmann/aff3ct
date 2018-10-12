@@ -45,16 +45,19 @@ void Codec_LDPC::parameters
 	auto sub_dec = app.get_subcommand(dec->get_prefix());
 	auto sub_enc = app.get_subcommand(enc->get_prefix());
 
-	sub_enc->remove_option(sub_enc->get_option("--h-path"   ));
-	sub_enc->remove_option(sub_enc->get_option("--h-reorder"));
 
-	sub_dec->remove_option(sub_dec->get_option("--cw-size"  ));
-	sub_dec->remove_option(sub_dec->get_option("--info-bits"));
-	sub_dec->remove_option(sub_dec->get_option("--fra"      ));
+	CLI::remove_option(sub_enc, "--h-path"   );
+	CLI::remove_option(sub_enc, "--h-reorder");
 
-	auto h_path_option = sub_dec->get_option("--h-path");
-	h_path_option->needs(sub_enc->get_option("--info-bits"));
-	h_path_option->needs(sub_enc->get_option("--cw-size"  ));
+	CLI::remove_option(sub_dec, "--cw-size"  );
+	CLI::remove_option(sub_dec, "--info-bits");
+	CLI::remove_option(sub_dec, "--fra"      );
+
+
+
+	// auto h_path_option = sub_dec->get_option("--h-path");
+	// h_path_option->excludes(sub_enc->get_option("--info-bits"));
+	// h_path_option->excludes(sub_enc->get_option("--cw-size"  ));
 
 
 	if (pct != nullptr)
@@ -63,11 +66,11 @@ void Codec_LDPC::parameters
 
 		auto sub_pct = app.get_subcommand(pct->get_prefix());
 
-		sub_pct->remove_option(sub_pct->get_option("--info-bits"));
-		sub_pct->remove_option(sub_pct->get_option("--fra"      ));
-		sub_pct->remove_option(sub_pct->get_option("--cw-size"  ));
+		CLI::remove_option(sub_pct, "--cw-size"  );
+		CLI::remove_option(sub_pct, "--info-bits");
+		CLI::remove_option(sub_pct, "--fra"      );
 
-		h_path_option->needs(sub_pct->get_option("--fra-size"));
+		// h_path_option->excludes(sub_pct->get_option("--fra-size"));
 	}
 }
 
@@ -92,8 +95,11 @@ void Codec_LDPC::parameters
 	else
 		enc->K = dec->K; // then the decoder knows the K
 
-	if (enc->type == "LDPC_H")
-		enc_ldpc->H_path = dec_ldpc->H_path;
+	if (enc->type == "LDPC_H" || enc->type == "LDPC_QC")
+	{
+		enc_ldpc->H_path    = dec_ldpc->H_path;
+		enc_ldpc->H_reorder = dec_ldpc->H_reorder;
+	}
 
 	// if (dec->K == 0 || dec->N_cw == 0 || enc->K == 0 || enc->N_cw == 0)
 	// {
@@ -107,12 +113,11 @@ void Codec_LDPC::parameters
 	dec->n_frames = enc->n_frames;
 
 	enc->R = (float)enc->K / (float)enc->N_cw;
-	dec->R = (float)dec->K / (float)dec->N_cw;
+	dec->R = enc->R;
 
 	if (pct != nullptr)
 	{
 		pct->K        = enc->K;
-		pct->N        = enc->N_cw;
 		pct->N_cw     = enc->N_cw;
 		pct->n_frames = enc->n_frames;
 

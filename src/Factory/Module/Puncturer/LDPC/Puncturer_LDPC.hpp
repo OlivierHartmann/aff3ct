@@ -20,7 +20,7 @@ struct Puncturer_LDPC : public Puncturer
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		std::vector<bool> pattern;
+		std::vector<int8_t> pattern;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Puncturer_LDPC_prefix);
@@ -35,9 +35,6 @@ struct Puncturer_LDPC : public Puncturer
 		// builder
 		template <typename B = int, typename Q = float>
 		module::Puncturer<B,Q>* build() const;
-
-	private:
-		std::string str_pattern;
 	};
 
 	template <typename B = int, typename Q = float>

@@ -15,6 +15,8 @@ Puncturer_polar::parameters
 : Puncturer::parameters(Puncturer_polar_name, prefix)
 {
 	type = "SHORTLAST";
+
+	type_set.insert("SHORTLAST");
 }
 
 Puncturer_polar::parameters* Puncturer_polar::parameters
@@ -27,8 +29,6 @@ void Puncturer_polar::parameters
 ::register_arguments(CLI::App &app)
 {
 	Puncturer::parameters::register_arguments(app);
-
-	type_set.insert("SHORTLAST");
 }
 
 void Puncturer_polar::parameters

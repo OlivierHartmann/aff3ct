@@ -101,6 +101,7 @@ protected:
 	void set_params(factory::Simulation::parameters *params_simu);
 private:
 	int generate_arguments();
+	int print_help(bool help, bool advanced);
 };
 }
 }

@@ -1,25 +1,47 @@
 #ifndef CLI11_TOOLS_HPP
 #define CLI11_TOOLS_HPP
 
-#include <sstream>
 #include <string>
-#include <chrono>
-#include <vector>
 
-namespace CLI
-{
+// namespace CLI
+// {
+// 	namespace detail
+// 	{
 
-std::istringstream &operator>>(std::istringstream &in, std::chrono::     seconds &val);
-std::istringstream &operator>>(std::istringstream &in, std::chrono::milliseconds &val);
+// 		template <typename T, typename std::enable_if<std::is_same<T,bool>::value, void*>::type = nullptr>
+// 		constexpr const char *type_name()
+// 		{
+// 			return "BOOL";
+// 		}
 
-}
+// 		/// Bool
+// 		template <typename T, typename std::enable_if<std::is_same<T,bool>::value, void*>::type = nullptr>
+// 		bool lexical_cast(std::string input, T &output)
+// 		{
+// 			std::transform(input.begin(), input.end(), input.begin(), ::tolower);
 
+// 			if (input == "true" || input == "1")
+// 				output = true;
+
+// 			else if (input == "false" || input == "0")
+// 				output = false;
+
+// 			else
+// 				return false;
+
+// 			return true;
+// 		}
+
+// 	}
+// }
+
+#include "Type_chrono.hpp"
 #include <CLI/CLI.hpp>
 #include "Validators.hpp"
 
+
 namespace CLI
 {
-
 /**
  * \brief Return the subcommand in app if exists else create it.
  * \param app is the application in which the subcommand should be
@@ -55,6 +77,7 @@ bool has_option(CLI::App* app, const std::string& option);
  */
 void remove_option(CLI::App& app, const std::string& option);
 void remove_option(CLI::App* app, const std::string& option);
+
 }
 
 #endif // CLI11_TOOLS_HPP

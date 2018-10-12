@@ -20,6 +20,9 @@ Decoder_BCH::parameters
 {
 	type   = "ALGEBRAIC";
 	implem = "STD";
+
+	type_set  .insert("ALGEBRAIC");
+	implem_set.insert({"GENIUS", "FAST"});
 }
 
 Decoder_BCH::parameters* Decoder_BCH::parameters
@@ -40,11 +43,8 @@ void Decoder_BCH::parameters
 		t,
 		"Correction power of the BCH code.")
 		->check(CLI::StrictlyPositiveRange(0u))
-		->excludes(sub->get_option("--info-bits"))
+		// ->excludes(sub->get_option("--info-bits"))
 		->group("Standard");
-
-	type_set  .insert("ALGEBRAIC");
-	implem_set.insert({"GENIUS", "FAST"});
 }
 
 void Decoder_BCH::parameters

@@ -68,7 +68,7 @@ Codec_LDPC<B,Q>
 	if (H.get_n_connections() == 0)
 	{
 		tools::LDPC_matrix_handler::Positions_vector* ibp = nullptr;
-		std::vector<bool>* pct = nullptr;
+		std::vector<int8_t>* pct = nullptr;
 
 		if (info_bits_pos.empty())
 			ibp = &info_bits_pos;
