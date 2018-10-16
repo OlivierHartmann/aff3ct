@@ -47,7 +47,6 @@ struct Noise : public Factory
 		float noise_max;
 		float noise_step = 0.1f;
 		std::vector<std::string> str_range;
-		CLI::Option* noise_range_option;
 		CLI::Option* noise_min_option;
 		CLI::Option* noise_max_option;
 		CLI::Option* noise_step_option;

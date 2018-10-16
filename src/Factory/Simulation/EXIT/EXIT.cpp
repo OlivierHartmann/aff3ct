@@ -15,6 +15,7 @@ EXIT::parameters
 ::parameters(const std::string &prefix)
 : Simulation::parameters(EXIT_name, prefix)
 {
+	this->n_threads = 1;
 }
 
 EXIT::parameters* EXIT::parameters
@@ -81,6 +82,7 @@ void EXIT::parameters
 		->check(CLI::PositiveRange(0.f))
 		->group("Standard");
 
+	sig_a_min_option =
 	sub->add_option(
 		"-a,--siga-min",
 		sig_a_min,
@@ -90,6 +92,7 @@ void EXIT::parameters
 		->excludes(opt_siga_range)
 		->group("Standard");
 
+	sig_a_max_option =
 	sub->add_option(
 		"-A,--siga-max",
 		sig_a_max,
@@ -107,6 +110,9 @@ void EXIT::parameters
 		->check(CLI::StrictlyPositiveRange(0.f))
 		->excludes(opt_siga_range)
 		->group("Standard");
+
+
+	CLI::remove_option(app, "--threads");
 }
 
 void EXIT::parameters
@@ -114,21 +120,8 @@ void EXIT::parameters
 {
 	Simulation::parameters::callback_arguments();
 
-	this->n_threads = 1;
-
-	auto p = this->get_prefix();
-
-	if (vals.exist({p+"-siga-range"}))
-		this->sig_a_range = tools::generate_range(vals.to_list<std::vector<float>>({p+"-siga-range"}), 0.1f);
-	else
-	{
-		float sig_a_min = 0.f, sig_a_max = 0.f, sig_a_step = 0.1f;
-		if (vals.exist({p+"-siga-min",  "a"})) sig_a_min  = vals.to_float({p+"-siga-min",  "a"});
-		if (vals.exist({p+"-siga-max",  "A"})) sig_a_max  = vals.to_float({p+"-siga-max",  "A"});
-		if (vals.exist({p+"-siga-step"     })) sig_a_step = vals.to_float({p+"-siga-step"     });
-
-		this->sig_a_range = tools::generate_range({{sig_a_min, sig_a_max}}, sig_a_step);
-	}
+	if (sig_a_range.empty() && !sig_a_min_option->empty() && !sig_a_max_option->empty())
+		sig_a_range = tools::generate_range({{sig_a_min, sig_a_max}}, sig_a_step);
 }
 
 void EXIT::parameters
@@ -138,9 +131,12 @@ void EXIT::parameters
 
 	auto p = this->get_prefix();
 
-	std::stringstream sig_a_range_str;
-	sig_a_range_str << this->sig_a_range.front() << " -> " << this->sig_a_range.back();
-	headers[p].push_back(std::make_pair("Sigma-A range (a)", sig_a_range_str.str()));
+	if (!sig_a_range.empty())
+	{
+		std::stringstream range_str;
+		range_str << *sig_a_range.begin() << " -> " << *sig_a_range.rbegin() << " dB";
+		headers[p].push_back(std::make_pair("Sigma-A range (a)", range_str.str()));
+	}
 
 	if (this->src != nullptr && this->cdc != nullptr)
 	{

@@ -30,7 +30,7 @@ void Noise::parameters
 {
 	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
 
-	noise_range_option =
+	auto noise_range_option =
 	sub->add_option(
 		"-R,--noise-range",
 		str_range,

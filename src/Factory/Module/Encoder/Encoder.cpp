@@ -82,7 +82,6 @@ void Encoder::parameters
 		start_idx,
 		"Start idx to use in the USER type encoder.",
 		true)
-		->check(CLI::PositiveRange(0))
 		->group("Standard");
 
 	sub->add_option(
@@ -90,7 +89,6 @@ void Encoder::parameters
 		seed,
 		"Seed used to initialize the pseudo random generators.",
 		true)
-		->check(CLI::PositiveRange(0))
 		->group("Standard");
 }
 

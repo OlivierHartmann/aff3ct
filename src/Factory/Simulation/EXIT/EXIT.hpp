@@ -15,6 +15,8 @@
 #include "Factory/Module/Codec/Codec_SISO.hpp"
 #include "Factory/Tools/Display/Terminal/Terminal.hpp"
 
+#include "Tools/Arguments/Matlab_vector.hpp"
+
 #include "../Simulation.hpp"
 
 namespace aff3ct
@@ -39,10 +41,9 @@ struct EXIT : Simulation
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// required parameters
-		std::vector<float> sig_a_range;
+		CLI::Matlab_vector<float> sig_a_range;
 
 		// optional parameters
-		std::string snr_type = "ES";
 		float sig_a_min  = 0.f;
 		float sig_a_max  = 0.f;
 		float sig_a_step = 0.1f;
@@ -82,6 +83,9 @@ struct EXIT : Simulation
 		// builder
 		template <typename B = int, typename R = float>
 		simulation::EXIT<B,R>* build() const;
+	private:
+		CLI::Option* sig_a_min_option;
+		CLI::Option* sig_a_max_option;
 	};
 
 	template <typename B = int, typename R = float>

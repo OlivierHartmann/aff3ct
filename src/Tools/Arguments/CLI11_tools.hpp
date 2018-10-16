@@ -36,7 +36,10 @@
 // }
 
 #include "Type_chrono.hpp"
+
 #include <CLI/CLI.hpp>
+
+#include "Type_chrono_detail.hpp"
 #include "Validators.hpp"
 
 

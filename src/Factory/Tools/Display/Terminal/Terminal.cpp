@@ -51,7 +51,8 @@ void Terminal::parameters
 	sub->add_option(
 		"--freq",
 		frequency,
-		"Display frequency in ms (refresh time step for each iteration, 0 = disable display refresh).")
+		"Display frequency (refresh time step for each iteration, 0 = disable display refresh).",
+		true)
 		->group("Standard");
 }
 
