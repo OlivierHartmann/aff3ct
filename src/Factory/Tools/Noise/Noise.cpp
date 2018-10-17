@@ -33,8 +33,8 @@ void Noise::parameters
 	auto noise_range_option =
 	sub->add_option(
 		"-R,--noise-range",
-		str_range,
-		"Noise energy range to run (Matlab style: \"{0.5:2.5,2.55,2.6:0.05:3}\" with a default step of 0.1).")
+		range,
+		"Noise energy range to run (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).")
 		// ->required()
 		->group("Standard");
 
@@ -77,12 +77,6 @@ void Noise::parameters
 	noise_range_option->excludes(noise_max_option );
 	noise_range_option->excludes(noise_step_option);
 
-	pdf_path_option->excludes(noise_range_option);
-	pdf_path_option->excludes(noise_min_option  );
-	pdf_path_option->excludes(noise_max_option  );
-	pdf_path_option->excludes(noise_step_option );
-
-
 	sub->add_set(
 		"-E,--noise-type",
 		type,
@@ -96,8 +90,6 @@ void Noise::parameters
 void Noise::parameters
 ::callback_arguments()
 {
-	range = str_range;
-
 	if (!pdf_path_option->empty())
 	{
 		if (range.empty())

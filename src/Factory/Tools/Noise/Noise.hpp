@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "Tools/Arguments/Matlab_vector.hpp"
 #include "Tools/Noise/Noise.hpp"
 
 #include "../../Factory.hpp"
@@ -46,7 +45,6 @@ struct Noise : public Factory
 		float noise_min;
 		float noise_max;
 		float noise_step = 0.1f;
-		std::vector<std::string> str_range;
 		CLI::Option* noise_min_option;
 		CLI::Option* noise_max_option;
 		CLI::Option* noise_step_option;

@@ -67,26 +67,26 @@ void Puncturer::parameters
 void Puncturer::parameters
 ::callback_arguments()
 {
-	this->N_cw = this->N;
+	N_cw = N;
 }
 
 void Puncturer::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	headers[p].push_back(std::make_pair("Type", this->type));
-	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(this->K)));
-	if (full) headers[p].push_back(std::make_pair("Frame size (N)", std::to_string(this->N)));
-	if (full) headers[p].push_back(std::make_pair("Codeword size", std::to_string(this->N_cw)));
-	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
+	headers[p].push_back(std::make_pair("Type", type));
+	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(K)));
+	if (full) headers[p].push_back(std::make_pair("Frame size (N)", std::to_string(N)));
+	if (full) headers[p].push_back(std::make_pair("Codeword size",  std::to_string(N_cw)));
+	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(n_frames)));
 }
 
 template <typename B, typename Q>
 module::Puncturer<B,Q>* Puncturer::parameters
 ::build() const
 {
-	if (this->type == "NO") return new module::Puncturer_NO<B,Q>(this->K, this->N, this->n_frames);
+	if (type == "NO") return new module::Puncturer_NO<B,Q>(K, N, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

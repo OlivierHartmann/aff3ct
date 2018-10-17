@@ -35,7 +35,7 @@ void Puncturer_polar::parameters
 ::callback_arguments()
 {
 	Puncturer::parameters::callback_arguments();
-	N_cw = (unsigned)std::exp2(std::ceil(std::log2(N)));
+	N_cw = (unsigned)std::exp2(std::ceil(std::log2((float)N)));
 
 	if (N == N_cw)
 		type = "NO";

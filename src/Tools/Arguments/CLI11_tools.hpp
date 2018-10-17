@@ -36,10 +36,13 @@
 // }
 
 #include "Type_chrono.hpp"
+#include "Matlab_vector.hpp"
 
 #include <CLI/CLI.hpp>
 
-#include "Type_chrono_detail.hpp"
+#include "Type_chrono_details.hpp"
+#include "Matlab_vector_details.hpp"
+
 #include "Validators.hpp"
 
 

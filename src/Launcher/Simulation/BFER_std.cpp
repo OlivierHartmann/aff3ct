@@ -111,11 +111,11 @@ void BFER_std<B,R,Q>
 	auto N    = params.src->K != 0 ? params.src->K : params.cdc->N;
 	auto N_cw = params.src->K != 0 ? params.src->K : params.cdc->N_cw;
 
-	params.crc->K = K - params.crc->size;
 	params.crc->callback_arguments();
+	params.crc->K = K - params.crc->size;
 
-	params.src->K = params.src->K != 0 ? params.src->K : params.crc->K;
 	params.src->callback_arguments();
+	params.src->K = params.src->K != 0 ? params.src->K : params.crc->K;
 
 
 	params.mdm->N = N;

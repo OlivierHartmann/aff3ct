@@ -1,10 +1,7 @@
-#ifndef TYPE_CHRONO_DETAIL_HPP
-#define TYPE_CHRONO_DETAIL_HPP
+#ifndef TYPE_CHRONO_DETAILS_HPP
+#define TYPE_CHRONO_DETAILS_HPP
 
-#include <iostream>
-#include <sstream>
 #include <chrono>
-#include <type_traits>
 
 namespace CLI
 {
@@ -48,4 +45,4 @@ namespace CLI
 	}
 }
 
-#endif // TYPE_CHRONO_DETAIL_HPP
+#endif // TYPE_CHRONO_DETAILS_HPP

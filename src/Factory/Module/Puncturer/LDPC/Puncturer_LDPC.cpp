@@ -60,6 +60,9 @@ void Puncturer_LDPC::parameters
 	if (save_N_cw != 0)
 		N_cw = save_N_cw;
 
+	if (N == 0)
+		N = N_cw;
+
 	if (N == N_cw)
 		type = "NO";
 }

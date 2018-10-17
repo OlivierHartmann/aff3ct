@@ -119,13 +119,13 @@ void BFER::parameters
 
 
 
-	// auto sub_mon = app.get_subcommand(mnt_er->get_prefix());
+	auto sub_mon = CLI::make_subcommand(app, mnt_er->get_prefix(), mnt_er->get_name() + " parameters");
 
-	// sub_mon->add_flag(
-	// 	"--mutinfo",
-	// 	mutinfo,
-	// 	"Allow the computation of the mutual information.")
-	// 	->group("Standard");
+	sub_mon->add_flag(
+		"--mutinfo",
+		mutinfo,
+		"Allow the computation of the mutual information.")
+		->group("Standard");
 }
 
 void BFER::parameters
