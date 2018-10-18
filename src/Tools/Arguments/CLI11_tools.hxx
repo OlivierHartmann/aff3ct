@@ -66,7 +66,7 @@ CLI::Option* add_flag(CLI::App& app, const std::string& prefix, const std::strin
 
 template <typename T>
 CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
-                     T& variable, std::set<T> &&options, const std::string& description, bool defaulted)
+                     T& variable, const std::set<T> &&options, const std::string& description, bool defaulted)
 {
 	auto opt_name = CLI::add_prefix_to_name(name, prefix);
 
@@ -102,7 +102,7 @@ CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string
 
 template <typename T>
 CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
-                     T& variable, std::set<T> &&options, const std::string& description)
+                     T& variable, const std::set<T> &&options, const std::string& description)
 {
 	auto opt_name = CLI::add_prefix_to_name(name, prefix);
 
