@@ -29,8 +29,8 @@ struct Simulation : Launcher
 
 		// optional parameters
 		std::chrono::milliseconds mpi_comm_freq   = std::chrono::milliseconds(1000);
-		unsigned                  mpi_rank        = 0;
-		unsigned                  mpi_size        = 1;
+		int                       mpi_rank        = 0;
+		int                       mpi_size        = 1;
 
 		std::chrono::seconds      stop_time       = std::chrono::seconds(0);
 		std::string               meta            = "";

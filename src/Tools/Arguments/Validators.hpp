@@ -24,7 +24,7 @@ struct PositiveRange : public Validator
 
 			tname = out.str();
 			func = [](const std::string &input) {
-				T val;
+				auto val = (T)0;
 				detail::lexical_cast(input, val);
 				if (val < (T)0)
 					return "Value " + input + " not a positive value";
@@ -39,7 +39,7 @@ struct PositiveRange : public Validator
 
 			tname = out.str();
 			func = [max](const std::string &input) {
-				T val;
+				auto val = (T)0;
 				detail::lexical_cast(input, val);
 				if (val < (T)0 || val > max)
 					return "Value " + input + " not a positive value with maximum " + std::to_string(max) + ".";
