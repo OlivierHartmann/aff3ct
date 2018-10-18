@@ -5,12 +5,10 @@
 #include <typeindex>
 #include <unordered_map>
 #include <rang.hpp>
-#include <date.h>
 
 #include "Tools/general_utils.h"
 #include "Tools/Exception/exception.hpp"
 #include "Tools/types.h"
-#include "Tools/version.h"
 
 #include "Launcher/Launcher.hpp"
 #include "Launcher/Code/BCH/BCH.hpp"
@@ -50,13 +48,14 @@ const std::string aff3ct::factory::Launcher_prefix = "lch";
 
 factory::Launcher::parameters
 ::parameters(const std::string &prefix, const std::string &name)
-: Factory::parameters(name, name, prefix)
+: Launcher::parameters(name, name, prefix)
 {
 }
 
 factory::Launcher::parameters
 ::parameters(const std::string &name, const std::string &short_name, const std::string &prefix)
-: Factory::parameters(name, short_name, prefix)
+: Factory::parameters(name, short_name, prefix),
+  glb(new factory::Launcher_global::parameters("", short_name))
 {
 }
 
@@ -66,80 +65,44 @@ factory::Launcher::parameters* factory::Launcher::parameters
 	return new Launcher::parameters(*this);
 }
 
+std::vector<std::string> Launcher::parameters
+::get_names() const
+{
+	auto n = Factory::parameters::get_names();
+	if (glb != nullptr) { auto nn = glb->get_names(); for (auto &x : nn) n.push_back(x); }
+	return n;
+}
+
+std::vector<std::string> Launcher::parameters
+::get_short_names() const
+{
+	auto sn = Factory::parameters::get_short_names();
+	if (glb != nullptr) { auto nn = glb->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	return sn;
+}
+
+std::vector<std::string> Launcher::parameters
+::get_prefixes() const
+{
+	auto p = Factory::parameters::get_prefixes();
+	if (glb != nullptr) { auto nn = glb->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	return p;
+}
+
 void factory::Launcher::parameters
 ::register_arguments(CLI::App &app)
 {
-	if (!CLI::has_option(app, "--help"))
-	app.add_flag(
-		"-h,--help",
-		help,
-		"Print the help.")
+	auto p = get_prefix();
+
+	CLI::add_set(app, p,
+		"-C,--cde-type",
+		cde_type,
+		{"POLAR", "TURBO", "TURBO_DB", "LDPC", "REP", "RA", "RSC", "RSC_DB", "BCH", "UNCODED"},
+		"Select the code type you want to use.")
+		->required()
 		->group("Standard");
 
-	if (!CLI::has_option(app, "--Help"))
-	app.add_flag(
-		"-H,--Help",
-		advanced_help,
-		"Print this help with the advanced arguments.")
-		->group("Standard");
-
-	app.add_flag(
-		"-v,--version",
-		display_version,
-		"Print informations about the code version.")
-		->group("Standard");
-
-#ifdef ENABLE_BACK_TRACE
-	app.add_flag(
-		"--disable-bt",
-		disable_bt,
-		"Disable the backtrace when displaying exception.")
-		->group("Advanced");
-
-#ifndef NDEBUG
-	app.add_flag(
-		"--full-bt",
-		enable_full_bt,
-		"Enable full backtrace with file names and lines (may take additional time).")
-		->group("Advanced");
-#endif
-#endif
-
-	auto no_legend_option =
-	app.add_flag(
-		"--no-legend",
-		hide_legend,
-		"Do not display any legend when launching the simulation.")
-		->group("Advanced");
-
-	app.add_flag(
-		"--full-legend",
-		full_legend,
-		"Display fully the legend when launching the simulation.")
-		->excludes(no_legend_option)
-		->group("Advanced");
-
-#ifdef ENABLE_COOL_BASH
-	app.add_flag(
-		"--no-colors",
-		disable_colors,
-		"Disable the colors in the shell.")
-		->group("Advanced");
-#endif
-
-
-
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->add_set(
-			"-C,--cde-type",
-			cde_type,
-			{"POLAR", "TURBO", "TURBO_DB", "LDPC", "REP", "RA", "RSC", "RSC_DB", "BCH", "UNCODED"},
-			"Select the code type you want to use.")
-			->required()
-			->group("Standard");
-
- 	sub->add_set(
+ 	CLI::add_set(app, p,
 		"--type",
 		sim_type,
 #if !defined(PREC_8_BIT) && !defined(PREC_16_BIT)
@@ -152,7 +115,7 @@ void factory::Launcher::parameters
 		->group("Standard");
 
 #ifdef MULTI_PREC
-	sub->add_set(
+	CLI::add_set(app, p,
 		"-p,--prec",
 		sim_prec,
 #if defined(__x86_64) || defined(__x86_64__) || defined(_WIN64) || defined(__aarch64__)
@@ -170,21 +133,15 @@ void factory::Launcher::parameters
 void factory::Launcher::parameters
 ::callback_arguments()
 {
-	tools::exception::no_backtrace    =  disable_bt;
-	tools::exception::no_addr_to_line = !enable_full_bt;
-
-#ifdef ENABLE_COOL_BASH
-	if (disable_colors)
-		rang::setControlMode(rang::control::Off);
-#else
-	rang::setControlMode(rang::control::Off);
-#endif
 }
 
 void factory::Launcher::parameters
-::get_headers(std::map<std::string,header_list>& params_headers, const bool full) const
+::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
+
+	glb->get_headers(headers, full);
+
 
 	std::unordered_map<std::type_index,std::string> type_names;
 	// define type names
@@ -195,11 +152,11 @@ void factory::Launcher::parameters
 	type_names[typeid(float  )] = "float32";
 	type_names[typeid(double )] = "float64";
 
-	params_headers[p].push_back(std::make_pair("Type", this->sim_type));
+	headers[p].push_back(std::make_pair("Type", sim_type));
 
 #ifdef MULTI_PREC
 	std::type_index id_B = typeid(int32_t), id_R = typeid(float), id_Q = typeid(float);
-	switch (this->sim_prec)
+	switch (sim_prec)
 	{
 		case 8:
 			id_B = typeid(B_8);
@@ -227,7 +184,7 @@ void factory::Launcher::parameters
 
 		default :
 			std::stringstream message;
-			message << "Unsupported bit precision: " << this->sim_prec << ").";
+			message << "Unsupported bit precision: " << sim_prec << ").";
 			throw tools::invalid_argument(__FILE__, __LINE__, __func__, message.str());
 		break;
 	}
@@ -235,21 +192,13 @@ void factory::Launcher::parameters
 	std::type_index id_B = typeid(B), id_R = typeid(R), id_Q = typeid(Q);
 #endif
 
-	params_headers[p].push_back(std::make_pair("Type of bits",  type_names[id_B]));
-	params_headers[p].push_back(std::make_pair("Type of reals", type_names[id_R]));
+	headers[p].push_back(std::make_pair("Type of bits",  type_names[id_B]));
+	headers[p].push_back(std::make_pair("Type of reals", type_names[id_R]));
 //	if (std::is_integral<Q>::value) // do not works for int8_t, int16_t, etc.
 	if (id_Q == typeid(int8_t) || id_Q == typeid(int16_t) || id_Q == typeid(int32_t) || id_Q == typeid(int64_t))
-		params_headers[p].push_back(std::make_pair("Type of quant. reals", type_names[id_Q]));
+		headers[p].push_back(std::make_pair("Type of quant. reals", type_names[id_Q]));
 
-	using namespace date;
-	std::stringstream date;
-	date << std::chrono::system_clock::now();
-	auto split_date = tools::split(date.str(), '.');
-	params_headers[p].push_back(std::make_pair("Date (UTC)", split_date[0]));
-	if (version() != "GIT-NOTFOUND")
-		params_headers[p].push_back(std::make_pair("Git version", version()));
-
-	params_headers[p].push_back(std::make_pair("Code type (C)", this->cde_type));
+	headers[p].push_back(std::make_pair("Code type (C)", cde_type));
 }
 
 template <typename B, typename R, typename Q>
@@ -268,12 +217,12 @@ template <>
 launcher::Launcher* Launcher::parameters
 ::build_exit<int32_t, float, float>(const int argc, const char **argv) const
 {
-	if (this->cde_type == "POLAR")
-		if (this->sim_type == "EXIT")
+	if (cde_type == "POLAR")
+		if (sim_type == "EXIT")
 			return new launcher::Polar<launcher::EXIT<int32_t,float>,int32_t,float>(argc, argv);
 
-	if (this->cde_type == "RSC")
-		if (this->sim_type == "EXIT")
+	if (cde_type == "RSC")
+		if (sim_type == "EXIT")
 			return new launcher::RSC<launcher::EXIT<int32_t,float>,int32_t,float>(argc, argv);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__, "Unsupported code/simulation pair.");
@@ -285,12 +234,12 @@ template <>
 launcher::Launcher* Launcher::parameters
 ::build_exit<int64_t, double, double>(const int argc, const char **argv) const
 {
-	if (this->cde_type == "POLAR")
-		if (this->sim_type == "EXIT")
+	if (cde_type == "POLAR")
+		if (sim_type == "EXIT")
 			return new launcher::Polar<launcher::EXIT<int64_t,double>,int64_t,double>(argc, argv);
 
-	if (this->cde_type == "RSC")
-		if (this->sim_type == "EXIT")
+	if (cde_type == "RSC")
+		if (sim_type == "EXIT")
 			return new launcher::RSC<launcher::EXIT<int64_t,double>,int64_t,double>(argc, argv);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__, "Unsupported code/simulation pair.");
@@ -303,69 +252,69 @@ template <typename B, typename R, typename Q>
 launcher::Launcher* factory::Launcher::parameters
 ::build(const int argc, const char **argv) const
 {
-	if (this->cde_type == "POLAR")
+	if (cde_type == "POLAR")
 	{
-		if (this->sim_type == "BFER" ) return new launcher::Polar<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-		if (this->sim_type == "BFERI") return new launcher::Polar<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER" ) return new launcher::Polar<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFERI") return new launcher::Polar<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "RSC")
+	if (cde_type == "RSC")
 	{
-		if (this->sim_type == "BFER" ) return new launcher::RSC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-		if (this->sim_type == "BFERI") return new launcher::RSC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER" ) return new launcher::RSC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFERI") return new launcher::RSC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "RSC_DB")
+	if (cde_type == "RSC_DB")
 	{
-		if (this->sim_type == "BFER" ) return new launcher::RSC_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-		if (this->sim_type == "BFERI") return new launcher::RSC_DB<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER" ) return new launcher::RSC_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFERI") return new launcher::RSC_DB<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "TURBO")
+	if (cde_type == "TURBO")
 	{
-		if (this->sim_type == "BFER") return new launcher::Turbo<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER") return new launcher::Turbo<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "TURBO_DB")
+	if (cde_type == "TURBO_DB")
 	{
-		if (this->sim_type == "BFER") return new launcher::Turbo_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER") return new launcher::Turbo_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "TURBO_PROD")
+	if (cde_type == "TURBO_PROD")
 	{
-		if (this->sim_type == "BFER") return new launcher::Turbo_product<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER") return new launcher::Turbo_product<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "REP")
+	if (cde_type == "REP")
 	{
-		if (this->sim_type == "BFER") return new launcher::Repetition<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER") return new launcher::Repetition<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "BCH")
+	if (cde_type == "BCH")
 	{
-		if (this->sim_type == "BFER") return new launcher::BCH<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER") return new launcher::BCH<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "RS")
+	if (cde_type == "RS")
 	{
-		if (this->sim_type == "BFER") return new launcher::RS<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER") return new launcher::RS<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "RA")
+	if (cde_type == "RA")
 	{
-		if (this->sim_type == "BFER") return new launcher::RA<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER") return new launcher::RA<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "LDPC")
+	if (cde_type == "LDPC")
 	{
-		if (this->sim_type == "BFER" ) return new launcher::LDPC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-		if (this->sim_type == "BFERI") return new launcher::LDPC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER" ) return new launcher::LDPC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFERI") return new launcher::LDPC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
-	if (this->cde_type == "UNCODED")
+	if (cde_type == "UNCODED")
 	{
-		if (this->sim_type == "BFER" ) return new launcher::Uncoded<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-		if (this->sim_type == "BFERI") return new launcher::Uncoded<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFER" ) return new launcher::Uncoded<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (sim_type == "BFERI") return new launcher::Uncoded<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
 	}
 
 	return build_exit<B,R,Q>(argc, argv);

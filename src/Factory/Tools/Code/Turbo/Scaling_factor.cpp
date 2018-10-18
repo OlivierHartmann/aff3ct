@@ -31,10 +31,10 @@ Scaling_factor::parameters* Scaling_factor::parameters
 void Scaling_factor::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
 	type_option =
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		{"CST", "LTE", "LTE_VEC", "ARRAY", "ADAPTIVE"},
@@ -42,7 +42,7 @@ void Scaling_factor::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--ite",
 		n_ite,
 		"Number of iterations.",
@@ -50,7 +50,7 @@ void Scaling_factor::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--cst",
 		cst,
 		"Scaling factor constant.",
@@ -67,7 +67,7 @@ void Scaling_factor::parameters
 void Scaling_factor::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
 	if (this->enable)
 	{

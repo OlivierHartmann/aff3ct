@@ -19,8 +19,8 @@ Decoder_turbo_product::parameters
   sub(new Decoder_BCH::parameters(prefix+"-sub")),
   itl(new Interleaver::parameters("itl"))
 {
-	this->type   = "CP";
-	this->implem = "STD";
+	type   = "CP";
+	implem = "STD";
 }
 
 Decoder_turbo_product::parameters* Decoder_turbo_product::parameters
@@ -71,9 +71,9 @@ struct Real_splitter
 void Decoder_turbo_product::parameters
 ::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Decoder::parameters::register_arguments(app);
 
 	args.erase({p+"-info-bits", "K"});
 	args.erase({p+"-cw-size",   "N"});
@@ -82,7 +82,7 @@ void Decoder_turbo_product::parameters
 	{
 		itl->register_arguments(app);
 
-		auto pi = this->itl->get_prefix();
+		auto pi = itl->get_prefix();
 
 		args.erase({pi+"-size"    });
 		args.erase({pi+"-fra", "F"});
@@ -145,78 +145,78 @@ void Decoder_turbo_product::parameters
 void Decoder_turbo_product::parameters
 ::callback_arguments()
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
-
-	if (vals.exist({p+"-ite", "i"})) this->n_ite                      = vals.to_int({p+"-ite", "i"});
-	if (vals.exist({p+"-p"       })) this->n_least_reliable_positions = vals.to_int({p+"-p"       });
+	if (vals.exist({p+"-ite", "i"})) n_ite                      = vals.to_int({p+"-ite", "i"});
+	if (vals.exist({p+"-p"       })) n_least_reliable_positions = vals.to_int({p+"-p"       });
 
 	if (vals.exist({p+"-t"}))
-		this->n_test_vectors = vals.to_int({p+"-t"});
+		n_test_vectors = vals.to_int({p+"-t"});
 	else
-		this->n_test_vectors = 1<<this->n_least_reliable_positions;
+		n_test_vectors = 1<<n_least_reliable_positions;
 
 	if (vals.exist({p+"-c"}))
-		this->n_competitors = vals.to_int({p+"-c"});
+		n_competitors = vals.to_int({p+"-c"});
 	else
-		this->n_competitors = this->n_test_vectors;
+		n_competitors = n_test_vectors;
 
-	if (vals.exist({p+"-ext"})) this->parity_extended = true;
+	if (vals.exist({p+"-ext"})) parity_extended = true;
 
 
 	if (vals.exist({p+"-alpha"}))
 	{
-		this->alpha = vals.to_list<float>({p+"-alpha"});
-		this->alpha.resize(this->n_ite*2, alpha.back());
+		alpha = vals.to_list<float>({p+"-alpha"});
+		alpha.resize(n_ite*2, alpha.back());
 	}
 	else
 	{
-		this->alpha.clear();
-		this->alpha.resize(this->n_ite*2, 0.5f);
+		alpha.clear();
+		alpha.resize(n_ite*2, 0.5f);
 	}
 
 	if (vals.exist({p+"-beta"}))
 	{
-		this->beta = vals.to_list<float>({p+"-beta"});
-		this->beta.resize(this->n_ite*2, beta.back());
+		beta = vals.to_list<float>({p+"-beta"});
+		beta.resize(n_ite*2, beta.back());
 	}
 	else
 	{
-		this->beta.clear();
+		beta.clear();
 	}
 
 
 	if (vals.exist({p+"-cp-coef"}))
-		this->cp_coef = vals.to_list<float>({p+"-cp-coef"});
+		cp_coef = vals.to_list<float>({p+"-cp-coef"});
 	else
 	{
-		this->cp_coef.clear();
-		this->cp_coef.resize(5, 1.f);
-		this->cp_coef[4] = 0;
+		cp_coef.clear();
+		cp_coef.resize(5, 1.f);
+		cp_coef[4] = 0;
 	}
 
 
-	// this->sub->n_frames = this->n_frames;
+	// sub->n_frames = n_frames;
 
 	sub->callback_arguments();
 
-	this->K = this->sub->K * this->sub->K;
+	K = sub->K * sub->K;
 
-	this->R = (float)this->K / (float)this->N_cw;
+	R = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{
-		this->itl->core->n_frames = this->n_frames;
-		this->itl->core->type     = "ROW_COL";
+		itl->core->n_frames = n_frames;
+		itl->core->type     = "ROW_COL";
 
 		if (parity_extended)
-			this->itl->core->n_cols = this->sub->N_cw +1;
+			itl->core->n_cols = sub->N_cw +1;
 		else
-			this->itl->core->n_cols = this->sub->N_cw;
+			itl->core->n_cols = sub->N_cw;
 
-		this->itl->core->size = this->itl->core->n_cols * this->itl->core->n_cols;
-		this->N_cw = this->itl->core->size;
+		itl->core->size = itl->core->n_cols * itl->core->n_cols;
+		N_cw = itl->core->size;
 
 		itl->callback_arguments();
 	}
@@ -225,12 +225,12 @@ void Decoder_turbo_product::parameters
 void Decoder_turbo_product::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML")
+	if (type != "ML")
 	{
-		auto p = this->get_prefix();
-
 		if (itl != nullptr)
 			itl->get_headers(headers, full);
 
@@ -238,18 +238,18 @@ void Decoder_turbo_product::parameters
 
 		std::stringstream alpha_str;
 		alpha_str << "{";
-		for (unsigned i = 0; i < this->alpha.size(); i++)
-			alpha_str << this->alpha[i] << (i == this->alpha.size()-1 ?"":", ");
+		for (unsigned i = 0; i < alpha.size(); i++)
+			alpha_str << alpha[i] << (i == alpha.size()-1 ?"":", ");
 		alpha_str << "}";
 
 		headers[p].push_back(std::make_pair("alpha", alpha_str.str()));
 
-		if (this->beta.size())
+		if (beta.size())
 		{
 			std::stringstream beta_str;
 			beta_str << "{";
-			for (unsigned i = 0; i < this->beta.size(); i++)
-				beta_str << this->beta[i] << (i == this->beta.size()-1 ?"":", ");
+			for (unsigned i = 0; i < beta.size(); i++)
+				beta_str << beta[i] << (i == beta.size()-1 ?"":", ");
 			beta_str << "}";
 
 			headers[p].push_back(std::make_pair("beta", beta_str.str()));
@@ -257,8 +257,8 @@ void Decoder_turbo_product::parameters
 
 		std::stringstream cp_coeff_str;
 		cp_coeff_str << "{";
-		for (unsigned i = 0; i < this->cp_coef.size(); i++)
-			cp_coeff_str << this->cp_coef[i] << (i == this->cp_coef.size()-1 ?"":", ");
+		for (unsigned i = 0; i < cp_coef.size(); i++)
+			cp_coeff_str << cp_coef[i] << (i == cp_coef.size()-1 ?"":", ");
 		cp_coeff_str << "}";
 
 		headers[p].push_back(std::make_pair("Chase Pyndiah coeff.", cp_coeff_str.str()));
@@ -269,7 +269,7 @@ void Decoder_turbo_product::parameters
 
 		headers[p].push_back(std::make_pair("Num. competitors (c)", std::to_string(n_competitors)));
 
-		headers[p].push_back(std::make_pair("Parity extended", (this->parity_extended ? "yes" : "no")));
+		headers[p].push_back(std::make_pair("Parity extended", (parity_extended ? "yes" : "no")));
 
 		sub->get_headers(headers, full);
 	}
@@ -288,9 +288,9 @@ module::Decoder_SIHO<B,Q>* Decoder_turbo_product::parameters
 	}
 	catch (tools::cannot_allocate const&)
 	{
-		if (this->type == "CP")
+		if (type == "CP")
 		{
-			if (this->implem == "STD")
+			if (implem == "STD")
 				return new module::Decoder_turbo_product<B,Q>(n_ite, alpha, itl, cp_r, cp_c, beta, n_frames);
 		}
 	}

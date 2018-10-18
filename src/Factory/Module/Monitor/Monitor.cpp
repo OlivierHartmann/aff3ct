@@ -31,7 +31,9 @@ Monitor::parameters* Monitor::parameters
 void Monitor::parameters
 ::register_arguments(CLI::App &app)
 {
-	CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
+
+	CLI::make_subcommand(app, p, get_name() + " parameters");
 }
 
 void Monitor::parameters

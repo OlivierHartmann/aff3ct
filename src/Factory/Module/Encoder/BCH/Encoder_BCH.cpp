@@ -29,11 +29,11 @@ Encoder_BCH::parameters* Encoder_BCH::parameters
 void Encoder_BCH::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Encoder::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->get_option("--cw-size")->check(CLI::Power_of_two_minus_one<decltype(N_cw)>());
+	CLI::get_option(app, "--cw-size", p)->check(CLI::Power_of_two_minus_one<decltype(N_cw)>());
 }
 
 void Encoder_BCH::parameters

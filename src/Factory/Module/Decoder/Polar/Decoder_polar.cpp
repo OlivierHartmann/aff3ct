@@ -44,18 +44,19 @@ const std::string aff3ct::factory::Decoder_polar_prefix = "dec";
 
 Decoder_polar::parameters
 ::parameters(const std::string &prefix)
-: Decoder::parameters(Decoder_polar_name, prefix)
+: Decoder_polar::parameters(Decoder_polar_name, prefix)
 {
-	this->type   = "SC";
-	this->implem = "FAST";
 }
 
 Decoder_polar::parameters
 ::parameters(const std::string &name, const std::string &prefix)
 : Decoder::parameters(name, prefix)
 {
-	this->type   = "SC";
-	this->implem = "FAST";
+	type   = "SC";
+	implem = "FAST";
+
+	type_set  .insert({"SC", "SCL", "SCL_MEM", "ASCL", "ASCL_MEM", "SCAN"});
+	implem_set.insert({"FAST", "NAIVE"});
 }
 
 Decoder_polar::parameters* Decoder_polar::parameters
@@ -67,43 +68,50 @@ Decoder_polar::parameters* Decoder_polar::parameters
 void Decoder_polar::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Decoder::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
+	CLI::add_option(app, p,
+		"-i,--ite",
+		n_ite,
+		"Maximal number of iterations in the SCAN decoder.",
+		true)
+		->group("Standard");
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "SC", "SCL", "SCL_MEM", "ASCL", "ASCL_MEM", "SCAN");
+	CLI::add_option(app, p,
+		"-L,--lists",
+		L,
+		"Maximal number of paths in the SCL decoder.",
+		true)
+		->group("Standard");
 
-	args.at({p+"-implem"})->change_type(tools::Text(tools::Example_set("FAST", "NAIVE")));
+	CLI::add_set(app, p,
+		"--simd",
+		simd_strategy,
+		{"INTRA", "INTER"},
+		"The SIMD strategy you want to use.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-ite", "i"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"maximal number of iterations in the SCAN decoder.");
+	CLI::add_option(app, p,
+		"--polar-nodes",
+		polar_nodes,
+		"The type of nodes you want to detect in the Polar tree (ex: \"{R0,R1,R0L,REP_2-8,REPL,SPC_4+}\").",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-lists", "L"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"maximal number of paths in the SCL decoder.");
+	CLI::add_flag(app, p,
+		"--partial-adaptive",
+		partial_adaptive,
+		"Enable the partial adaptive mode for the ASCL decoder (by default full adaptive is selected).")
+		->group("Standard");
 
-	args.add(
-		{p+"-simd"},
-		tools::Text(tools::Including_set("INTRA", "INTER")),
-		"the SIMD strategy you want to use.");
-
-	args.add(
-		{p+"-polar-nodes"},
-		tools::Text(),
-		"the type of nodes you want to detect in the Polar tree (ex: \"{R0,R1,R0L,REP_2-8,REPL,SPC_4+}\").");
-
-	args.add(
-		{p+"-partial-adaptive"},
-		tools::None(),
-		"enable the partial adaptive mode for the ASCL decoder (by default full adaptive is selected).");
-
-	args.add(
-		{p+"-no-sys"},
-		tools::None(),
-		"does not suppose a systematic encoding.");
+	CLI::add_flag(app, p,
+		"--no-sys",
+		not_systematic,
+		"Does not suppose a systematic encoding.")
+		->group("Standard");
 }
 
 void Decoder_polar::parameters
@@ -111,49 +119,41 @@ void Decoder_polar::parameters
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
-
-	if (vals.exist({p+"-ite",         "i"})) this->n_ite         = vals.to_int({p+"-ite",    "i"});
-	if (vals.exist({p+"-lists",       "L"})) this->L             = vals.to_int({p+"-lists",  "L"});
-	if (vals.exist({p+"-simd"            })) this->simd_strategy = vals.at    ({p+"-simd"       });
-	if (vals.exist({p+"-polar-nodes"     })) this->polar_nodes   = vals.at    ({p+"-polar-nodes"});
-	if (vals.exist({p+"-partial-adaptive"})) this->full_adaptive = false;
-
 	// force 1 iteration max if not SCAN (and polar code)
-	if (this->type != "SCAN") this->n_ite = 1;
+	if (type != "SCAN") n_ite = 1;
 }
 
 void Decoder_polar::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
+	if (type != "ML" && type != "CHASE")
 	{
-		auto p = this->get_prefix();
+		if (!simd_strategy.empty())
+			headers[p].push_back(std::make_pair("SIMD strategy", simd_strategy));
 
-		if (!this->simd_strategy.empty())
-			headers[p].push_back(std::make_pair("SIMD strategy", this->simd_strategy));
+		if (type == "SCAN")
+			headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(n_ite)));
 
-		if (this->type == "SCAN")
-			headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(this->n_ite)));
+		if (type == "SCL" || type == "SCL_MEM")
+			headers[p].push_back(std::make_pair("Num. of lists (L)", std::to_string(L)));
 
-		if (this->type == "SCL" || this->type == "SCL_MEM")
-			headers[p].push_back(std::make_pair("Num. of lists (L)", std::to_string(this->L)));
-
-		if (this->type == "ASCL" || this->type == "ASCL_MEM")
+		if (type == "ASCL" || type == "ASCL_MEM")
 		{
-			auto adaptative_mode = this->full_adaptive ? "full" : "partial";
-			headers[p].push_back(std::make_pair("Max num. of lists (L)", std::to_string(this->L)));
+			auto adaptative_mode = partial_adaptive ? "partial" : "full";
+			headers[p].push_back(std::make_pair("Max num. of lists (L)", std::to_string(L)));
 			headers[p].push_back(std::make_pair("Adaptative mode", adaptative_mode));
 		}
 
-		if ((this->type == "SC"      ||
-		     this->type == "SCL"     ||
-		     this->type == "ASCL"    ||
-		     this->type == "SCL_MEM" ||
-		     this->type == "ASCL_MEM") && this->implem == "FAST")
-			headers[p].push_back(std::make_pair("Polar node types", this->polar_nodes));
+		if ((type == "SC"      ||
+		     type == "SCL"     ||
+		     type == "ASCL"    ||
+		     type == "SCL_MEM" ||
+		     type == "ASCL_MEM") && implem == "FAST")
+			headers[p].push_back(std::make_pair("Polar node types", polar_nodes));
 	}
 }
 
@@ -161,13 +161,13 @@ template <typename B, typename Q>
 module::Decoder_SISO_SIHO<B,Q>* Decoder_polar::parameters
 ::build_siso(const std::vector<bool> &frozen_bits, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "SCAN" && !this->not_systematic)
+	if (type == "SCAN" && !not_systematic)
 	{
-		if (this->implem == "NAIVE") return new module::Decoder_polar_SCAN_naive_sys<B, Q, tools::f_LLR<Q>, tools::v_LLR<Q>, tools::h_LLR<B,Q>>(this->K, this->N_cw, this->n_ite, frozen_bits, this->n_frames);
+		if (implem == "NAIVE") return new module::Decoder_polar_SCAN_naive_sys<B, Q, tools::f_LLR<Q>, tools::v_LLR<Q>, tools::h_LLR<B,Q>>(K, N_cw, n_ite, frozen_bits, n_frames);
 	}
-	else if (this->type == "SCAN" && this->not_systematic)
+	else if (type == "SCAN" && not_systematic)
 	{
-		if (this->implem == "NAIVE") return new module::Decoder_polar_SCAN_naive    <B, Q, tools::f_LLR<Q>, tools::v_LLR<Q>, tools::h_LLR<B,Q>>(this->K, this->N_cw, this->n_ite, frozen_bits, this->n_frames);
+		if (implem == "NAIVE") return new module::Decoder_polar_SCAN_naive    <B, Q, tools::f_LLR<Q>, tools::v_LLR<Q>, tools::h_LLR<B,Q>>(K, N_cw, n_ite, frozen_bits, n_frames);
 	}
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
@@ -177,40 +177,40 @@ template <typename B, typename Q, class API_polar>
 module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 ::_build(const std::vector<bool> &frozen_bits, module::CRC<B> *crc, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->not_systematic) // non-systematic encoding
+	if (not_systematic) // non-systematic encoding
 	{
-		if (this->implem == "NAIVE")
+		if (implem == "NAIVE")
 		{
 			if (crc == nullptr || crc->get_size() == 0)
 			{
-				if (this->type == "SC"  ) return new module::Decoder_polar_SC_naive        <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>,tools::h_LLR<B,Q>>(this->K, this->N_cw,              frozen_bits,       this->n_frames);
-				if (this->type == "SCAN") return new module::Decoder_polar_SCAN_naive      <B,Q,tools::f_LLR<Q>,tools::v_LLR<  Q>,tools::h_LLR<B,Q>>(this->K, this->N_cw, this->n_ite, frozen_bits,       this->n_frames);
-				if (this->type == "SCL" ) return new module::Decoder_polar_SCL_naive       <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(this->K, this->N_cw, this->L,     frozen_bits,       this->n_frames);
+				if (type == "SC"  ) return new module::Decoder_polar_SC_naive        <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>,tools::h_LLR<B,Q>>(K, N_cw,        frozen_bits,       n_frames);
+				if (type == "SCAN") return new module::Decoder_polar_SCAN_naive      <B,Q,tools::f_LLR<Q>,tools::v_LLR<  Q>,tools::h_LLR<B,Q>>(K, N_cw, n_ite, frozen_bits,       n_frames);
+				if (type == "SCL" ) return new module::Decoder_polar_SCL_naive       <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(K, N_cw, L,     frozen_bits,       n_frames);
 			}
 			else
-				if (this->type == "SCL" ) return new module::Decoder_polar_SCL_naive_CA    <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(this->K, this->N_cw, this->L,     frozen_bits, *crc, this->n_frames);
+				if (type == "SCL" ) return new module::Decoder_polar_SCL_naive_CA    <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(K, N_cw, L,     frozen_bits, *crc, n_frames);
 		}
 	}
 	else // systematic encoding
 	{
-		if (this->implem == "NAIVE")
+		if (implem == "NAIVE")
 		{
 			if (crc == nullptr || crc->get_size() == 0)
 			{
-				if (this->type == "SC"  ) return new module::Decoder_polar_SC_naive_sys    <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>,tools::h_LLR<B,Q>>(this->K, this->N_cw,              frozen_bits,       this->n_frames);
-				if (this->type == "SCAN") return new module::Decoder_polar_SCAN_naive_sys  <B,Q,tools::f_LLR<Q>,tools::v_LLR<  Q>,tools::h_LLR<B,Q>>(this->K, this->N_cw, this->n_ite, frozen_bits,       this->n_frames);
-				if (this->type == "SCL" ) return new module::Decoder_polar_SCL_naive_sys   <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(this->K, this->N_cw, this->L,     frozen_bits,       this->n_frames);
+				if (type == "SC"  ) return new module::Decoder_polar_SC_naive_sys    <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>,tools::h_LLR<B,Q>>(K, N_cw,        frozen_bits,       n_frames);
+				if (type == "SCAN") return new module::Decoder_polar_SCAN_naive_sys  <B,Q,tools::f_LLR<Q>,tools::v_LLR<  Q>,tools::h_LLR<B,Q>>(K, N_cw, n_ite, frozen_bits,       n_frames);
+				if (type == "SCL" ) return new module::Decoder_polar_SCL_naive_sys   <B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(K, N_cw, L,     frozen_bits,       n_frames);
 			}
 			else
-				if (this->type == "SCL" ) return new module::Decoder_polar_SCL_naive_CA_sys<B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(this->K, this->N_cw, this->L,     frozen_bits, *crc, this->n_frames);
+				if (type == "SCL" ) return new module::Decoder_polar_SCL_naive_CA_sys<B,Q,tools::f_LLR<Q>,tools::g_LLR<B,Q>                  >(K, N_cw, L,     frozen_bits, *crc, n_frames);
 		}
-		else if (this->implem == "FAST")
+		else if (implem == "FAST")
 		{
 			if (crc == nullptr || crc->get_size() == 0)
 			{
 				int idx_r0, idx_r1;
-				auto polar_patterns = tools::nodes_parser(this->polar_nodes, idx_r0, idx_r1);
-				if (this->type == "SC"  ) return new module::Decoder_polar_SC_fast_sys<B, Q, API_polar>(this->K, this->N_cw, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, this->n_frames);
+				auto polar_patterns = tools::nodes_parser(polar_nodes, idx_r0, idx_r1);
+				if (type == "SC"  ) return new module::Decoder_polar_SC_fast_sys<B, Q, API_polar>(K, N_cw, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, n_frames);
 			}
 		}
 	}
@@ -223,21 +223,21 @@ module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 ::_build_scl_fast(const std::vector<bool> &frozen_bits, module::CRC<B> *crc, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
 	int idx_r0, idx_r1;
-	auto polar_patterns = tools::nodes_parser(this->polar_nodes, idx_r0, idx_r1);
+	auto polar_patterns = tools::nodes_parser(polar_nodes, idx_r0, idx_r1);
 
-	if (this->implem == "FAST" && !this->not_systematic)
+	if (implem == "FAST" && !not_systematic)
 	{
 		if (crc != nullptr && crc->get_size() > 0)
 		{
-			if (this->type == "ASCL"    ) return new module::Decoder_polar_ASCL_fast_CA_sys    <B, Q, API_polar>(this->K, this->N_cw, this->L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc, this->full_adaptive, this->n_frames);
-			if (this->type == "ASCL_MEM") return new module::Decoder_polar_ASCL_MEM_fast_CA_sys<B, Q, API_polar>(this->K, this->N_cw, this->L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc, this->full_adaptive, this->n_frames);
-			if (this->type == "SCL"     ) return new module::Decoder_polar_SCL_fast_CA_sys     <B, Q, API_polar>(this->K, this->N_cw, this->L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc,                      this->n_frames);
-			if (this->type == "SCL_MEM" ) return new module::Decoder_polar_SCL_MEM_fast_CA_sys <B, Q, API_polar>(this->K, this->N_cw, this->L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc,                      this->n_frames);
+			if (type == "ASCL"    ) return new module::Decoder_polar_ASCL_fast_CA_sys    <B, Q, API_polar>(K, N_cw, L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc, !partial_adaptive, n_frames);
+			if (type == "ASCL_MEM") return new module::Decoder_polar_ASCL_MEM_fast_CA_sys<B, Q, API_polar>(K, N_cw, L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc, !partial_adaptive, n_frames);
+			if (type == "SCL"     ) return new module::Decoder_polar_SCL_fast_CA_sys     <B, Q, API_polar>(K, N_cw, L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc,                    n_frames);
+			if (type == "SCL_MEM" ) return new module::Decoder_polar_SCL_MEM_fast_CA_sys <B, Q, API_polar>(K, N_cw, L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1, *crc,                    n_frames);
 		}
 		else
 		{
-			if (this->type == "SCL"     ) return new module::Decoder_polar_SCL_fast_sys        <B, Q, API_polar>(this->K, this->N_cw, this->L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1,                            this->n_frames);
-			if (this->type == "SCL_MEM" ) return new module::Decoder_polar_SCL_MEM_fast_sys    <B, Q, API_polar>(this->K, this->N_cw, this->L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1,                            this->n_frames);
+			if (type == "SCL"     ) return new module::Decoder_polar_SCL_fast_sys        <B, Q, API_polar>(K, N_cw, L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1,                          n_frames);
+			if (type == "SCL_MEM" ) return new module::Decoder_polar_SCL_MEM_fast_sys    <B, Q, API_polar>(K, N_cw, L, frozen_bits, std::move(polar_patterns), idx_r0, idx_r1,                          n_frames);
 		}
 	}
 
@@ -254,9 +254,9 @@ module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 	}
 	catch (tools::cannot_allocate const&)
 	{
-		if (this->type.find("SCL") != std::string::npos && this->implem == "FAST")
+		if (type.find("SCL") != std::string::npos && implem == "FAST")
 		{
-			if (this->simd_strategy == "INTRA")
+			if (simd_strategy == "INTRA")
 			{
 				if (typeid(B) == typeid(signed char))
 				{
@@ -271,13 +271,13 @@ module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 					return _build_scl_fast<B,Q,tools::API_polar_dynamic_intra<B,Q>>(frozen_bits, crc, encoder);
 				}
 			}
-			else if (this->simd_strategy.empty())
+			else if (simd_strategy.empty())
 			{
 				return _build_scl_fast<B,Q,tools::API_polar_dynamic_seq<B,Q>>(frozen_bits, crc, encoder);
 			}
 		}
 
-		if (this->simd_strategy == "INTER" && this->type == "SC" && this->implem == "FAST")
+		if (simd_strategy == "INTER" && type == "SC" && implem == "FAST")
 		{
 			if (typeid(B) == typeid(signed char))
 			{
@@ -306,7 +306,7 @@ module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 				return _build<B,Q,API_polar>(frozen_bits, crc, encoder);
 			}
 		}
-		else if (this->simd_strategy == "INTRA" && this->implem == "FAST")
+		else if (simd_strategy == "INTRA" && implem == "FAST")
 		{
 			if (typeid(B) == typeid(signed char))
 			{
@@ -336,7 +336,7 @@ module::Decoder_SIHO<B,Q>* Decoder_polar::parameters
 				return _build<B,Q,API_polar>(frozen_bits, crc, encoder);
 			}
 		}
-		else if (this->simd_strategy.empty())
+		else if (simd_strategy.empty())
 		{
 #ifdef API_POLAR_DYNAMIC
 			using API_polar = tools::API_polar_dynamic_seq<B,Q>;

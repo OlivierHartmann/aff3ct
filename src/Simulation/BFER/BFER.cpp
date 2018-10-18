@@ -147,7 +147,7 @@ void BFER<B,R,Q>
 #ifdef ENABLE_MPI
 		if (params_BFER.mpi_rank == 0)
 #endif
-		if (!params_BFER.hide_legend)
+		if (!params_BFER.glb->hide_legend)
 			if ((!params_BFER.ter->disabled && noise_idx == noise_begin && !params_BFER.debug)
 				|| (params_BFER.statistics && !params_BFER.debug))
 				terminal->legend(std::cout);

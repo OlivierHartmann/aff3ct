@@ -34,11 +34,9 @@ Encoder::parameters* Encoder::parameters
 void Encoder::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -46,7 +44,7 @@ void Encoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--cw-size",
 		N_cw,
 		"The codeword size.")
@@ -54,7 +52,7 @@ void Encoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -62,7 +60,7 @@ void Encoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		type_set,
@@ -70,21 +68,21 @@ void Encoder::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--path",
 		path,
 		"Path to a file containing one or a set of pre-computed codewords, to use with \"--enc-type USER\".")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--start-idx",
 		start_idx,
 		"Start idx to use in the USER type encoder.",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-S,--seed",
 		seed,
 		"Seed used to initialize the pseudo random generators.",
@@ -95,34 +93,34 @@ void Encoder::parameters
 void Encoder::parameters
 ::callback_arguments()
 {
-	this->R = (float)this->K / (float)this->N_cw;
+	R = (float)K / (float)N_cw;
 }
 
 void Encoder::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
-	headers[p].push_back(std::make_pair("Type", this->type));
-	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(this->K)));
-	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(this->N_cw)));
-	if (full) headers[p].push_back(std::make_pair("Code rate (R)", std::to_string(this->R)));
-	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
-	headers[p].push_back(std::make_pair("Systematic", ((this->not_systematic) ? "no" : "yes")));
-	if (this->type == "USER")
-		headers[p].push_back(std::make_pair("Path", this->path));
-	if (this->type == "COSET" && full)
-		headers[p].push_back(std::make_pair("Seed", std::to_string(this->seed)));
+	headers[p].push_back(std::make_pair("Type", type));
+	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(K)));
+	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(N_cw)));
+	if (full) headers[p].push_back(std::make_pair("Code rate (R)", std::to_string(R)));
+	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(n_frames)));
+	headers[p].push_back(std::make_pair("Systematic", ((not_systematic) ? "no" : "yes")));
+	if (type == "USER")
+		headers[p].push_back(std::make_pair("Path", path));
+	if (type == "COSET" && full)
+		headers[p].push_back(std::make_pair("Seed", std::to_string(seed)));
 }
 
 template <typename B>
 module::Encoder<B>* Encoder::parameters
 ::build() const
 {
-	if (this->type == "NO"   ) return new module::Encoder_NO   <B>(this->K,                         this->n_frames);
-	if (this->type == "AZCW" ) return new module::Encoder_AZCW <B>(this->K, this->N_cw,             this->n_frames);
-	if (this->type == "COSET") return new module::Encoder_coset<B>(this->K, this->N_cw, this->seed, this->n_frames);
-	if (this->type == "USER" ) return new module::Encoder_user <B>(this->K, this->N_cw, this->path, this->n_frames, this->start_idx);
+	if (type == "NO"   ) return new module::Encoder_NO   <B>(K,             n_frames);
+	if (type == "AZCW" ) return new module::Encoder_AZCW <B>(K, N_cw,       n_frames);
+	if (type == "COSET") return new module::Encoder_coset<B>(K, N_cw, seed, n_frames);
+	if (type == "USER" ) return new module::Encoder_user <B>(K, N_cw, path, n_frames, start_idx);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

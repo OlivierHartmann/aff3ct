@@ -28,9 +28,9 @@ Source::parameters* Source::parameters
 void Source::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -38,7 +38,7 @@ void Source::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -46,7 +46,7 @@ void Source::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		{"RAND", "AZCW", "USER"},
@@ -54,7 +54,7 @@ void Source::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--implem",
 		implem,
 		{"STD", "FAST"},
@@ -62,21 +62,21 @@ void Source::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--path",
 		path,
-		"Path to a file containing one or a set of pre-computed source bits (to use with \"--src-type USER\").")
+		"Path to a file containing one or a set of pre-computed source bits (to use with \"--type USER\").")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--start-idx",
 		start_idx,
 		"Start idx to use in the USER type source.",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-S,--seed",
 		seed,
 		"Seed used to initialize the pseudo random generators.",
@@ -92,7 +92,7 @@ void Source::parameters
 void Source::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
 	headers[p].push_back(std::make_pair("Type", this->type));
 	headers[p].push_back(std::make_pair("Implementation", this->implem));

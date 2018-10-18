@@ -27,6 +27,8 @@ Codec_RSC::parameters* Codec_RSC::parameters
 void Codec_RSC::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(app);

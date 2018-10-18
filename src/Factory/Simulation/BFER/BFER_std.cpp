@@ -24,6 +24,8 @@ BFER_std::parameters* BFER_std::parameters
 void BFER_std::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	BFER::parameters::register_arguments(app);
 }
 

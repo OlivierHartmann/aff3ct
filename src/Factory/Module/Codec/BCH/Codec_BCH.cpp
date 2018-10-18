@@ -14,8 +14,8 @@ Codec_BCH::parameters
 : Codec          ::parameters(Codec_BCH_name, prefix),
   Codec_SIHO_HIHO::parameters(Codec_BCH_name, prefix)
 {
-	Codec::parameters::set_enc(new Encoder_BCH::parameters("enc"));
-	Codec::parameters::set_dec(new Decoder_BCH::parameters("dec"));
+	Codec::parameters::set_enc(new Encoder_BCH::parameters(""));
+	Codec::parameters::set_dec(new Decoder_BCH::parameters(""));
 }
 
 Codec_BCH::parameters* Codec_BCH::parameters
@@ -27,20 +27,19 @@ Codec_BCH::parameters* Codec_BCH::parameters
 void Codec_BCH::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SIHO_HIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	sub_dec = app.get_subcommand(dec->get_prefix());
-	sub_enc = app.get_subcommand(enc->get_prefix());
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
 
-	CLI::remove_option(sub_dec, "--cw-size"  );
-	CLI::remove_option(sub_dec, "--info-bits");
-	CLI::remove_option(sub_dec, "--fra"      );
-
-	sub_enc->get_option("--info-bits")->required(false);
-	// sub_dec->get_option("--corr-pow")->excludes(sub_enc->get_option("--info-bits"));
+	CLI::get_option(sub_enc, "--info-bits", enc->get_prefix())->required(false);
+	// CLI::get_option(sub_dec, "--corr-pow", dec->get_prefix())->excludes(CLI::get_option(sub_enc, "--info-bits", enc->get_prefix());
 }
 
 void Codec_BCH::parameters

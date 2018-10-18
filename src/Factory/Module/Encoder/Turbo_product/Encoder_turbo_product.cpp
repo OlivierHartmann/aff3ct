@@ -55,9 +55,9 @@ std::vector<std::string> Encoder_turbo_product::parameters
 void Encoder_turbo_product::parameters
 ::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::register_arguments(app);
 
 	args.erase({p+"-info-bits", "K"});
 	args.erase({p+"-cw-size",   "N"});
@@ -92,7 +92,7 @@ void Encoder_turbo_product::parameters
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	if (vals.exist({p+"-ext"})) this->parity_extended = true;
 
@@ -125,12 +125,12 @@ void Encoder_turbo_product::parameters
 void Encoder_turbo_product::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Encoder::parameters::get_headers(headers, full);
 
 	if (itl != nullptr)
 		itl->get_headers(headers, full);
-
-	auto p = this->get_prefix();
 
 	headers[p].push_back(std::make_pair("Parity extended", (this->parity_extended ? "yes" : "no")));
 

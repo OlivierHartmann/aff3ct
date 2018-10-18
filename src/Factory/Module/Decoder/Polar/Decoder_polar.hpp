@@ -25,11 +25,11 @@ struct Decoder_polar : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		std::string simd_strategy = "";
-		std::string polar_nodes   = "{R0,R0L,R1,REP,REPL,SPC}";
-		bool        full_adaptive = true;
-		unsigned    n_ite         = 1;
-		unsigned    L             = 8;
+		std::string simd_strategy    = "";
+		std::string polar_nodes      = "{R0,R0L,R1,REP,REPL,SPC}";
+		bool        partial_adaptive = false;
+		unsigned    n_ite            = 1;
+		unsigned    L                = 8;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_polar_prefix);

@@ -29,9 +29,9 @@ Decoder_NO::parameters* Decoder_NO::parameters
 void Decoder_NO::parameters
 ::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Decoder::parameters::register_arguments(app);
 
 	tools::add_options(args.at({p+"-type", "D"}), 0, "NONE");
 	tools::add_options(args.at({p+"-implem"   }), 0, "HARD_DECISION");

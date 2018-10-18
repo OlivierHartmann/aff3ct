@@ -11,7 +11,6 @@
 
 #include "Factory/Launcher/Launcher.hpp"
 #include "Factory/Tools/Noise/Noise.hpp"
-#include "Tools/auto_cloned_unique_ptr.hpp"
 
 namespace aff3ct
 {
@@ -50,6 +49,10 @@ struct Simulation : Launcher
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		virtual ~parameters() = default;
 		virtual Simulation::parameters* clone() const;
+
+		virtual std::vector<std::string> get_names      () const;
+		virtual std::vector<std::string> get_short_names() const;
+		virtual std::vector<std::string> get_prefixes   () const;
 
 		// parameters construction
 		virtual void register_arguments(CLI::App &app);

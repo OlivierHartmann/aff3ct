@@ -28,6 +28,8 @@ Puncturer_polar::parameters* Puncturer_polar::parameters
 void Puncturer_polar::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Puncturer::parameters::register_arguments(app);
 }
 

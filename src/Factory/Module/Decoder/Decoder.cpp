@@ -25,11 +25,9 @@ Decoder::parameters* Decoder::parameters
 void Decoder::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -37,7 +35,7 @@ void Decoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--cw-size",
 		N_cw,
 		"The codeword size.")
@@ -45,7 +43,7 @@ void Decoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -53,7 +51,7 @@ void Decoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"-D,--type",
 		type,
 		type_set,
@@ -61,7 +59,7 @@ void Decoder::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--implem",
 		implem,
 		implem_set,
@@ -69,13 +67,13 @@ void Decoder::parameters
 		true)
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--hamming",
 		hamming,
 		"Enable the computation of the Hamming distance instead of the Euclidean distance in the ML/CHASE decoders.")
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--flips",
 		flips,
 		"Set the maximum number of flips in the CHASE decoder.",
@@ -86,27 +84,27 @@ void Decoder::parameters
 void Decoder::parameters
 ::callback_arguments()
 {
-	this->R = (float)this->K / (float)this->N_cw;
+	R = (float)K / (float)N_cw;
 }
 
 void Decoder::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
-	headers[p].push_back(std::make_pair("Type (D)",this->type));
-	if (this->implem.size()) headers[p].push_back(std::make_pair("Implementation", this->implem));
+	headers[p].push_back(std::make_pair("Type (D)",type));
+	if (implem.size()) headers[p].push_back(std::make_pair("Implementation", implem));
 
-	if (full) headers[p].push_back(std::make_pair("Info. bits (K)",    std::to_string(this->K)));
-	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(this->N_cw)));
-	if (full) headers[p].push_back(std::make_pair("Code rate (R)",     std::to_string(this->R)));
+	if (full) headers[p].push_back(std::make_pair("Info. bits (K)",    std::to_string(K)));
+	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(N_cw)));
+	if (full) headers[p].push_back(std::make_pair("Code rate (R)",     std::to_string(R)));
 
-	headers[p].push_back(std::make_pair("Systematic", ((this->not_systematic) ? "no" : "yes")));
-	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
-	if (this->type == "ML" || this->type == "CHASE")
-		headers[p].push_back(std::make_pair("Distance", this->hamming ? "Hamming" : "Euclidean"));
-	if (this->type == "CHASE")
-		headers[p].push_back(std::make_pair("Max flips", std::to_string(this->flips)));
+	headers[p].push_back(std::make_pair("Systematic", ((not_systematic) ? "no" : "yes")));
+	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(n_frames)));
+	if (type == "ML" || type == "CHASE")
+		headers[p].push_back(std::make_pair("Distance", hamming ? "Hamming" : "Euclidean"));
+	if (type == "CHASE")
+		headers[p].push_back(std::make_pair("Max flips", std::to_string(flips)));
 }
 
 template <typename B, typename Q>
@@ -115,14 +113,14 @@ module::Decoder_SIHO<B,Q>* Decoder::parameters
 {
 	if (encoder)
 	{
-		if (this->type == "ML")
+		if (type == "ML")
 		{
-			if (this->implem == "STD"  ) return new module::Decoder_ML_std  <B,Q>(this->K, this->N_cw, *encoder, this->hamming, this->n_frames);
-			if (this->implem == "NAIVE") return new module::Decoder_ML_naive<B,Q>(this->K, this->N_cw, *encoder, this->hamming, this->n_frames);
+			if (implem == "STD"  ) return new module::Decoder_ML_std  <B,Q>(K, N_cw, *encoder, hamming, n_frames);
+			if (implem == "NAIVE") return new module::Decoder_ML_naive<B,Q>(K, N_cw, *encoder, hamming, n_frames);
 		}
-		else if (this->type == "CHASE")
+		else if (type == "CHASE")
 		{
-			if (this->implem == "STD") return new module::Decoder_chase_std<B,Q>(this->K, this->N_cw, *encoder, this->flips, this->hamming, this->n_frames);
+			if (implem == "STD") return new module::Decoder_chase_std<B,Q>(K, N_cw, *encoder, flips, hamming, n_frames);
 		}
 	}
 

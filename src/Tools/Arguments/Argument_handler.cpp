@@ -166,7 +166,7 @@ std::vector<bool> Argument_handler
 								it_arg_info->second->type->check(this->command[ix_arg_val +1]);
 								message = "";
 							}
-							catch(std::exception& e)
+							catch (std::exception& e)
 							{
 								message = "The \"" + print_tag(it_arg_info->first) + "\" argument ";
 								message += e.what();

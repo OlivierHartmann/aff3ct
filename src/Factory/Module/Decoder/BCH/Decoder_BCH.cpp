@@ -1,4 +1,5 @@
 #include <sstream>
+#include <cmath>
 
 #include "Module/Decoder/BCH/Standard/Decoder_BCH_std.hpp"
 #include "Module/Decoder/BCH/Genius/Decoder_BCH_genius.hpp"
@@ -34,16 +35,16 @@ Decoder_BCH::parameters* Decoder_BCH::parameters
 void Decoder_BCH::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Decoder::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-T,--corr-pow",
 		t,
 		"Correction power of the BCH code.")
 		->check(CLI::StrictlyPositiveRange(0u))
-		// ->excludes(sub->get_option("--info-bits"))
+		// ->excludes(app.get_option("--info-bits"))
 		->group("Standard");
 }
 
@@ -76,18 +77,18 @@ void Decoder_BCH::parameters
 		}
 	}
 	else
-		t = (N_cw - K) / m;
+		t = (unsigned)std::ceil((float)(N_cw - K) / (float)m);
 }
 
 void Decoder_BCH::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
 	if (type != "ML" && type != "CHASE")
 	{
-		auto p = get_prefix();
-
 		headers[p].push_back(std::make_pair("Galois field order (m)", std::to_string(m)));
 		headers[p].push_back(std::make_pair("Correction power (T)",   std::to_string(t)));
 	}

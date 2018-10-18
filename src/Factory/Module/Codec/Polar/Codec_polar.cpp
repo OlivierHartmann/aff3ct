@@ -15,10 +15,10 @@ Codec_polar::parameters
 : Codec          ::parameters(Codec_polar_name, prefix),
   Codec_SISO_SIHO::parameters(Codec_polar_name, prefix)
 {
-	Codec::parameters::set_enc(new Encoder_polar::parameters("enc"));
-	Codec::parameters::set_dec(new Decoder_polar::parameters("dec"));
+	Codec::parameters::set_enc(new Encoder_polar::parameters(""));
+	Codec::parameters::set_dec(new Decoder_polar::parameters(""));
 
-  	fbg = new Frozenbits_generator::parameters(enc->get_prefix()+"-fb");
+  	fbg = new Frozenbits_generator::parameters("fb");
 }
 
 Codec_polar::parameters* Codec_polar::parameters
@@ -30,7 +30,7 @@ Codec_polar::parameters* Codec_polar::parameters
 void Codec_polar::parameters
 ::enable_puncturer()
 {
-	set_pct(new Puncturer_polar::parameters("pct"));
+	set_pct(new Puncturer_polar::parameters(""));
 }
 
 std::vector<std::string> Codec_polar::parameters
@@ -99,31 +99,30 @@ std::vector<std::string> Codec_polar::parameters
 void Codec_polar::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	fbg->register_arguments(app);
-	dec->register_arguments(app);
+	auto sub_fbg = sub_enc;
 
-	auto pdec = dec->get_prefix();
-	auto pfbg = fbg->get_prefix();
+	enc->register_arguments(*sub_enc);
+	fbg->register_arguments(*sub_fbg);
+	dec->register_arguments(*sub_dec);
 
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
-	args.erase({pdec+"-no-sys"        });
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pfbg+"-cw-size",   "N"});
-	args.erase({pfbg+"-info-bits", "K"});
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--no-sys"   , dec->get_prefix());
+	CLI::remove_option(sub_fbg, "--cw-size"  , fbg->get_prefix());
+	CLI::remove_option(sub_fbg, "--info-bits", fbg->get_prefix());
 
 	if (pct != nullptr)
 	{
-		pct->register_arguments(app);
+		pct->register_arguments(*sub_pct);
 
-		auto penc = enc->get_prefix();
-
-		args.erase({penc+"-cw-size",   "N"});
-		args.erase({penc+"-info-bits", "K"});
-		args.erase({penc+"-fra",       "F"});
+		CLI::remove_option(sub_enc, "--cw-size"  , enc->get_prefix());
+		CLI::remove_option(sub_enc, "--info-bits", enc->get_prefix());
+		CLI::remove_option(sub_enc, "--fra"      , enc->get_prefix());
 	}
 }
 
@@ -136,20 +135,16 @@ void Codec_polar::parameters
 	{
 		pct->callback_arguments();
 
-		enc->K        = fbg->K    = dec->K        = pct->K;
-		enc->N_cw     = fbg->N_cw = dec->N_cw     = pct->N_cw;
-		enc->n_frames             = dec->n_frames = pct->n_frames;
+		enc->K        = pct->K;
+		enc->N_cw     = pct->N_cw;
+		enc->n_frames = pct->n_frames;
 	}
+
+	dec->K        = fbg->K    = enc->K;
+	dec->N_cw     = fbg->N_cw = enc->N_cw;
+	dec->n_frames             = enc->n_frames;
 
 	enc->callback_arguments();
-
-	if (pct == nullptr)
-	{
-		fbg->K    = dec->K        = enc->K;
-		fbg->N_cw = dec->N_cw     = enc->N_cw;
-		            dec->n_frames = enc->n_frames;
-	}
-
 	fbg->callback_arguments();
 
 	dec->not_systematic = enc->not_systematic;

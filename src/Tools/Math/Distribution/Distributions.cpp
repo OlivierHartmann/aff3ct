@@ -291,7 +291,7 @@ read_distribution_from_file(unsigned index)
 			v_y_R[1][j] = (R)std::stof(v_y1[j]);
 		}
 	}
-	catch(...)
+	catch (...)
 	{
 		std::stringstream message;
 		message << "A value does not represent a float (ROP = " << ROP << ", ROP_R = " << ROP_R

@@ -69,12 +69,12 @@ std::vector<std::string> EXIT::parameters
 void EXIT::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Simulation::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
 	auto opt_siga_range =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--siga-range",
 		sig_a_range,
 		"Sigma range used in EXIT charts (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).")
@@ -83,7 +83,7 @@ void EXIT::parameters
 		->group("Standard");
 
 	sig_a_min_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-a,--siga-min",
 		sig_a_min,
 		"Sigma min value used in EXIT charts.")
@@ -93,7 +93,7 @@ void EXIT::parameters
 		->group("Standard");
 
 	sig_a_max_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-A,--siga-max",
 		sig_a_max,
 		"Sigma max value used in EXIT charts.")
@@ -102,7 +102,7 @@ void EXIT::parameters
 		->excludes(opt_siga_range)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--siga-step",
 		sig_a_step,
 		"Sigma step value used in EXIT charts.",
@@ -127,9 +127,9 @@ void EXIT::parameters
 void EXIT::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Simulation::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = this->get_prefix();
+	Simulation::parameters::get_headers(headers, full);
 
 	if (!sig_a_range.empty())
 	{

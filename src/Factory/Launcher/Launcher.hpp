@@ -1,9 +1,11 @@
-#ifndef FACTORY_SIMULATION_MAIN_H_
-#define FACTORY_SIMULATION_MAIN_H_
+#ifndef FACTORY_LAUNCHER_HPP_
+#define FACTORY_LAUNCHER_HPP_
 
 #include <string>
+#include "Tools/auto_cloned_unique_ptr.hpp"
 
 #include "../Factory.hpp"
+#include "Launcher_global.hpp"
 
 namespace aff3ct
 {
@@ -25,25 +27,23 @@ struct Launcher : public Factory
 	{
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
+		tools::auto_cloned_unique_ptr<Launcher_global::parameters> glb;
+
 		// required parameters
 		std::string cde_type;
 
 		// optional parameters
-		std::string sim_type         = "BFER";
-		unsigned    sim_prec         = 32;
-		bool        display_version  = false;
-		bool        hide_legend      = false;
-		bool        full_legend      = false;
-		bool        disable_bt       = false;
-		bool        enable_full_bt   = false;
-		bool        disable_colors   = false;
-		bool        help             = false;
-		bool        advanced_help    = false;
+		std::string sim_type = "BFER";
+		unsigned    sim_prec = 32;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Launcher_prefix, const std::string &n = Launcher_name);
 		virtual ~parameters() = default;
 		virtual Launcher::parameters* clone() const;
+
+		virtual std::vector<std::string> get_names      () const;
+		virtual std::vector<std::string> get_short_names() const;
+		virtual std::vector<std::string> get_prefixes   () const;
 
 		// parameters construction
 		virtual void register_arguments(CLI::App &app);
@@ -68,4 +68,4 @@ struct Launcher : public Factory
 }
 }
 
-#endif /* FACTORY_SIMULATION_MAIN_H_ */
+#endif /* FACTORY_LAUNCHER_HPP_ */

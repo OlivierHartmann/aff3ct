@@ -36,7 +36,7 @@
 // 		// write the parameters values in "params" from "read_args"
 // 		Factory::store(params, read_args);
 // 	}
-// 	catch(const std::exception& e)
+// 	catch (const std::exception& e)
 // 	{
 // 		auto save = tools::exception::no_backtrace;
 // 		tools::exception::no_backtrace = true;

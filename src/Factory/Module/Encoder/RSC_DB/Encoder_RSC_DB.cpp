@@ -26,9 +26,9 @@ Encoder_RSC_DB::parameters* Encoder_RSC_DB::parameters
 void Encoder_RSC_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::register_arguments(app);
 
 	args.erase({p+"-cw-size", "N"});
 
@@ -50,7 +50,7 @@ void Encoder_RSC_DB::parameters
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	if (vals.exist({p+"-no-buff"})) this->buffered = false;
 	if (vals.exist({p+"-std"    })) this->standard = vals.at({p+"-std"});
@@ -62,9 +62,9 @@ void Encoder_RSC_DB::parameters
 void Encoder_RSC_DB::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Encoder::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::get_headers(headers, full);
 
 	headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
 

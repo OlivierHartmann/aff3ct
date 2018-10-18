@@ -54,9 +54,9 @@ std::vector<std::string> Encoder_turbo_DB::parameters
 void Encoder_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::register_arguments(app);
 
 	args.erase({p+"-cw-size", "N"});
 
@@ -121,12 +121,12 @@ void Encoder_turbo_DB::parameters
 void Encoder_turbo_DB::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Encoder::parameters::get_headers(headers, full);
 
 	if (itl != nullptr)
 		itl->get_headers(headers, full);
-
-	auto p = this->get_prefix();
 
 	if (this->tail_length)
 		headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));

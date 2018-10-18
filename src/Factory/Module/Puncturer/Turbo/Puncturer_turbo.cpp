@@ -51,13 +51,13 @@ Puncturer_turbo::parameters* Puncturer_turbo::parameters
 void Puncturer_turbo::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Puncturer::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	CLI::remove_option(app, "--fra-size", p);
 
-	sub->remove_option(sub->get_option("--fra-size"));
-
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--pattern",
 		str_pattern,
 		"Puncturing pattern for the turbo encoder (ex: \"11,10,01\").",
@@ -71,14 +71,14 @@ void Puncturer_turbo::parameters
 	// 	                    std::make_tuple(tools::Length(1))),
 	// 	"puncturing pattern for the turbo encoder (ex: \"11,10,01\").");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--tail-length",
 		tail_length,
 		"Total number of tail bits at the end of the frame.",
 		true)
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--no-buff",
 		no_buffered,
 		"Does not suppose a buffered encoding")
@@ -100,9 +100,9 @@ void Puncturer_turbo::parameters
 void Puncturer_turbo::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Puncturer::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = get_prefix();
+	Puncturer::parameters::get_headers(headers, full);
 
 	if (type != "NO")
 	{

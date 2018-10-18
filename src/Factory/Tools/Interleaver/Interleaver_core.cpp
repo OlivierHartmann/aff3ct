@@ -35,9 +35,9 @@ Interleaver_core::parameters* Interleaver_core::parameters
 void Interleaver_core::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--size",
 		size,
 		"Number of symbols to interleave.")
@@ -45,7 +45,7 @@ void Interleaver_core::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -53,7 +53,7 @@ void Interleaver_core::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		{"LTE", "CCSDS", "DVB-RCS1", "DVB-RCS2", "RANDOM", "GOLDEN", "USER", "RAND_COL", "ROW_COL", "COL_ROW", "NO"},
@@ -61,14 +61,14 @@ void Interleaver_core::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--path",
 		path,
-		"Path to the interleaver file (to use with \"--itl-type USER\").")
+		"Path to the interleaver file (to use with \"--type USER\").")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--cols",
 		n_cols,
 		"Specify the number of columns used for the RAND_COL, ROW_COL or COL_ROW interleaver.",
@@ -76,13 +76,13 @@ void Interleaver_core::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--uni",
 		uniform,
 		"Enable the regeneration of the interleaver for each new frame")
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-S,--seed",
 		seed,
 		"Seed used to initialize the pseudo random generators.",
@@ -98,7 +98,7 @@ void Interleaver_core::parameters
 void Interleaver_core::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
 	headers[p].push_back(std::make_pair("Type", this->type));
 	if (full) headers[p].push_back(std::make_pair("Size", std::to_string(this->size)));

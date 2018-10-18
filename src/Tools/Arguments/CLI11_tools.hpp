@@ -2,38 +2,9 @@
 #define CLI11_TOOLS_HPP
 
 #include <string>
+#include <vector>
+#include <set>
 
-// namespace CLI
-// {
-// 	namespace detail
-// 	{
-
-// 		template <typename T, typename std::enable_if<std::is_same<T,bool>::value, void*>::type = nullptr>
-// 		constexpr const char *type_name()
-// 		{
-// 			return "BOOL";
-// 		}
-
-// 		/// Bool
-// 		template <typename T, typename std::enable_if<std::is_same<T,bool>::value, void*>::type = nullptr>
-// 		bool lexical_cast(std::string input, T &output)
-// 		{
-// 			std::transform(input.begin(), input.end(), input.begin(), ::tolower);
-
-// 			if (input == "true" || input == "1")
-// 				output = true;
-
-// 			else if (input == "false" || input == "0")
-// 				output = false;
-
-// 			else
-// 				return false;
-
-// 			return true;
-// 		}
-
-// 	}
-// }
 
 #include "Type_chrono.hpp"
 #include "Matlab_vector.hpp"
@@ -69,21 +40,98 @@ bool has_subcommand(CLI::App* app, const std::string& command);
 /**
  * \brief Check if the option is in the application
  * \param app is the application in which the option should be
- * \param option is the option name
+ * \param name is the option name
+ * \param prefix is the prefix to add to long names only
  * \return true if the option has been found
  */
-bool has_option(CLI::App& app, const std::string& option);
-bool has_option(CLI::App* app, const std::string& option);
+bool has_option(CLI::App& app, const std::string& name, const std::string& prefix = "");
+bool has_option(CLI::App* app, const std::string& name, const std::string& prefix = "");
+
+
+/**
+ * \brief Return the option that is in the application
+ * \param app is the application in which the option should be
+ * \param name is the option name
+ * \param prefix is the prefix to add to long names only
+ * \return pointer to the option
+ */
+CLI::Option* get_option(CLI::App& app, const std::string& name, const std::string& prefix = "");
+CLI::Option* get_option(CLI::App* app, const std::string& name, const std::string& prefix = "");
 
 
 /**
  * \brief Remove the option in the application
  * \param app is the application in which the option should be
- * \param option is the option name
+ * \param name is the option name
+ * \param prefix is the prefix to add to long names only
  */
-void remove_option(CLI::App& app, const std::string& option);
-void remove_option(CLI::App* app, const std::string& option);
+void remove_option(CLI::App& app, const std::string& name, const std::string& prefix = "");
+void remove_option(CLI::App* app, const std::string& name, const std::string& prefix = "");
 
+/**
+ * \brief Add the option in the application if is not present already
+ * \param app is the application in which the option should be
+ * \param prefix is the prefix to add to long names only
+ * \param name is the option name (one or a list of tags)
+ * \param variable is a reference to the variable in which the value will be stocked
+ * \param description is the description displayed in the help
+ * \param defaulted when true the default value is displayed in the help
+ * \return pointer to the option
+ */
+template <typename T>
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::string& name,
+                        T& variable, const std::string& description, bool defaulted);
+template <typename T>
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::string& name,
+                        T& variable, const std::string& description);
+
+/**
+ * \brief Add the flag in the application if is not present already
+ * \param app is the application in which the option should be
+ * \param prefix is the prefix to add to long names only
+ * \param name is the flag name (one or a list of tags)
+ * \param variable is a reference to the variable in which the value will be stocked
+ * \param description is the description displayed in the help
+ * \param defaulted when true the default value is displayed in the help
+ * \return pointer to the option
+ */
+template <typename T>
+CLI::Option* add_flag(CLI::App& app, const std::string& prefix, const std::string& name,
+                      T& variable, const std::string& description);
+
+/**
+ * \brief Add the set in the application if is not present already
+ * \param app is the application in which the option should be
+ * \param prefix is the prefix to add to long names only
+ * \param name is the set name (one or a list of tags)
+ * \param variable is a reference to the variable in which the value will be stocked
+ * \param description is the description displayed in the help
+ * \param defaulted when true the default value is displayed in the help
+ * \return pointer to the option
+ */
+template <typename T>
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+                     T& variable, const std::set<T> &options, const std::string& description, bool defaulted);
+template <typename T>
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+                     T& variable, const std::set<T> &options, const std::string& description);
+
+template <typename T>
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+                     T& variable, const std::set<T> &&options, const std::string& description, bool defaulted);
+template <typename T>
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+                     T& variable, const std::set<T> &&options, const std::string& description);
+
+/**
+ * \brief From a tag list, add the given prefix to long tags only
+ * \param name is the option name
+ * \param prefix is the prefix to add
+ * \return a new name list with prefix added
+ */
+std::string add_prefix_to_name(const std::string& name, const std::string& prefix);
 }
+
+#include "CLI11_tools.hxx"
 
 #endif // CLI11_TOOLS_HPP

@@ -18,8 +18,8 @@ Codec_LDPC::parameters
 : Codec          ::parameters(Codec_LDPC_name, prefix),
   Codec_SISO_SIHO::parameters(Codec_LDPC_name, prefix)
 {
-	Codec::parameters::set_enc(new Encoder_LDPC::parameters("enc"));
-	Codec::parameters::set_dec(new Decoder_LDPC::parameters("dec"));
+	Codec::parameters::set_enc(new Encoder_LDPC::parameters(""));
+	Codec::parameters::set_dec(new Decoder_LDPC::parameters(""));
 }
 
 Codec_LDPC::parameters* Codec_LDPC::parameters
@@ -31,27 +31,25 @@ Codec_LDPC::parameters* Codec_LDPC::parameters
 void Codec_LDPC::parameters
 ::enable_puncturer()
 {
-	set_pct(new Puncturer_LDPC::parameters("pct"));
+	set_pct(new Puncturer_LDPC::parameters(""));
 }
 
 void Codec_LDPC::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto sub_dec = app.get_subcommand(dec->get_prefix());
-	auto sub_enc = app.get_subcommand(enc->get_prefix());
+	CLI::remove_option(sub_enc, "--h-path"   , enc->get_prefix());
+	CLI::remove_option(sub_enc, "--h-reorder", enc->get_prefix());
 
-
-	CLI::remove_option(sub_enc, "--h-path"   );
-	CLI::remove_option(sub_enc, "--h-reorder");
-
-	CLI::remove_option(sub_dec, "--cw-size"  );
-	CLI::remove_option(sub_dec, "--info-bits");
-	CLI::remove_option(sub_dec, "--fra"      );
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
 
 
 
@@ -62,13 +60,11 @@ void Codec_LDPC::parameters
 
 	if (pct != nullptr)
 	{
-		pct->register_arguments(app);
+		pct->register_arguments(*sub_pct);
 
-		auto sub_pct = app.get_subcommand(pct->get_prefix());
-
-		CLI::remove_option(sub_pct, "--cw-size"  );
-		CLI::remove_option(sub_pct, "--info-bits");
-		CLI::remove_option(sub_pct, "--fra"      );
+		CLI::remove_option(sub_pct, "--cw-size"  , pct->get_prefix());
+		CLI::remove_option(sub_pct, "--info-bits", pct->get_prefix());
+		CLI::remove_option(sub_pct, "--fra"      , pct->get_prefix());
 
 		// h_path_option->excludes(sub_pct->get_option("--fra-size"));
 	}

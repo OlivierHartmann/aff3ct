@@ -66,6 +66,7 @@ struct Codec : Factory
 		CLI::App * sub_enc = nullptr;
 		CLI::App * sub_dec = nullptr;
 		CLI::App * sub_pct = nullptr;
+		CLI::App * sub_itl = nullptr;
 	};
 };
 }

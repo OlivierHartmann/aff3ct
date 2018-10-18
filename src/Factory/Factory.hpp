@@ -55,8 +55,8 @@ struct Factory
 		virtual std::vector<std::string> get_short_names() const;
 		virtual std::vector<std::string> get_prefixes   () const;
 
-		virtual void register_arguments(CLI::App &app) {}
-		virtual void callback_arguments() {};
+		virtual void register_arguments(CLI::App &app) = 0;
+		virtual void callback_arguments() = 0;
 
 		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const = 0;
 
@@ -76,7 +76,7 @@ struct Factory
 
 struct Header
 {
-	static void print_parameters(std::string grp_key, std::string grp_name, header_list header, int max_n_chars,
+	static void print_parameters(bool grp_key, const std::string& grp_name, const header_list& header, int max_n_chars,
 	                             std::ostream& stream = std::cout);
 
 	static void print_parameters(const std::vector<Factory::parameters*> &params, const bool full = true,

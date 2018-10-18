@@ -27,6 +27,8 @@ Codec_RS::parameters* Codec_RS::parameters
 void Codec_RS::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SIHO_HIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(app);
@@ -69,9 +71,9 @@ void Codec_RS::parameters
 void Codec_RS::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Codec_SIHO_HIHO::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = get_prefix();
+	Codec_SIHO_HIHO::parameters::get_headers(headers, full);
 
 	headers[p].push_back(std::make_pair("Symbols Source size",   std::to_string(enc->K   )));
 	headers[p].push_back(std::make_pair("Symbols Codeword size", std::to_string(enc->N_cw)));

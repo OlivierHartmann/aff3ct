@@ -96,8 +96,11 @@ int sc_main(int argc, char **argv)
 
 	auto app = factory::Factory::make_argument_handler();
 
-	factory::Launcher::parameters params("sim", "Simulation");
-	params.register_arguments(*app);
+	factory::Launcher::parameters params("", "Simulation");
+	params.glb->register_arguments(*app);
+
+	auto sub_sim = CLI::make_subcommand(*app, "sim", params.get_name() + " parameters");
+	params.register_arguments(*sub_sim);
 
 
 	try
@@ -113,8 +116,8 @@ int sc_main(int argc, char **argv)
 
 	if (exit_code == EXIT_SUCCESS)
 	{
-		// try
-		// {
+		try
+		{
 			std::unique_ptr<launcher::Launcher> launcher;
 		#ifdef MULTI_PREC
 			switch (params.sim_prec)
@@ -130,32 +133,30 @@ int sc_main(int argc, char **argv)
 		#endif
 			if (launcher != nullptr)
 				exit_code = launcher->launch();
-		// }
-		// catch(std::exception const& e)
-		// {
-		// 	throw e;
-		// 	if (params.advanced_help)
-		// 	{
-		// 		auto app = factory::Factory::make_argument_handler();
-		// 		params.register_arguments(*app);
+		}
+		catch (tools::cannot_allocate const& e)
+		{
+			if (params.glb->advanced_help)
+			{
+				auto app = factory::Factory::make_argument_handler();
+				params.register_arguments(*app);
 
-		// 		app->exit(CLI::CallForAllHelp());
-		// 		exit_code = EXIT_FAILURE;
-		// 	}
-		// 	else if (params.help)
-		// 	{
-		// 		auto app = factory::Factory::make_argument_handler();
-		// 		params.register_arguments(*app);
+				app->exit(CLI::CallForAllHelp());
+				exit_code = EXIT_FAILURE;
+			}
+			else if (params.glb->help)
+			{
+				auto app = factory::Factory::make_argument_handler();
+				params.register_arguments(*app);
 
-		// 		app->exit(CLI::CallForHelp());
-		// 		exit_code = EXIT_FAILURE;
-		// 	}
-		// 	else
-		// 	{
-		// 		rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
-		// 		//app->exit(CLI::CallForHelp());
-		// 	}
-		// }
+				app->exit(CLI::CallForHelp());
+				exit_code = EXIT_FAILURE;
+			}
+		}
+		catch (tools::exception const& e)
+		{
+			rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
+		}
 	}
 
 

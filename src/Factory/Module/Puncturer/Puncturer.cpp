@@ -29,9 +29,9 @@ Puncturer::parameters* Puncturer::parameters
 void Puncturer::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -39,7 +39,7 @@ void Puncturer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--fra-size",
 		N,
 		"The frame size.")
@@ -47,7 +47,7 @@ void Puncturer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -55,7 +55,7 @@ void Puncturer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		type_set,
@@ -73,7 +73,7 @@ void Puncturer::parameters
 void Puncturer::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_prefix();
+	auto p = get_short_name();
 
 	headers[p].push_back(std::make_pair("Type", type));
 	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(K)));

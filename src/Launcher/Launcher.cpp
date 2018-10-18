@@ -136,7 +136,7 @@ int Launcher
 		return EXIT_FAILURE;
 	}
 
-	if (print_help(params_simu->help, params_simu->advanced_help) == EXIT_FAILURE)
+	if (print_help(params_simu->glb->help, params_simu->glb->advanced_help) == EXIT_FAILURE)
 		return EXIT_FAILURE;
 
 	this->callback_arguments();
@@ -155,7 +155,7 @@ void Launcher
 	stream << rang::tag::comment << rang::style::bold << "---- A FAST FORWARD ERROR CORRECTION TOOLBOX >> ----" << std::endl;
 	stream << rang::tag::comment << rang::style::bold << "----------------------------------------------------" << std::endl;
 	stream << rang::tag::comment << rang::style::bold << rang::style::underline << "Parameters :"<< rang::style::reset << std::endl;
-	factory::Header::print_parameters({params_simu}, params_simu->full_legend, this->stream);
+	factory::Header::print_parameters({params_simu}, params_simu->glb->full_legend, this->stream);
 	this->stream << rang::tag::comment << std::endl;
 }
 
@@ -208,7 +208,7 @@ int Launcher
 			stream << std::endl << "[trace]" << std::endl;
 		}
 
-	if (!params_simu->hide_legend)
+	if (!params_simu->glb->hide_legend)
 		if (params_simu->mpi_rank == 0)
 			this->print_header();
 
@@ -216,7 +216,7 @@ int Launcher
 	{
 		simu.reset(this->build_simu());
 	}
-	catch(const std::exception& e)
+	catch (const std::exception& e)
 	{
 		rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
 		exit_code = EXIT_FAILURE;
@@ -225,7 +225,7 @@ int Launcher
 	if (simu != nullptr)
 	{
 		// launch the simulation
-		if (!params_simu->hide_legend)
+		if (!params_simu->glb->hide_legend)
 			if (params_simu->mpi_rank == 0)
 				stream << rang::tag::comment << "The simulation is running..." << std::endl;
 
@@ -235,14 +235,14 @@ int Launcher
 			if (simu->is_error())
 				exit_code = EXIT_FAILURE;
 		}
-		catch(const std::exception& e)
+		catch (const std::exception& e)
 		{
 			rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
 			exit_code = EXIT_FAILURE;
 		}
 	}
 
-	if (!params_simu->hide_legend)
+	if (!params_simu->glb->hide_legend)
 		if (params_simu->mpi_rank == 0)
 			stream << rang::tag::comment << "End of the simulation." << std::endl;
 

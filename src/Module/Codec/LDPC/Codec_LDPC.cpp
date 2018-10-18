@@ -131,7 +131,7 @@ Codec_LDPC<B,Q>
 		{
 			this->set_encoder(factory::Encoder_LDPC::build<B>(enc_params, G, H, *dvbs2));
 		}
-		catch(tools::cannot_allocate const&)
+		catch (tools::cannot_allocate const&)
 		{
 			this->set_encoder(factory::Encoder::build<B>(enc_params));
 		}
@@ -143,7 +143,7 @@ Codec_LDPC<B,Q>
 		{
 			info_bits_pos = this->get_encoder()->get_info_bits_pos();
 		}
-		catch(tools::unimplemented_error const&)
+		catch (tools::unimplemented_error const&)
 		{
 			// generate a default vector [0, 1, 2, 3, ..., K-1]
 			info_bits_pos.resize(enc_params.K);

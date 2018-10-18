@@ -55,9 +55,9 @@ Channel::parameters* Channel::parameters
 void Channel::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--fra-size",
 		N,
 		"Number of symbols by frame.")
@@ -65,7 +65,7 @@ void Channel::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -74,7 +74,7 @@ void Channel::parameters
 		->group("Standard");
 
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		type_set,
@@ -83,7 +83,7 @@ void Channel::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--implem",
 		implem,
 		implem_set,
@@ -92,14 +92,14 @@ void Channel::parameters
 		->group("Standard");
 
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--path",
 		path,
-		"Path to a noisy file, to use with \"--chn-type USER,OPTICAL\" or to a gain file (used with \"--chn-type RAYLEIGH_USER\").")
+		"Path to a noisy file, to use with \"--type USER,OPTICAL\" or to a gain file (used with \"--type RAYLEIGH_USER\").")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--blk-fad",
 		block_fading,
 		{"NO", "FRAME", "ONETAP"},
@@ -107,36 +107,36 @@ void Channel::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--noise",
 		noise,
 		"Noise value (for SIGMA, ROP or EP noise type).")
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-S,--seed",
 		seed,
 		"Seed used to initialize the pseudo random generators.",
 		true)
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--add-users",
 		add_users,
 		"Add all the users (= frames) before generating the noise.")
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--complex",
 		complex,
 		"Enable complex noise generation.")
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--gain-occur",
 		gain_occur,
-		"The number of times a gain is used on consecutive symbols (used with \"--chn-type RAYLEIGH_USER\")",
+		"The number of times a gain is used on consecutive symbols (used with \"--type RAYLEIGH_USER\")",
 		true)
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
@@ -150,31 +150,31 @@ void Channel::parameters
 void Channel::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
-	headers[p].push_back(std::make_pair("Type",           this->type  ));
-	headers[p].push_back(std::make_pair("Implementation", this->implem));
+	headers[p].push_back(std::make_pair("Type",           type  ));
+	headers[p].push_back(std::make_pair("Implementation", implem));
 
-	if (full) headers[p].push_back(std::make_pair("Frame size (N)", std::to_string(this->N)));
-	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
+	if (full) headers[p].push_back(std::make_pair("Frame size (N)", std::to_string(N)));
+	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(n_frames)));
 
-	if (this->noise != -1.f)
-		headers[p].push_back(std::make_pair("Sigma value", std::to_string(this->noise)));
+	if (noise != -1.f)
+		headers[p].push_back(std::make_pair("Sigma value", std::to_string(noise)));
 
-	if (this->type == "USER" || this->type == "USER_ADD" || this->type == "RAYLEIGH_USER")
-		headers[p].push_back(std::make_pair("Path", this->path));
+	if (type == "USER" || type == "USER_ADD" || type == "RAYLEIGH_USER")
+		headers[p].push_back(std::make_pair("Path", path));
 
-	if (this->type == "RAYLEIGH_USER")
-		headers[p].push_back(std::make_pair("Gain occurrences", std::to_string(this->gain_occur)));
+	if (type == "RAYLEIGH_USER")
+		headers[p].push_back(std::make_pair("Gain occurrences", std::to_string(gain_occur)));
 
-	if (this->type.find("RAYLEIGH") != std::string::npos)
-		headers[p].push_back(std::make_pair("Block fading policy", this->block_fading));
+	if (type.find("RAYLEIGH") != std::string::npos)
+		headers[p].push_back(std::make_pair("Block fading policy", block_fading));
 
-	if ((this->type != "NO" && this->type != "USER" && this->type != "USER_ADD") && full)
-		headers[p].push_back(std::make_pair("Seed", std::to_string(this->seed)));
+	if ((type != "NO" && type != "USER" && type != "USER_ADD") && full)
+		headers[p].push_back(std::make_pair("Seed", std::to_string(seed)));
 
-	headers[p].push_back(std::make_pair("Complex", this->complex ? "on" : "off"));
-	headers[p].push_back(std::make_pair("Add users", this->add_users ? "on" : "off"));
+	headers[p].push_back(std::make_pair("Complex", complex ? "on" : "off"));
+	headers[p].push_back(std::make_pair("Add users", add_users ? "on" : "off"));
 }
 
 template <typename R>
@@ -238,7 +238,7 @@ module::Channel<R>* Channel::parameters
 	else
 		throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 
-	if (type == "OPTICAL") return new module::Channel_optical<R>(N, std::move(n), tools::Received_optical_power<R>((R) this->noise), n_frames);
+	if (type == "OPTICAL") return new module::Channel_optical<R>(N, std::move(n), tools::Received_optical_power<R>((R) noise), n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

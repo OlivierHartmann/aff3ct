@@ -31,6 +31,8 @@ Codec_RA::parameters* Codec_RA::parameters
 void Codec_RA::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(app);

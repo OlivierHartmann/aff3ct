@@ -31,6 +31,8 @@ Codec_turbo_product::parameters* Codec_turbo_product::parameters
 void Codec_turbo_product::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SIHO::parameters::register_arguments(app);
 
 	auto dec_tur = dynamic_cast<Decoder_turbo_product::parameters*>(dec.get());

@@ -25,11 +25,11 @@ Monitor_MI::parameters* Monitor_MI::parameters
 void Monitor_MI::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Monitor::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--fra-size",
 		N,
 		"The frame size for the mutual information computation.")
@@ -37,8 +37,8 @@ void Monitor_MI::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	if (!CLI::has_option(sub, "--fra"))
-	sub->add_option(
+	if (!CLI::has_option(app, "--fra", p))
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -46,7 +46,7 @@ void Monitor_MI::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--trials",
 		n_trials,
 		"Number of frames to simulate per noise point.",
@@ -64,9 +64,9 @@ void Monitor_MI::parameters
 void Monitor_MI::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Monitor::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = this->get_prefix();
+	Monitor::parameters::get_headers(headers, full);
 
 	headers[p].push_back(std::make_pair("Number of trials (n)",        std::to_string(this->n_trials)));
 	if (full) headers[p].push_back(std::make_pair("Size (N)",          std::to_string(this->N       )));

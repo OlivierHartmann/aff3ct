@@ -29,9 +29,9 @@ CRC::parameters* CRC::parameters
 void CRC::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-K,--info-bits",
 		K,
 		"Number of generated bits (information bits, the CRC is not included).")
@@ -39,7 +39,7 @@ void CRC::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -47,7 +47,7 @@ void CRC::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--type,--poly",
 		type,
 		"Select the CRC type/polynomial you want to use (ex: \"8-DVB-S2\": 0xD5,"
@@ -55,7 +55,7 @@ void CRC::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--implem",
 		implem,
 		{"STD", "FAST", "INTER"},
@@ -63,7 +63,7 @@ void CRC::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--size",
 		size,
 		"Size of the CRC (divisor size in bit -1), required if you selected an unknown CRC.")
@@ -74,55 +74,55 @@ void CRC::parameters
 void CRC::parameters
 ::callback_arguments()
 {
-	if (this->type != "NO" && !this->type.empty() && !this->size)
-		this->size = module::CRC_polynomial<B>::get_size(this->type);
+	if (type != "NO" && !type.empty() && !size)
+		size = module::CRC_polynomial<B>::get_size(type);
 }
 
 void CRC::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
-	if (this->type != "NO" && !this->type.empty())
+	if (type != "NO" && !type.empty())
 	{
-		auto poly_name = module::CRC_polynomial<B>::get_name(this->type);
+		auto poly_name = module::CRC_polynomial<B>::get_name(type);
 		if (!poly_name.empty())
 			headers[p].push_back(std::make_pair("Type", poly_name));
 		else
 		{
 			std::stringstream poly_val;
-			poly_val << "0x" << std::hex << module::CRC_polynomial<B>::get_value(this->type);
+			poly_val << "0x" << std::hex << module::CRC_polynomial<B>::get_value(type);
 			headers[p].push_back(std::make_pair("Type", poly_val.str()));
 		}
 		std::stringstream poly_val;
-		poly_val << "0x" << std::hex << module::CRC_polynomial<B>::get_value(this->type);
+		poly_val << "0x" << std::hex << module::CRC_polynomial<B>::get_value(type);
 		headers[p].push_back(std::make_pair("Polynomial (hexadecimal)", poly_val.str()));
 
-		auto poly_size = module::CRC_polynomial<B>::get_size(this->type);
-		headers[p].push_back(std::make_pair("Size (in bit)", std::to_string(poly_size ? poly_size : this->size)));
+		auto poly_size = module::CRC_polynomial<B>::get_size(type);
+		headers[p].push_back(std::make_pair("Size (in bit)", std::to_string(poly_size ? poly_size : size)));
 	}
 	else
 		headers[p].push_back(std::make_pair("Type", "NO"));
 
-	headers[p].push_back(std::make_pair("Implementation", this->implem));
+	headers[p].push_back(std::make_pair("Implementation", implem));
 
-	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(this->K)));
-	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
+	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(K)));
+	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(n_frames)));
 }
 
 template <typename B>
 module::CRC<B>* CRC::parameters
 ::build() const
 {
-	if (this->type != "NO" && !this->type.empty())
+	if (type != "NO" && !type.empty())
 	{
-		const auto poly = this->type;
+		const auto poly = type;
 
-		if (this->implem == "STD"  ) return new module::CRC_polynomial      <B>(K, poly, size, n_frames);
-		if (this->implem == "FAST" ) return new module::CRC_polynomial_fast <B>(K, poly, size, n_frames);
-		if (this->implem == "INTER") return new module::CRC_polynomial_inter<B>(K, poly, size, n_frames);
+		if (implem == "STD"  ) return new module::CRC_polynomial      <B>(K, poly, size, n_frames);
+		if (implem == "FAST" ) return new module::CRC_polynomial_fast <B>(K, poly, size, n_frames);
+		if (implem == "INTER") return new module::CRC_polynomial_inter<B>(K, poly, size, n_frames);
 	}
-	else                             return new module::CRC_NO              <B>(K,             n_frames);
+	else                       return new module::CRC_NO              <B>(K,             n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

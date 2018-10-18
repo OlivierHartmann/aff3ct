@@ -44,7 +44,7 @@ Monitor_reduction_M<M>
 		{
 			this->monitors[0]->equivalent(*this->monitors[m], true);
 		}
-		catch(tools::exception& e)
+		catch (tools::exception& e)
 		{
 			std::stringstream message;
 

@@ -26,9 +26,9 @@ Encoder_repetition::parameters* Encoder_repetition::parameters
 void Encoder_repetition::parameters
 ::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::register_arguments(app);
 
 	tools::add_options(args.at({p+"-type"}), 0, "REPETITION");
 
@@ -43,7 +43,7 @@ void Encoder_repetition::parameters
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	if (vals.exist({p+"-no-buff"})) this->buffered = false;
 }
@@ -51,9 +51,9 @@ void Encoder_repetition::parameters
 void Encoder_repetition::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Encoder::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::get_headers(headers, full);
 
 	headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
 }

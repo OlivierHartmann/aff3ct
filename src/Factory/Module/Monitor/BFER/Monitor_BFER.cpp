@@ -25,11 +25,11 @@ Monitor_BFER::parameters* Monitor_BFER::parameters
 void Monitor_BFER::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Monitor::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-K,--info-bits",
 		K,
 		"Number of bits to check.")
@@ -38,8 +38,8 @@ void Monitor_BFER::parameters
 		->group("Standard");
 
 
-	if (!CLI::has_option(sub, "--fra"))
-	sub->add_option(
+	if (!CLI::has_option(app, "--fra", p))
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -47,7 +47,7 @@ void Monitor_BFER::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-e,--max-fe",
 		n_frame_errors,
 		"Max number of frame errors for each noise point simulation.",
@@ -55,7 +55,7 @@ void Monitor_BFER::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--max-frame",
 		max_frame,
 		"Maximum number of frames for each noise point simulation (0 means no limit).",
@@ -63,7 +63,7 @@ void Monitor_BFER::parameters
 		->check(CLI::PositiveRange(0))
 		->group("Advanced");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--err-hist",
 		err_hist,
 		"Activate the histogram of the number of errors per frame. Set the max number of bit error per frame"
@@ -71,7 +71,7 @@ void Monitor_BFER::parameters
 		->check(CLI::PositiveRange(0))
 		->group("Advanced");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--err-hist-path",
 		err_hist_path,
 		"Path to the output histogram (add automatically the current noise value and the extension '.txt').",
@@ -88,9 +88,9 @@ void Monitor_BFER::parameters
 void Monitor_BFER::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Monitor::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = get_prefix();
+	Monitor::parameters::get_headers(headers, full);
 
 	headers[p].push_back(std::make_pair("Frame error count (e)", std::to_string(n_frame_errors)));
 	if (full) headers[p].push_back(std::make_pair("Size (K)",          std::to_string(K       )));

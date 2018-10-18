@@ -30,9 +30,9 @@ Decoder_RS::parameters* Decoder_RS::parameters
 void Decoder_RS::parameters
 ::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Decoder::parameters::register_arguments(app);
 
 	args.add(
 		{p+"-corr-pow", "T"},
@@ -50,7 +50,7 @@ void Decoder_RS::parameters
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	this->m = (int)std::ceil(std::log2(this->N_cw));
 	if (this->m == 0)
@@ -76,12 +76,12 @@ void Decoder_RS::parameters
 void Decoder_RS::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
 	if (this->type != "ML" && this->type != "CHASE")
 	{
-		auto p = this->get_prefix();
-
 		headers[p].push_back(std::make_pair("Galois field order (m)", std::to_string(this->m)));
 		headers[p].push_back(std::make_pair("Correction power (T)",   std::to_string(this->t)));
 	}

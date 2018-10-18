@@ -14,7 +14,7 @@ using namespace aff3ct::launcher;
 template <typename B, typename R, typename Q>
 BFER_ite<B,R,Q>
 ::BFER_ite(const int argc, const char **argv, std::ostream &stream)
-: Launcher(argc, argv, stream)
+: Launcher(argc, argv, stream), params("")
 {
 	params.set_src   (new factory::Source         ::parameters("src"));
 	params.set_crc   (new factory::CRC            ::parameters("crc"));

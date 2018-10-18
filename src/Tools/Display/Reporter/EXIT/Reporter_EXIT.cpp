@@ -58,7 +58,7 @@ typename Reporter_EXIT<B,R>::report_t Reporter_EXIT<B,R>
 	{
 		str_sig_a << noise_a.get_noise();
 	}
-	catch(tools::runtime_error&)
+	catch (tools::runtime_error&)
 	{
 		str_sig_a << (R)0.;
 	}

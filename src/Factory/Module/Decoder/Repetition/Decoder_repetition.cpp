@@ -28,9 +28,9 @@ Decoder_repetition::parameters* Decoder_repetition::parameters
 void Decoder_repetition::parameters
 ::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Decoder::parameters::register_arguments(app);
 
 	tools::add_options(args.at({p+"-type", "D"}), 0, "REPETITION" );
 	tools::add_options(args.at({p+"-implem"   }), 0, "STD", "FAST");
@@ -46,7 +46,7 @@ void Decoder_repetition::parameters
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	if (vals.exist({p+"-no-buff"})) this->buffered = false;
 }
@@ -54,14 +54,12 @@ void Decoder_repetition::parameters
 void Decoder_repetition::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
 	if (this->type != "ML" && this->type != "CHASE")
-	{
-		auto p = this->get_prefix();
-
 		if (full) headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
-	}
 }
 
 template <typename B, typename Q>

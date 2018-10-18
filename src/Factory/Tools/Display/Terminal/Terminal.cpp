@@ -32,9 +32,9 @@ Terminal::parameters* Terminal::parameters
 void Terminal::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		{"STD"},
@@ -42,13 +42,13 @@ void Terminal::parameters
 		true)
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--no",
 		disabled,
 		"Disable recurrent report but only at the end of each noise point.")
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--freq",
 		frequency,
 		"Display frequency (refresh time step for each iteration, 0 = disable display refresh).",
@@ -64,7 +64,7 @@ void Terminal::parameters
 void Terminal::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
 	headers[p].push_back(std::make_pair("Enabled", this->disabled ? "no" : "yes"));
 	headers[p].push_back(std::make_pair("Frequency (ms)", std::to_string(this->frequency.count())));

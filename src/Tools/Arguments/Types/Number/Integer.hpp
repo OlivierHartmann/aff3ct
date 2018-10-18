@@ -60,7 +60,7 @@ public:
 		{
 			int_num = this->convert(val);
 		}
-		catch(std::exception&)
+		catch (std::exception&)
 		{
 			throw std::runtime_error("shall be an integer");
 		}

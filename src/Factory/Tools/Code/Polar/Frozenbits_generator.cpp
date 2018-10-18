@@ -26,32 +26,32 @@ Frozenbits_generator::parameters* Frozenbits_generator::parameters
 void Frozenbits_generator::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
-		"-K,--info-bits",
+	CLI::add_option(app, p,
+		"--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
 		->required()
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
-		"-N,--cw-size",
+	CLI::add_option(app, p,
+		"--cw-size",
 		N_cw,
 		"The codeword size.")
 		->required()
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--sigma",
 		sigma,
 		"Sigma value for the polar codes generation (adaptive frozen bits if sigma is not set)")
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--gen-method",
 		type,
 		{"GA", "FILE", "TV"},
@@ -59,7 +59,7 @@ void Frozenbits_generator::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--awgn-path",
 		path_fb,
 		"Path to a file or a directory containing the best channels to use for information bits.")
@@ -67,7 +67,7 @@ void Frozenbits_generator::parameters
 		->group("Standard");
 
 #ifdef ENABLE_POLAR_BOUNDS
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--pb-path",
 		path_pb,
 		"Path of the polar bounds code generator (generates best channels to use).")
@@ -84,26 +84,26 @@ void Frozenbits_generator::parameters
 void Frozenbits_generator::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
-	headers[p].push_back(std::make_pair("Type", this->type));
-	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(this->K)));
-	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(this->N_cw)));
-	headers[p].push_back(std::make_pair("Sigma", this->sigma == -1.0f ? "adaptive" : std::to_string(this->sigma)));
+	headers[p].push_back(std::make_pair("Type", type));
+	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(K)));
+	if (full) headers[p].push_back(std::make_pair("Codeword size (N)", std::to_string(N_cw)));
+	headers[p].push_back(std::make_pair("Sigma", sigma == -1.0f ? "adaptive" : std::to_string(sigma)));
 #ifdef ENABLE_POLAR_BOUNDS
-	if (this->type == "TV")
-		headers[p].push_back(std::make_pair("PB path", this->path_pb));
+	if (type == "TV")
+		headers[p].push_back(std::make_pair("PB path", path_pb));
 #endif
-	if (this->type == "TV" || this->type == "FILE")
-		headers[p].push_back(std::make_pair("Path", this->path_fb));
+	if (type == "TV" || type == "FILE")
+		headers[p].push_back(std::make_pair("Path", path_fb));
 }
 
 tools::Frozenbits_generator* Frozenbits_generator::parameters
 ::build() const
 {
-	if (this->type == "GA"  ) return new tools::Frozenbits_generator_GA  (this->K, this->N_cw,                               this->sigma);
-	if (this->type == "TV"  ) return new tools::Frozenbits_generator_TV  (this->K, this->N_cw, this->path_fb, this->path_pb, this->sigma);
-	if (this->type == "FILE") return new tools::Frozenbits_generator_file(this->K, this->N_cw, this->path_fb                            );
+	if (type == "GA"  ) return new tools::Frozenbits_generator_GA  (K, N_cw,                               sigma);
+	if (type == "TV"  ) return new tools::Frozenbits_generator_TV  (K, N_cw, path_fb, path_pb, sigma);
+	if (type == "FILE") return new tools::Frozenbits_generator_file(K, N_cw, path_fb                            );
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

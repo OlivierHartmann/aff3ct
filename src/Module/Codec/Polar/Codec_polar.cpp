@@ -84,7 +84,7 @@ Codec_polar<B,Q>
 			this->set_puncturer(factory::Puncturer_polar::build<B,Q>(*pct_params, *fb_generator));
 			puncturer_shortlast = dynamic_cast<Puncturer_polar_shortlast<B,Q>*>(this->get_puncturer().get());
 		}
-		catch(tools::cannot_allocate const&)
+		catch (tools::cannot_allocate const&)
 		{
 			this->set_puncturer(factory::Puncturer::build<B,Q>(*pct_params));
 		}
@@ -115,7 +115,7 @@ Codec_polar<B,Q>
 	try
 	{
 		this->fb_decoder = dynamic_cast<tools::Frozenbits_notifier*>(this->get_decoder_siho().get());
-	} catch(std::exception&) { }
+	} catch (std::exception&) { }
 
 	// ------------------------------------------------------------------------------------------------- frozen bit gen
 	if (!generated_decoder)

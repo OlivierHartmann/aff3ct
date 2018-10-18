@@ -16,16 +16,16 @@ using namespace aff3ct::launcher;
 template <typename B, typename R, typename Q>
 BFER_std<B,R,Q>
 ::BFER_std(const int argc, const char **argv, std::ostream &stream)
-: Launcher(argc, argv, stream)
+: Launcher(argc, argv, stream), params("")
 {
-	params.set_src   (new factory::Source      ::parameters("src"));
-	params.set_crc   (new factory::CRC         ::parameters("crc"));
-	params.set_mdm   (new factory::Modem       ::parameters("mdm"));
-	params.set_chn   (new factory::Channel     ::parameters("chn"));
-	params.set_qnt   (new factory::Quantizer   ::parameters("qnt"));
-	params.set_mnt_mi(new factory::Monitor_MI  ::parameters("mnt"));
-	params.set_mnt_er(new factory::Monitor_BFER::parameters("mnt"));
-	params.set_ter   (new factory::Terminal    ::parameters("ter"));
+	params.set_src   (new factory::Source      ::parameters(""));
+	params.set_crc   (new factory::CRC         ::parameters(""));
+	params.set_mdm   (new factory::Modem       ::parameters(""));
+	params.set_chn   (new factory::Channel     ::parameters(""));
+	params.set_qnt   (new factory::Quantizer   ::parameters(""));
+	params.set_mnt_mi(new factory::Monitor_MI  ::parameters(""));
+	params.set_mnt_er(new factory::Monitor_BFER::parameters(""));
+	params.set_ter   (new factory::Terminal    ::parameters(""));
 
 	set_params(&params);
 }
@@ -36,64 +36,73 @@ void BFER_std<B,R,Q>
 {
 	Launcher::register_arguments(app);
 
-	params.        register_arguments(app);
-	params.src   ->register_arguments(app);
-	params.crc   ->register_arguments(app);
-	params.mdm   ->register_arguments(app);
-	params.chn   ->register_arguments(app);
-	if (std::is_integral<Q>())
-	params.qnt   ->register_arguments(app);
-	params.mnt_er->register_arguments(app);
-	params.mnt_mi->register_arguments(app);
-	params.ter   ->register_arguments(app);
+	auto sub_sim = CLI::make_subcommand(app, "sim", params.        get_name() + " parameters");
+	auto sub_src = CLI::make_subcommand(app, "src", params.src   ->get_name() + " parameters");
+	auto sub_crc = CLI::make_subcommand(app, "crc", params.crc   ->get_name() + " parameters");
+	auto sub_mdm = CLI::make_subcommand(app, "mdm", params.mdm   ->get_name() + " parameters");
+	auto sub_chn = CLI::make_subcommand(app, "chn", params.chn   ->get_name() + " parameters");
+	auto sub_mnt = CLI::make_subcommand(app, "mnt", params.mnt_er->get_name() + " parameters"); // same than mnt_mi
+	auto sub_ter = CLI::make_subcommand(app, "ter", params.ter   ->get_name() + " parameters");
 
-	auto sub_src = app.get_subcommand(params.src     ->get_prefix());
-	auto sub_crc = app.get_subcommand(params.crc     ->get_prefix());
-	auto sub_enc = app.get_subcommand(params.cdc->enc->get_prefix());
-	auto sub_mdm = app.get_subcommand(params.mdm     ->get_prefix());
-	auto sub_chn = app.get_subcommand(params.chn     ->get_prefix());
-	auto sub_mnt = app.get_subcommand(params.mnt_er  ->get_prefix()); // same than mnt_mi
-
-	CLI::App* sub_pct = nullptr;
-	if (params.cdc->pct != nullptr && CLI::has_subcommand(app, params.cdc->pct->get_prefix()))
-		sub_pct = app.get_subcommand(params.cdc->pct->get_prefix());
+	params.        register_arguments(*sub_sim);
+	params.glb   ->register_arguments(app);
+	params.src   ->register_arguments(*sub_src);
+	params.crc   ->register_arguments(*sub_crc);
+	params.mdm   ->register_arguments(*sub_mdm);
+	params.chn   ->register_arguments(*sub_chn);
+	params.mnt_er->register_arguments(*sub_mnt);
+	params.mnt_mi->register_arguments(*sub_mnt);
+	params.ter   ->register_arguments(*sub_ter);
 
 	CLI::App* sub_qnt = nullptr;
-	if (CLI::has_subcommand(app, params.qnt->get_prefix()))
-		sub_qnt = app.get_subcommand(params.qnt->get_prefix());
+	if (std::is_integral<Q>())
+	{
+		sub_qnt = CLI::make_subcommand(app, "qnt", params.qnt->get_name() + " parameters");
+		params.qnt->register_arguments(*sub_qnt);
+	}
 
-	if (CLI::has_option(sub_enc, "--info-bits") || CLI::has_option(sub_pct, "--info-bits"))
-		CLI::remove_option(sub_src, "--info-bits");
-	CLI::remove_option(sub_src, "--seed"     );
+	CLI::App* sub_pct = nullptr;
+	if (params.cdc->pct != nullptr && CLI::has_subcommand(app, "pct"))
+		sub_pct = app.get_subcommand("pct");
 
-	CLI::remove_option(sub_crc, "--info-bits");
-	CLI::remove_option(sub_crc, "--fra"      );
+	auto sub_enc = app.get_subcommand("enc");
 
-	CLI::remove_option(sub_mdm, "--fra-size" );
-	CLI::remove_option(sub_mdm, "--fra"      );
-	CLI::remove_option(sub_mdm, "--noise"    );
+	if (CLI::has_option(sub_enc, "--info-bits", params.cdc->enc->get_prefix()) || CLI::has_option(sub_pct, "--info-bits", params.cdc->pct->get_prefix()))
+		CLI::remove_option(sub_src, "--info-bits", params.src->get_prefix());
+	CLI::remove_option(sub_src, "--seed"     , params.src->get_prefix());
 
-	CLI::remove_option(sub_chn, "--fra-size" );
-	CLI::remove_option(sub_chn, "--fra"      );
-	CLI::remove_option(sub_chn, "--noise"    );
-	CLI::remove_option(sub_chn, "--seed"     );
-	CLI::remove_option(sub_chn, "--add-users");
-	CLI::remove_option(sub_chn, "--complex"  );
+	CLI::remove_option(sub_crc, "--info-bits", params.crc->get_prefix());
+	CLI::remove_option(sub_crc, "--fra"      , params.crc->get_prefix());
 
-	CLI::remove_option(sub_qnt, "--size"     );
-	CLI::remove_option(sub_qnt, "--fra"      );
+	CLI::remove_option(sub_mdm, "--fra-size" , params.mdm->get_prefix());
+	CLI::remove_option(sub_mdm, "--fra"      , params.mdm->get_prefix());
+	CLI::remove_option(sub_mdm, "--noise"    , params.mdm->get_prefix());
 
-	CLI::remove_option(sub_mnt, "--info-bits");
-	CLI::remove_option(sub_mnt, "--fra-size" );
-	CLI::remove_option(sub_mnt, "--fra"      );
-	CLI::remove_option(sub_mnt, "--max-frame");
-	CLI::remove_option(sub_mnt, "--trials"   );
+	CLI::remove_option(sub_chn, "--fra-size" , params.chn->get_prefix());
+	CLI::remove_option(sub_chn, "--fra"      , params.chn->get_prefix());
+	CLI::remove_option(sub_chn, "--noise"    , params.chn->get_prefix());
+	CLI::remove_option(sub_chn, "--seed"     , params.chn->get_prefix());
+	CLI::remove_option(sub_chn, "--add-users", params.chn->get_prefix());
+	CLI::remove_option(sub_chn, "--complex"  , params.chn->get_prefix());
+
+	CLI::remove_option(sub_qnt, "--size"     , params.qnt->get_prefix());
+	CLI::remove_option(sub_qnt, "--fra"      , params.qnt->get_prefix());
+
+	CLI::remove_option(sub_mnt, "--info-bits", params.mnt_er->get_prefix());
+	CLI::remove_option(sub_mnt, "--fra-size" , params.mnt_er->get_prefix());
+	CLI::remove_option(sub_mnt, "--fra"      , params.mnt_er->get_prefix());
+	CLI::remove_option(sub_mnt, "--max-frame", params.mnt_er->get_prefix());
+	CLI::remove_option(sub_mnt, "--trials"   , params.mnt_er->get_prefix());
 
 #ifdef ENABLE_MPI
-	auto sub_ter = app.get_subcommand(params.ter     ->get_prefix());
-	CLI::remove_option(sub_ter, "--freq"     );
+	CLI::remove_option(sub_ter, "--freq"     , params.ter->get_prefix());
 #endif
 
+	sub_mnt->add_flag(
+		"--mutinfo",
+		params.mutinfo,
+		"Allow the computation of the mutual information.")
+		->group("Standard");
 }
 
 template <typename B, typename R, typename Q>
@@ -103,6 +112,7 @@ void BFER_std<B,R,Q>
 	Launcher::callback_arguments();
 
 	params.callback_arguments();
+	params.glb->callback_arguments();
 
 	params.src->seed = params.local_seed;
 

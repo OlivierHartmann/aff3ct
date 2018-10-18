@@ -15,7 +15,9 @@ Encoder_polar::parameters
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_polar_name, prefix)
 {
-	this->type = "POLAR";
+	type = "POLAR";
+
+	type_set.insert({"POLAR"});
 }
 
 Encoder_polar::parameters* Encoder_polar::parameters
@@ -27,16 +29,15 @@ Encoder_polar::parameters* Encoder_polar::parameters
 void Encoder_polar::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Encoder::parameters::register_arguments(app);
 
-	auto p = this->get_prefix();
-
-	tools::add_options(args.at({p+"-type"}), 0, "POLAR");
-
-	args.add(
-		{p+"-no-sys"},
-		tools::None(),
-		"disable the systematic encoding.");
+	CLI::add_flag(app, p,
+		"--no-sys",
+		not_systematic,
+		"Disable the systematic encoding.")
+		->group("Standard");
 }
 
 void Encoder_polar::parameters
@@ -55,8 +56,8 @@ template <typename B>
 module::Encoder_polar<B>* Encoder_polar::parameters
 ::build(const std::vector<bool> &frozen_bits) const
 {
-	if (this->type == "POLAR" &&  this->not_systematic) return new module::Encoder_polar    <B>(this->K, this->N_cw, frozen_bits, this->n_frames);
-	if (this->type == "POLAR" && !this->not_systematic) return new module::Encoder_polar_sys<B>(this->K, this->N_cw, frozen_bits, this->n_frames);
+	if (type == "POLAR" &&  not_systematic) return new module::Encoder_polar    <B>(K, N_cw, frozen_bits, n_frames);
+	if (type == "POLAR" && !not_systematic) return new module::Encoder_polar_sys<B>(K, N_cw, frozen_bits, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

@@ -70,7 +70,7 @@ public:
 			for (; i < list.size(); i++)
 				val_type->check(list[i]);
 		}
-		catch(std::exception& e)
+		catch (std::exception& e)
 		{
 			std::stringstream message;
 			message << "has the element " << i << " (" << list[i] << ") not respecting the rules: " << e.what();

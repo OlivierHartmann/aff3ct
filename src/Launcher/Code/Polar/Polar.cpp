@@ -1,6 +1,5 @@
 #include <iostream>
 #include <typeinfo>
-#include <mipp.h>
 
 #include "Launcher/Simulation/BFER_std.hpp"
 
@@ -20,6 +19,12 @@ Polar<L,B,R,Q>
 
 	if (std::is_same<L, BFER_std<B,R,Q>>::value)
 		params_cdc->enable_puncturer();
+
+	if (std::is_same<Q,int8_t>() || std::is_same<Q,int16_t>())
+	{
+		this->params.qnt->n_bits     = 6;
+		this->params.qnt->n_decimals = 1;
+	}
 }
 
 template <class L, typename B, typename R, typename Q>
@@ -28,16 +33,18 @@ void Polar<L,B,R,Q>
 {
 	params_cdc->register_arguments(app);
 
-	auto penc = params_cdc->enc->get_prefix();
-	this->args.erase({penc+"-seed", "S"});
+	// auto sub_dec = app.get_subcommand("dec");
+	auto sub_enc = app.get_subcommand("enc");
+
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix());
 
 	if (params_cdc->pct != nullptr)
 	{
-		auto ppct = params_cdc->pct->get_prefix();
-		this->args.erase({ppct+"-fra", "F"});
+		auto sub_pct = app.get_subcommand("pct");
+		CLI::remove_option(sub_pct, "--fra", params_cdc->pct->get_prefix());
 	}
 	else
-		this->args.erase({penc+"-fra", "F"});
+		CLI::remove_option(sub_enc, "--fra", params_cdc->enc->get_prefix());
 
 	L::register_arguments(app);
 }
@@ -52,12 +59,6 @@ void Polar<L,B,R,Q>
 
 	if (dec_polar->simd_strategy == "INTER")
 		this->params.src->n_frames = mipp::N<Q>();
-
-	if (std::is_same<Q,int8_t>() || std::is_same<Q,int16_t>())
-	{
-		this->params.qnt->n_bits     = 6;
-		this->params.qnt->n_decimals = 1;
-	}
 
 	L::callback_arguments();
 

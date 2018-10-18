@@ -199,7 +199,7 @@ check(const std::vector<B,A>& V_K, const int n_frames, const int frame_id)
 	{
 		std::stringstream message;
 		message << "'V_K.size()' has to be equal to ('K' + 'size') * 'n_frames' ('V_K.size()' = " << V_K.size()
-		        << ", 'K' = " << this->K
+		        << ", 'K' = " << this->K << ", 'size' = " << this->get_size()
 		        << ", 'n_frames' = " << (n_frames != -1 ? n_frames : this->n_frames) << ").";
 		throw tools::length_error(__FILE__, __LINE__, __func__, message.str());
 	}

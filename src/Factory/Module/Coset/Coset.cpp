@@ -24,9 +24,9 @@ Coset::parameters* Coset::parameters
 void Coset::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--size",
 		size,
 		"Coset size.")
@@ -34,7 +34,7 @@ void Coset::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		{"STD"},
@@ -42,7 +42,7 @@ void Coset::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -59,7 +59,7 @@ void Coset::parameters
 void Coset::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
 	headers[p].push_back(std::make_pair("Type", this->type));
 	if (full) headers[p].push_back(std::make_pair("Size (N)", std::to_string(this->size)));

@@ -32,11 +32,11 @@ Puncturer_LDPC::parameters* Puncturer_LDPC::parameters
 void Puncturer_LDPC::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Puncturer::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--cw-size",
 		N_cw,
 		"The codeword size.")
@@ -44,7 +44,7 @@ void Puncturer_LDPC::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--pattern",
 		pattern,
 		"Puncturing pattern for the LDPC encoder/decoder (size = N_Code/Z) (ex: \"{1,1,1,0}\").")
@@ -70,9 +70,9 @@ void Puncturer_LDPC::parameters
 void Puncturer_LDPC::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Puncturer::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = get_prefix();
+	Puncturer::parameters::get_headers(headers, full);
 
 	if (type != "NO")
 	{

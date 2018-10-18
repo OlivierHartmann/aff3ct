@@ -24,7 +24,7 @@ Channel_user<R>
 	{
 		open_as_text(filename);
 	}
-	catch(const tools::runtime_error&)
+	catch (const tools::runtime_error&)
 	{
 		open_as_binary(filename);
 	}

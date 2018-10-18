@@ -28,7 +28,7 @@ struct Noise : public Factory
 		std::string pdf_path = "";
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
-		explicit parameters(const std::string &p = Noise_prefix);
+		explicit parameters(const std::string &n = Noise_name, const std::string &p = Noise_prefix);
 		virtual ~parameters() = default;
 		Noise::parameters* clone() const;
 

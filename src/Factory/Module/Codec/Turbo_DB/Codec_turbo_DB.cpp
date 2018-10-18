@@ -34,6 +34,8 @@ void Codec_turbo_DB::parameters
 void Codec_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SIHO::parameters::register_arguments(app);
 
 	auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());

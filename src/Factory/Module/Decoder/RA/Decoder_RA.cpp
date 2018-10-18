@@ -51,9 +51,9 @@ std::vector<std::string> Decoder_RA::parameters
 void Decoder_RA::parameters
 ::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Decoder::parameters::register_arguments(app);
 
 	if (itl != nullptr)
 	{
@@ -79,7 +79,7 @@ void Decoder_RA::parameters
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	if (itl != nullptr)
 	{
@@ -95,17 +95,15 @@ void Decoder_RA::parameters
 void Decoder_RA::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
 	if (itl != nullptr)
 		itl->get_headers(headers, full);
 
 	if (this->type != "ML" && this->type != "CHASE")
-	{
-		auto p = this->get_prefix();
-
 		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(this->n_ite)));
-	}
 }
 
 template <typename B, typename Q>

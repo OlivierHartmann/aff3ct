@@ -18,8 +18,8 @@ Decoder_turbo_DB::parameters
   sf (new Scaling_factor::parameters(prefix+"-sf")),
   fnc(new Flip_and_check_DB::parameters(prefix+"-fnc"))
 {
-	this->type   = "TURBO_DB";
-	this->implem = "STD";
+	type   = "TURBO_DB";
+	implem = "STD";
 }
 
 Decoder_turbo_DB::parameters* Decoder_turbo_DB::parameters
@@ -64,9 +64,9 @@ std::vector<std::string> Decoder_turbo_DB::parameters
 void Decoder_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Decoder::parameters::register_arguments(app);
 
 	args.erase({p+"-cw-size", "N"});
 
@@ -74,7 +74,7 @@ void Decoder_turbo_DB::parameters
 	{
 		itl->register_arguments(app);
 
-		auto pi = this->itl->get_prefix();
+		auto pi = itl->get_prefix();
 
 		args.erase({pi+"-size"    });
 		args.erase({pi+"-fra", "F"});
@@ -114,41 +114,41 @@ void Decoder_turbo_DB::parameters
 void Decoder_turbo_DB::parameters
 ::callback_arguments()
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	if (vals.exist({p+"-ite", "i"})) n_ite = vals.to_int({p+"-ite", "i"});
 
-	if (vals.exist({p+"-ite", "i"})) this->n_ite = vals.to_int({p+"-ite", "i"});
-
-	this->sub->K        = this->K;
-	this->sub->n_frames = this->n_frames;
+	sub->K        = K;
+	sub->n_frames = n_frames;
 
 	sub->callback_arguments();
 
-	this->N_cw = 2 * this->sub->N_cw - this->K;
-	this->R    = (float)this->K / (float)this->N_cw;
+	N_cw = 2 * sub->N_cw - K;
+	R    = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{
-		this->itl->core->size     = this->K >> 1;
-		this->itl->core->n_frames = this->n_frames;
+		itl->core->size     = K >> 1;
+		itl->core->n_frames = n_frames;
 
 		itl->callback_arguments();
 
-		if (this->sub->implem == "DVB-RCS1" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "DVB-RCS1";
+		if (sub->implem == "DVB-RCS1" && !vals.exist({"itl-type"}))
+			itl->core->type = "DVB-RCS1";
 
-		if (this->sub->implem == "DVB-RCS2" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "DVB-RCS2";
+		if (sub->implem == "DVB-RCS2" && !vals.exist({"itl-type"}))
+			itl->core->type = "DVB-RCS2";
 	}
 
-	this->sf->n_ite = this->n_ite;
+	sf->n_ite = n_ite;
 
 	sf->callback_arguments();
 
-	this->fnc->size     = this->K;
-	this->fnc->n_frames = this->n_frames;
-	this->fnc->n_ite    = this->n_ite;
+	fnc->size     = K;
+	fnc->n_frames = n_frames;
+	fnc->n_ite    = n_ite;
 
 	fnc->callback_arguments();
 }
@@ -156,18 +156,18 @@ void Decoder_turbo_DB::parameters
 void Decoder_turbo_DB::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
+	if (type != "ML" && type != "CHASE")
 	{
-		auto p = this->get_prefix();
-
 		if (itl != nullptr)
 			itl->get_headers(headers, full);
 
-		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(this->n_ite)));
-		if (this->tail_length && full)
-			headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));
+		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(n_ite)));
+		if (tail_length && full)
+			headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
 
 		sf ->get_headers(headers, full);
 		fnc->get_headers(headers, full);
@@ -182,9 +182,9 @@ module::Decoder_turbo_DB<B,Q>* Decoder_turbo_DB::parameters
               module::Decoder_RSC_DB_BCJR<B,Q> &siso_i,
               const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "TURBO_DB")
+	if (type == "TURBO_DB")
 	{
-		if (this->implem == "STD") return new module::Decoder_turbo_DB<B,Q>(this->K, this->N_cw, this->n_ite, itl, siso_n, siso_i);
+		if (implem == "STD") return new module::Decoder_turbo_DB<B,Q>(K, N_cw, n_ite, itl, siso_n, siso_i);
 	}
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);

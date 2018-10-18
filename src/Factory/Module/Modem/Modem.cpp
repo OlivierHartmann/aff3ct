@@ -37,10 +37,10 @@ Modem::parameters* Modem::parameters
 void Modem::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
 	// ----------------------------------------------------------------------------------------------------- modulator
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--fra-size",
 		N,
 		"Number of symbols by frame.")
@@ -48,7 +48,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -56,7 +56,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		{"BPSK", "OOK", "PSK", "PAM", "QAM", "CPM", "USER", "SCMA"},
@@ -64,7 +64,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--implem",
 		implem,
 		{"STD", "FAST"},
@@ -73,7 +73,7 @@ void Modem::parameters
 		->group("Standard");
 
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--bps",
 		bps,
 		"Select the number of bits per symbol.",
@@ -81,7 +81,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--ups",
 		ups,
 		"Select the symbol sampling factor.",
@@ -89,14 +89,14 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--const-path",
 		const_path,
-		"Path to the ordered modulation symbols (constellation), to use with \"--mod-type USER\".")
+		"Path to the ordered modulation symbols (constellation), to use with \"--type USER\".")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--cpm-std",
 		cpm_std,
 		{"GSM"},
@@ -104,7 +104,7 @@ void Modem::parameters
 		" the other arguments given by the user).")
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--cpm-L",
 		cpm_L,
 		"CPM pulse width or CPM memory.",
@@ -112,7 +112,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--cpm-k",
 		cpm_k,
 		"Modulation index numerator.",
@@ -120,7 +120,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--cpm-p",
 		cpm_p,
 		"Modulation index denominator.",
@@ -128,7 +128,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--cpm-map",
 		mapping,
 		{"NATURAL", "GRAY"},
@@ -136,7 +136,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--cpm-ws",
 		wave_shape,
 		{"GMSK", "REC", "RCOS"},
@@ -146,7 +146,7 @@ void Modem::parameters
 
 
 	// --------------------------------------------------------------------------------------------------- demodulator
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--max",
 		wave_shape,
 		{"MAX", "MAXL", "MAXS", "MAXSS"},
@@ -154,7 +154,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--noise",
 		noise,
 		"Noise variance value for the demodulator.",
@@ -162,13 +162,13 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--no-sig2",
 		no_sig2,
 		"Turn off the division by sigma square in the demodulator.")
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--psi",
 		psi,
 		{"PSI0", "PSI1", "PSI2", "PSI3"},
@@ -176,7 +176,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--ite",
 		n_ite,
 		"Number of iteration in the demodulator.",
@@ -238,7 +238,7 @@ void Modem::parameters
 void Modem::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_prefix();
+	auto p = get_short_name();
 
 	// ----------------------------------------------------------------------------------------------------- modulator
 	headers[p].push_back(std::make_pair("Type",           type  ));

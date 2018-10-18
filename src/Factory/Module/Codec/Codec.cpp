@@ -71,6 +71,12 @@ std::vector<std::string> Codec::parameters
 void Codec::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
+	if (enc != nullptr) sub_enc = CLI::make_subcommand(app, "enc", enc->get_name() + " parameters");
+	if (dec != nullptr) sub_dec = CLI::make_subcommand(app, "dec", dec->get_name() + " parameters");
+	if (pct != nullptr) sub_pct = CLI::make_subcommand(app, "pct", pct->get_name() + " parameters");
+	if (itl != nullptr) sub_itl = CLI::make_subcommand(app, "itl", itl->get_name() + " parameters");
 }
 
 void Codec::parameters
@@ -81,7 +87,7 @@ void Codec::parameters
 void Codec::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 	auto v = tools::split(this->get_name(), ' ');
 	auto name = v.size() >= 2 ? v[1] : "UNKNOWN";
 	for (size_t i = 2; i < v.size(); i++)

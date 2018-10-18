@@ -50,6 +50,8 @@ std::vector<std::string> Encoder_RA::parameters
 void Encoder_RA::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Encoder::parameters::register_arguments(app);
 
 	if (itl != nullptr)
@@ -61,8 +63,6 @@ void Encoder_RA::parameters
 		args.erase({pi+"-size"    });
 		args.erase({pi+"-fra", "F"});
 	}
-
-	auto p = this->get_prefix();
 
 	tools::add_options(args.at({p+"-type"}), 0, "RA");
 }

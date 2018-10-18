@@ -14,8 +14,8 @@ const std::string aff3ct::factory::Noise_name   = "Noise";
 const std::string aff3ct::factory::Noise_prefix = "sim";
 
 Noise::parameters
-::parameters(const std::string &prefix)
-: Factory::parameters(Noise_name, Noise_name, prefix)
+::parameters(const std::string &name, const std::string &prefix)
+: Factory::parameters(name, name, prefix)
 {
 }
 
@@ -28,10 +28,10 @@ Noise::parameters* Noise::parameters
 void Noise::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
 	auto noise_range_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-R,--noise-range",
 		range,
 		"Noise energy range to run (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).")
@@ -39,7 +39,7 @@ void Noise::parameters
 		->group("Standard");
 
 	noise_min_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-m,--noise-min",
 		noise_min,
 		"Minimal noise energy to simulate.")
@@ -47,7 +47,7 @@ void Noise::parameters
 		->group("Standard");
 
 	noise_max_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-M,--noise-max",
 		noise_max,
 		"Maximal noise energy to simulate.")
@@ -55,7 +55,7 @@ void Noise::parameters
 		->group("Standard");
 
 	noise_step_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-s,--noise-step",
 		noise_step,
 		"Noise energy step between each simulation iteration.",
@@ -64,7 +64,7 @@ void Noise::parameters
 		->group("Standard");
 
 	pdf_path_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--pdf-path",
 		pdf_path,
 		"A file that contains PDF for different SNR. Set the SNR range from the given ones."
@@ -77,7 +77,7 @@ void Noise::parameters
 	noise_range_option->excludes(noise_max_option );
 	noise_range_option->excludes(noise_step_option);
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"-E,--noise-type",
 		type,
 		{"ESN0", "EBN0", "ROP", "EP"},
@@ -134,7 +134,7 @@ void Noise::parameters
 void Noise::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_prefix();
+	auto p = get_short_name();
 
 	if (!range.empty())
 	{

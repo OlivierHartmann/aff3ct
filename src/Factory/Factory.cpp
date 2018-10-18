@@ -104,41 +104,42 @@ tools::Argument_map_group Factory
 	return grps;
 }
 
-void aff3ct::factory::Header::print_parameters(std::string grp_key, std::string grp_name, header_list header,
-                                               int max_n_chars, std::ostream& stream)
+void aff3ct::factory::Header
+::print_parameters(bool grp_key, const std::string& grp_name, const header_list& header, int max_n_chars,
+                   std::ostream& stream)
 {
-	auto key = tools::split(grp_key, '-');
-
-	if (key.size() == 1)
+	if (grp_key)
 	{
 		stream << rang::tag::comment << "* " << rang::style::bold << rang::style::underline << grp_name << rang::style::reset << " ";
-		for (auto i = 0; i < 46 - (int)grp_name.length(); i++) std::cout << "-";
+		for (auto i = 0; i < 46 - (int)grp_name.size(); i++) std::cout << "-";
 		stream << std::endl;
 	}
-	else if (key.size() > 1)
+	else // sub group
 	{
 		stream << rang::tag::comment << "   " << rang::style::bold << rang::style::underline << grp_name << rang::style::reset << " ";
-		for (auto i = 0; i < 45 - (int)grp_name.length(); i++) std::cout << "-";
+		for (auto i = 0; i < 45 - (int)grp_name.size(); i++) std::cout << "-";
 		stream << std::endl;
 	}
 
 	std::vector<std::string> dup;
 	for (auto i = 0; i < (int)header.size(); i++)
 	{
-		if (std::find(dup.begin(), dup.end(), header[i].first + header[i].second) == dup.end())
+		auto h_fs = header[i].first + header[i].second;
+		if (std::find(dup.begin(), dup.end(), h_fs) == dup.end())
 		{
 			stream << rang::tag::comment << "   ** " << rang::style::bold << header[i].first << rang::style::reset;
-			for (auto j = 0; j < max_n_chars - (int)header[i].first.length(); j++) stream << " ";
+			for (auto j = 0; j < max_n_chars - (int)header[i].first.size(); j++) stream << " ";
 			stream << " = " << header[i].second << std::endl;
 
-			dup.push_back(header[i].first + header[i].second);
+			dup.push_back(h_fs);
 		}
 	}
 }
 
-void aff3ct::factory::Header::print_parameters(const std::vector<Factory::parameters*> &params, const bool full,
-                                               std::ostream& stream)
+void aff3ct::factory::Header
+::print_parameters(const std::vector<Factory::parameters*> &params, const bool full, std::ostream& stream)
 {
+	// find first the longest header to display it properly
 	int max_n_chars = 0;
 	for (auto *p : params)
 	{
@@ -146,53 +147,67 @@ void aff3ct::factory::Header::print_parameters(const std::vector<Factory::parame
 		p->get_headers(headers, full);
 
 		for (auto &h : headers)
-			if (full || (!full && h.second.size() && (h.second[0].first != "Type" || h.second[0].second != "NO")))
+			if (full || (h.second.size() && (h.second[0].first != "Type" || h.second[0].second != "NO")))
 				aff3ct::factory::Header::compute_max_n_chars(h.second, max_n_chars);
 	}
 
+
+	// then display the header
 	std::vector<aff3ct::factory::header_list> dup_h;
 	std::vector<std::string                 > dup_n;
 	for (auto *p : params)
 	{
 		std::map<std::string,aff3ct::factory::header_list> headers;
+
 		p->get_headers(headers, full);
 
-		auto prefixes = p->get_prefixes();
+		auto prefixes    = p->get_prefixes   ();
 		auto short_names = p->get_short_names();
 
-		if (prefixes.size() != short_names.size())
-		{
-			std::stringstream message;
-			message << "'prefixes.size()' has to be equal to 'short_names.size()' ('prefixes.size()' = "
-			        << prefixes.size() << ", 'short_names.size()' = " << short_names.size() << ").";
-			throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
-		}
+		// if (prefixes.size() != short_names.size())
+		// {
+		// 	std::stringstream message;
+		// 	message << "'prefixes.size()' has to be equal to 'short_names.size()' ('prefixes.size()' = "
+		// 	        << prefixes.size() << ", 'short_names.size()' = " << short_names.size() << ").";
+		// 	throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
+		// }
 
+		// bool print_first_title = false;
+		// for (size_t i = 1; i < short_names.size(); i++)
+		// {
+		// 	auto& h = headers[short_names[i]];
+		// 	auto key = tools::split(prefixes[i], '-');
+
+		// 	if (key[0] == prefixes[0] && h.size())
+		// 	{
+		// 		print_first_title = true;
+		// 		break;
+		// 	}
+		// }
+
+
+
+		// check if there is something to display
 		bool print_first_title = false;
-		for (size_t i = 1; i < prefixes.size(); i++)
-		{
-			auto h = headers[prefixes[i]];
-			auto key = tools::split(prefixes[i], '-');
-
-			if (key[0] == prefixes[0] && h.size())
+		for (auto &h : headers)
+			if (h.second.size())
 			{
 				print_first_title = true;
 				break;
 			}
-		}
 
-		for (size_t i = 0; i < prefixes.size(); i++)
+		for (size_t i = 0; i < short_names.size(); i++)
 		{
-			auto h = headers[prefixes[i]];
+			auto& n = short_names[i];
+			auto& h = headers    [n];
 			auto print_head = (i == 0) ? print_first_title || h.size() : h.size();
 
-			if (full || (!full && h.size() && (h[0].first != "Type" || h[0].second != "NO")))
+			if (full || (h.size() && (h[0].first != "Type" || h[0].second != "NO")))
 			{
-				auto n = short_names[i];
 				if (print_head && (std::find(dup_h.begin(), dup_h.end(), h) == dup_h.end() ||
 				                   std::find(dup_n.begin(), dup_n.end(), n) == dup_n.end()))
 				{
-					aff3ct::factory::Header::print_parameters(prefixes[i], n, h, max_n_chars);
+					Header::print_parameters(prefixes[i].empty(), n, h, max_n_chars, stream);
 
 					dup_h.push_back(h);
 					dup_n.push_back(n);
@@ -202,14 +217,16 @@ void aff3ct::factory::Header::print_parameters(const std::vector<Factory::parame
 	}
 }
 
-void aff3ct::factory::Header::compute_max_n_chars(const header_list& header, int& max_n_chars)
+void aff3ct::factory::Header
+::compute_max_n_chars(const header_list& header, int& max_n_chars)
 {
 	for (unsigned i = 0; i < header.size(); i++)
 		max_n_chars = std::max(max_n_chars, (int)header[i].first.length());
 }
 
 
-std::unique_ptr<CLI::App> aff3ct::factory::Factory::make_argument_handler()
+std::unique_ptr<CLI::App> aff3ct::factory::Factory
+::make_argument_handler()
 {
 	std::unique_ptr<CLI::App> app(new CLI::App{"A Fast Forward Error Correction Toolbox!"});
 

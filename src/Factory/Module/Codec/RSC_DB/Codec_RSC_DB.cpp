@@ -27,6 +27,8 @@ Codec_RSC_DB::parameters* Codec_RSC_DB::parameters
 void Codec_RSC_DB::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(app);

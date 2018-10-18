@@ -29,9 +29,9 @@ Flip_and_check::parameters* Flip_and_check::parameters
 void Flip_and_check::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--size",
 		size,
 		"Size (in bit) of the extrinsic for the fnc processing.")
@@ -39,7 +39,7 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -47,13 +47,13 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		get_prefix(),
 		enable,
-		"Enables the flip and check decoder (requires \"--crc-type\").")
+		"Enables the flip and check decoder (requires \"crc --type\").")
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-q",
 		q,
 		"Set the search's space for the fnc algorithm.",
@@ -61,7 +61,7 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--ite-m",
 		ite_min,
 		"Set first iteration at which the fnc is used.",
@@ -69,14 +69,14 @@ void Flip_and_check::parameters
 		->group("Standard");
 
 	ite_M_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--ite-M",
 		ite_min,
 		"Set last iteration at which the fnc is used.",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--ite-s",
 		ite_step,
 		"Set iteration step for the fnc algorithm.",
@@ -84,14 +84,14 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-i,--ite",
 		ite_step,
 		"Maximal number of iterations in the turbo.",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--crc-ite",
 		start_crc_check_ite,
 		"Set the iteration to start the CRC checking.",
@@ -109,7 +109,7 @@ void Flip_and_check::parameters
 void Flip_and_check::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
 	headers[p].push_back(std::make_pair("Enabled", ((this->enable) ? "yes" : "no")));
 	if (this->enable)

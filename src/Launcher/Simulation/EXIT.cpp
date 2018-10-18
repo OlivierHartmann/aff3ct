@@ -17,7 +17,7 @@ using namespace aff3ct::launcher;
 template <typename B, typename R>
 EXIT<B,R>
 ::EXIT(const int argc, const char **argv, std::ostream &stream)
-: Launcher(argc, argv, stream)
+: Launcher(argc, argv, stream), params("")
 {
 	params.set_src(new factory::Source      ::parameters("src"));
 	params.set_mdm(new factory::Modem       ::parameters("mdm"));

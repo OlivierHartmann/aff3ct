@@ -55,7 +55,7 @@ public:
 	/*!
 	 * \brief Constructor.
 	 *
-	 * \param K:        number of information bits (the CRC bits are included in K).
+	 * \param K:        number of information bits (the CRC bits are not included in K).
 	 * \param n_frames: number of frames to process in the CRC.
 	 * \param name:     CRC's name.
 	 */

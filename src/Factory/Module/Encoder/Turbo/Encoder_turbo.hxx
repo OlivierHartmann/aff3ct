@@ -65,9 +65,9 @@ template <class E1, class E2>
 void Encoder_turbo::parameters<E1,E2>
 ::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::register_arguments(app);
 
 	args.erase({p+"-cw-size", "N"});
 
@@ -119,7 +119,7 @@ void Encoder_turbo::parameters<E1,E2>
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	if (vals.exist({p+"-json-path"})) this->json_path = vals.at({p+"-json-path"});
 
@@ -162,12 +162,12 @@ template <class E1, class E2>
 void Encoder_turbo::parameters<E1,E2>
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Encoder::parameters::get_headers(headers, full);
 
 	if (itl != nullptr)
 		itl->get_headers(headers);
-
-	auto p = this->get_prefix();
 
 	if (this->tail_length)
 		headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));

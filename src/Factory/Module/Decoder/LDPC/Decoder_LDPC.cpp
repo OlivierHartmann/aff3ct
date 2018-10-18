@@ -63,12 +63,12 @@ Decoder_LDPC::parameters* Decoder_LDPC::parameters
 void Decoder_LDPC::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Decoder::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
 	// auto h_path_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--h-path",
 		H_path,
 		"Path to the H matrix (AList or QC formated file).")
@@ -76,48 +76,48 @@ void Decoder_LDPC::parameters
 		// ->required()
 		->group("Standard");
 
-	// h_path_option->excludes(sub->get_option("--cw-size"  )); // N_cw is H width
-	// h_path_option->excludes(sub->get_option("--info-bits")); // if there is no K, then H is considered regular,
+	// h_path_option->excludes(app.get_option("--cw-size"  )); // N_cw is H width
+	// h_path_option->excludes(app.get_option("--info-bits")); // if there is no K, then H is considered regular,
 	                                                     // so K is the N - H's height
 
 
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-i,--ite",
 		n_ite,
 		"Maximal number of iterations in the LDPC decoder.",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--off",
 		offset,
-		"Offset used in the offset min-sum BP algorithm (works only with \"--dec-implem NMS\").",
+		"Offset used in the offset min-sum BP algorithm (works only with \"--implem NMS\").",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--norm",
 		norm_factor,
-		"Normalization factor used in the normalized min-sum BP algorithm (works only with \"--dec-implem NMS\").",
+		"Normalization factor used in the normalized min-sum BP algorithm (works only with \"--implem NMS\").",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--mwbf",
 		mwbf_factor,
-		"Factor used in the modified WBF algorithm (works only with \"--dec-implem WBF\"). Set 0 for basic WBF.",
+		"Factor used in the modified WBF algorithm (works only with \"--implem WBF\"). Set 0 for basic WBF.",
 		true)
 		->group("Standard");
 
 
-	sub->add_flag(
+	CLI::add_flag(app, p,
 		"--no-synd",
 		disable_syndrome,
 		"Disable the syndrome detection (and so the stop criterion).")
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--synd-depth",
 		syndrome_depth,
 		"Successive number of iterations to validate the syndrome detection.",
@@ -126,7 +126,7 @@ void Decoder_LDPC::parameters
 		->group("Standard");
 
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--simd",
 		simd_strategy,
 		{"INTER"},
@@ -134,7 +134,7 @@ void Decoder_LDPC::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--min",
 		min,
 		{"MIN", "MINL", "MINS"},
@@ -142,7 +142,7 @@ void Decoder_LDPC::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--h-reorder",
 		H_reorder,
 		{"NONE", "ASC", "DSC"},
@@ -172,12 +172,12 @@ void Decoder_LDPC::parameters
 void Decoder_LDPC::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
 	if (type != "ML" && type != "CHASE")
 	{
-		auto p = get_prefix();
-
 		if (!H_path.empty())
 		{
 			headers[p].push_back(std::make_pair("H matrix path", H_path));

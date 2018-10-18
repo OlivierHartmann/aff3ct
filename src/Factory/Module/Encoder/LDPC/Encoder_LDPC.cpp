@@ -33,36 +33,36 @@ Encoder_LDPC::parameters* Encoder_LDPC::parameters
 void Encoder_LDPC::parameters
 ::register_arguments(CLI::App &app)
 {
+	auto p = get_prefix();
+
 	Encoder::parameters::register_arguments(app);
 
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
-
 	// auto h_path_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--h-path",
 		H_path,
 		"Path to the H matrix (AList or QC formated file, required by the \"LDPC_H\" encoder).")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	// h_path_option->excludes(sub->get_option("--cw-size"  )); // N_cw is H width
-	// h_path_option->excludes(sub->get_option("--info-bits")); // if there is no K, then H is considered regular,
+	// h_path_option->excludes(app.get_option("--cw-size"  )); // N_cw is H width
+	// h_path_option->excludes(app.get_option("--info-bits")); // if there is no K, then H is considered regular,
 	                                                     // so K is the N - H's height
 
 
 	// auto g_path_option =
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--g-path",
 		G_path,
 		"Path to the G matrix (AList or QC formated file, required by the \"LDPC\", \"LDPC_QC\" and \"LDPC_IRA\" encoders).")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	// g_path_option->excludes(sub->get_option("--cw-size"  ));
-	// g_path_option->excludes(sub->get_option("--info-bits"));
+	// g_path_option->excludes(app.get_option("--cw-size"  ));
+	// g_path_option->excludes(app.get_option("--info-bits"));
 
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--h-reorder",
 		H_reorder,
 		{"NONE", "ASC", "DSC"},
@@ -71,7 +71,7 @@ void Encoder_LDPC::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--g-method",
 		G_method,
 		{"IDENTITY", "LU_DEC"},
@@ -82,7 +82,7 @@ void Encoder_LDPC::parameters
 		->group("Standard");
 
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--save-g",
 		G_save,
 		"Path where the generated G matrix with the 'LDPC_H' encoder type will be saved.")
@@ -117,9 +117,9 @@ void Encoder_LDPC::parameters
 void Encoder_LDPC::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	Encoder::parameters::get_headers(headers, full);
+	auto p = get_short_name();
 
-	auto p = get_prefix();
+	Encoder::parameters::get_headers(headers, full);
 
 	if (type == "LDPC")
 		headers[p].push_back(std::make_pair("G matrix path", G_path));

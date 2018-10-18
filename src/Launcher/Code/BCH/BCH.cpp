@@ -10,7 +10,7 @@ using namespace aff3ct::launcher;
 template <class L, typename B, typename R, typename Q>
 BCH<L,B,R,Q>
 ::BCH(const int argc, const char **argv, std::ostream &stream)
-: L(argc, argv, stream), params_cdc(new factory::Codec_BCH::parameters("cdc"))
+: L(argc, argv, stream), params_cdc(new factory::Codec_BCH::parameters(""))
 {
 	this->params.set_cdc(params_cdc);
 }
@@ -21,11 +21,11 @@ void BCH<L,B,R,Q>
 {
 	params_cdc->register_arguments(app);
 
-	// auto sub_dec = app.get_subcommand(params_cdc->dec->get_prefix());
-	auto sub_enc = app.get_subcommand(params_cdc->enc->get_prefix());
+	// auto sub_dec = app.get_subcommand("dec");
+	auto sub_enc = app.get_subcommand("enc");
 
-	CLI::remove_option(sub_enc, "--fra" );
-	CLI::remove_option(sub_enc, "--seed");
+	CLI::remove_option(sub_enc, "--fra" , params_cdc->enc->get_prefix());
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix());
 
 	L::register_arguments(app);
 }

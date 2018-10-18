@@ -73,9 +73,9 @@ template <class D1, class D2>
 void Decoder_turbo::parameters<D1,D2>
 ::register_arguments(CLI::App &app)
 {
-	Decoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Decoder::parameters::register_arguments(app);
 
 	args.erase({p+"-cw-size", "N"});
 
@@ -146,7 +146,7 @@ void Decoder_turbo::parameters<D1,D2>
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
 	if (vals.exist({p+"-ite", "i"})) this->n_ite          = vals.to_int({p+"-ite", "i"});
 	if (vals.exist({p+"-sc"      })) this->self_corrected = true;
@@ -201,6 +201,8 @@ template <class D1, class D2>
 void Decoder_turbo::parameters<D1,D2>
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
+	auto p = get_short_name();
+
 	Decoder::parameters::get_headers(headers, full);
 
 	if (itl != nullptr)
@@ -208,8 +210,6 @@ void Decoder_turbo::parameters<D1,D2>
 
 	if (this->type != "ML" && this->type != "CHASE")
 	{
-		auto p = this->get_prefix();
-
 		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(this->n_ite)));
 		if (this->tail_length && full)
 			headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));

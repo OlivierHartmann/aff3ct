@@ -29,9 +29,9 @@ Encoder_RS::parameters* Encoder_RS::parameters
 void Encoder_RS::parameters
 ::register_arguments(CLI::App &app)
 {
-	Encoder::parameters::register_arguments(app);
+	auto p = get_prefix();
 
-	auto p = this->get_prefix();
+	Encoder::parameters::register_arguments(app);
 
 	tools::add_options(args.at({p+"-type"}), 0, "RS");
 }

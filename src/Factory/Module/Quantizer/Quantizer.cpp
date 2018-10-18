@@ -30,9 +30,9 @@ Quantizer::parameters* Quantizer::parameters
 void Quantizer::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto sub = CLI::make_subcommand(app, get_prefix(), get_name() + " parameters");
+	auto p = get_prefix();
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-N,--size",
 		size,
 		"Number of real to quantize.")
@@ -40,7 +40,7 @@ void Quantizer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -48,7 +48,7 @@ void Quantizer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--type",
 		type,
 		{"POW2", "CUSTOM"},
@@ -56,7 +56,7 @@ void Quantizer::parameters
 		true)
 		->group("Standard");
 
-	sub->add_set(
+	CLI::add_set(app, p,
 		"--implem",
 		implem,
 		{"STD", "FAST"},
@@ -64,21 +64,21 @@ void Quantizer::parameters
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--dec",
 		n_decimals,
 		"The position of the fixed point in the quantified representation.",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--bits",
 		n_bits,
 		"The number of bits used for the quantizer.",
 		true)
 		->group("Standard");
 
-	sub->add_option(
+	CLI::add_option(app, p,
 		"--range",
 		range,
 		"The min/max bound for the tricky quantizer.",
@@ -90,32 +90,32 @@ void Quantizer::parameters
 void Quantizer::parameters
 ::callback_arguments()
 {
-	auto p = this->get_prefix();
+	auto p = get_prefix();
 
-	if (vals.exist({p+"-range"    })) this->range      = vals.to_float({p+"-range"    });
-	if (vals.exist({p+"-size", "N"})) this->size       = vals.to_int  ({p+"-size", "N"});
-	if (vals.exist({p+"-fra",  "F"})) this->n_frames   = vals.to_int  ({p+"-fra",  "F"});
-	if (vals.exist({p+"-dec"      })) this->n_decimals = vals.to_int  ({p+"-dec"      });
-	if (vals.exist({p+"-bits"     })) this->n_bits     = vals.to_int  ({p+"-bits"     });
-	if (vals.exist({p+"-type"     })) this->type       = vals.at      ({p+"-type"     });
-	if (vals.exist({p+"-implem"   })) this->implem     = vals.at      ({p+"-implem"   });
+	if (vals.exist({p+"-range"    })) range      = vals.to_float({p+"-range"    });
+	if (vals.exist({p+"-size", "N"})) size       = vals.to_int  ({p+"-size", "N"});
+	if (vals.exist({p+"-fra",  "F"})) n_frames   = vals.to_int  ({p+"-fra",  "F"});
+	if (vals.exist({p+"-dec"      })) n_decimals = vals.to_int  ({p+"-dec"      });
+	if (vals.exist({p+"-bits"     })) n_bits     = vals.to_int  ({p+"-bits"     });
+	if (vals.exist({p+"-type"     })) type       = vals.at      ({p+"-type"     });
+	if (vals.exist({p+"-implem"   })) implem     = vals.at      ({p+"-implem"   });
 }
 
 void Quantizer::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = this->get_prefix();
+	auto p = get_short_name();
 
 	std::string quantif = "unused";
-	if (this->type == "CUSTOM")
-		quantif = "{"+std::to_string(this->n_bits)+", "+std::to_string(this->range)+"f}";
-	else if (this->type == "POW2")
-		quantif = "{"+std::to_string(this->n_bits)+", "+std::to_string(this->n_decimals)+"}";
+	if (type == "CUSTOM")
+		quantif = "{" + std::to_string(n_bits) + ", " + std::to_string(range)+"f}";
+	else if (type == "POW2")
+		quantif = "{" + std::to_string(n_bits) + ", " + std::to_string(n_decimals)+"}";
 
-	headers[p].push_back(std::make_pair("Type", this->type));
-	headers[p].push_back(std::make_pair("Implementation", this->implem));
-	if (full) headers[p].push_back(std::make_pair("Frame size (N)", std::to_string(this->size)));
-	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(this->n_frames)));
+	headers[p].push_back(std::make_pair("Type", type));
+	headers[p].push_back(std::make_pair("Implementation", implem));
+	if (full) headers[p].push_back(std::make_pair("Frame size (N)", std::to_string(size)));
+	if (full) headers[p].push_back(std::make_pair("Inter frame level", std::to_string(n_frames)));
 	headers[p].push_back(std::make_pair("Fixed-point config.", quantif));
 }
 
@@ -123,10 +123,10 @@ template <typename R, typename Q>
 module::Quantizer<R,Q>* Quantizer::parameters
 ::build() const
 {
-	if (this->type == "POW2"   && this->implem == "STD" ) return new module::Quantizer_pow2     <R,Q>(this->size, this->n_decimals, this->n_bits, this->n_frames);
-	if (this->type == "POW2"   && this->implem == "FAST") return new module::Quantizer_pow2_fast<R,Q>(this->size, this->n_decimals, this->n_bits, this->n_frames);
-	if (this->type == "CUSTOM" && this->implem == "STD" ) return new module::Quantizer_custom   <R,Q>(this->size, this->range,      this->n_bits, this->n_frames);
-	if (this->type == "NO"                              ) return new module::Quantizer_NO       <R,Q>(this->size,                                 this->n_frames);
+	if (type == "POW2"   && implem == "STD" ) return new module::Quantizer_pow2     <R,Q>(size, n_decimals, n_bits, n_frames);
+	if (type == "POW2"   && implem == "FAST") return new module::Quantizer_pow2_fast<R,Q>(size, n_decimals, n_bits, n_frames);
+	if (type == "CUSTOM" && implem == "STD" ) return new module::Quantizer_custom   <R,Q>(size, range,      n_bits, n_frames);
+	if (type == "NO"                        ) return new module::Quantizer_NO       <R,Q>(size,                     n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }
