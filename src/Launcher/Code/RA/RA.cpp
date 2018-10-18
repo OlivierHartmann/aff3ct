@@ -21,13 +21,18 @@ void RA<L,B,R,Q>
 {
 	params_cdc->register_arguments(app);
 
-	auto penc = params_cdc->enc->get_prefix();
-	auto pdec = params_cdc->dec->get_prefix();
-	auto pitl = params_cdc->itl->get_prefix();
+	// auto sub_dec = app.get_subcommand("dec");
+	auto sub_enc = app.get_subcommand("enc");
 
-	this->args.erase({penc+"-fra",  "F"});
-	this->args.erase({penc+"-seed", "S"});
-	this->args.erase({pitl+"-seed", "S"});
+	CLI::remove_option(sub_enc, "--fra",  params_cdc->enc->get_prefix());
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix());
+
+	if (params_cdc->itl != nullptr)
+	{
+		auto sub_itl = app.get_subcommand("itl");
+		CLI::remove_option(sub_itl, "--seed", params_cdc->itl->get_prefix());
+	}
+	else
 
 	L::register_arguments(app);
 }

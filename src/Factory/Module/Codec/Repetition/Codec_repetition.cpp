@@ -31,15 +31,13 @@ void Codec_repetition::parameters
 
 	Codec_SIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto pdec = dec->get_prefix();
-
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-no-buff"       });
-	args.erase({pdec+"-fra",       "F"});
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--no-buff"  , dec->get_prefix());
 }
 
 void Codec_repetition::parameters
@@ -52,10 +50,10 @@ void Codec_repetition::parameters
 
 	enc->callback_arguments();
 
-	dec_r->K        = enc_r->K;
-	dec_r->N_cw     = enc_r->N_cw;
-	dec_r->buffered = enc_r->buffered;
-	dec_r->n_frames = enc_r->n_frames;
+	dec_r->K            = enc_r->K;
+	dec_r->N_cw         = enc_r->N_cw;
+	dec_r->not_buffered = enc_r->not_buffered;
+	dec_r->n_frames     = enc_r->n_frames;
 
 	dec->callback_arguments();
 

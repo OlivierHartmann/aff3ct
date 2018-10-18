@@ -14,7 +14,9 @@ Encoder_repetition::parameters
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_repetition_name, prefix)
 {
-	this->type = "REPETITION";
+	type = "REPETITION";
+
+	type_set.insert({"REPETITION"});
 }
 
 Encoder_repetition::parameters* Encoder_repetition::parameters
@@ -30,22 +32,17 @@ void Encoder_repetition::parameters
 
 	Encoder::parameters::register_arguments(app);
 
-	tools::add_options(args.at({p+"-type"}), 0, "REPETITION");
-
-	args.add(
-		{p+"-no-buff"},
-		tools::None(),
-		"disable the buffered encoding.");
+	CLI::add_flag(app, p,
+		"--no-buff",
+		not_buffered,
+		"Disable the buffered encoding.")
+		->group("Standard");
 }
 
 void Encoder_repetition::parameters
 ::callback_arguments()
 {
 	Encoder::parameters::callback_arguments();
-
-	auto p = get_prefix();
-
-	if (vals.exist({p+"-no-buff"})) this->buffered = false;
 }
 
 void Encoder_repetition::parameters
@@ -55,14 +52,14 @@ void Encoder_repetition::parameters
 
 	Encoder::parameters::get_headers(headers, full);
 
-	headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
+	headers[p].push_back(std::make_pair("Buffered", (not_buffered ? "off" : "on")));
 }
 
 template <typename B>
 module::Encoder_repetition_sys<B>* Encoder_repetition::parameters
 ::build() const
 {
-	if (this->type == "REPETITION") return new module::Encoder_repetition_sys<B>(this->K, this->N_cw, this->buffered, this->n_frames);
+	if (type == "REPETITION") return new module::Encoder_repetition_sys<B>(K, N_cw, !not_buffered, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

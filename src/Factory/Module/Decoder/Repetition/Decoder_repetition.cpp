@@ -15,8 +15,11 @@ Decoder_repetition::parameters
 ::parameters(const std::string &prefix)
 : Decoder::parameters(Decoder_repetition_name, prefix)
 {
-	this->type   = "REPETITION";
-	this->implem = "STD";
+	type   = "REPETITION";
+	implem = "STD";
+
+	type_set  .insert({"REPETITION"});
+	implem_set.insert({"STD", "FAST"});
 }
 
 Decoder_repetition::parameters* Decoder_repetition::parameters
@@ -32,23 +35,17 @@ void Decoder_repetition::parameters
 
 	Decoder::parameters::register_arguments(app);
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "REPETITION" );
-	tools::add_options(args.at({p+"-implem"   }), 0, "STD", "FAST");
-
-	args.add(
-		{p+"-no-buff"},
-		tools::None(),
-		"does not suppose a buffered encoding.");
+	CLI::add_flag(app, p,
+		"--no-buff",
+		not_buffered,
+		"Does not suppose a buffered encoding.")
+		->group("Standard");
 }
 
 void Decoder_repetition::parameters
 ::callback_arguments()
 {
 	Decoder::parameters::callback_arguments();
-
-	auto p = get_prefix();
-
-	if (vals.exist({p+"-no-buff"})) this->buffered = false;
 }
 
 void Decoder_repetition::parameters
@@ -58,8 +55,8 @@ void Decoder_repetition::parameters
 
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
-		if (full) headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
+	if (type != "ML" && type != "CHASE")
+		if (full) headers[p].push_back(std::make_pair("Buffered", (not_buffered ? "off" : "on")));
 }
 
 template <typename B, typename Q>
@@ -72,10 +69,10 @@ module::Decoder_SIHO<B,Q>* Decoder_repetition::parameters
 	}
 	catch (tools::cannot_allocate const&)
 	{
-		if (this->type == "REPETITION")
+		if (type == "REPETITION")
 		{
-			if (this->implem == "STD" ) return new module::Decoder_repetition_std <B,Q>(this->K, this->N_cw, this->buffered, this->n_frames);
-			if (this->implem == "FAST") return new module::Decoder_repetition_fast<B,Q>(this->K, this->N_cw, this->buffered, this->n_frames);
+			if (implem == "STD" ) return new module::Decoder_repetition_std <B,Q>(K, N_cw, !not_buffered, n_frames);
+			if (implem == "FAST") return new module::Decoder_repetition_fast<B,Q>(K, N_cw, !not_buffered, n_frames);
 		}
 	}
 

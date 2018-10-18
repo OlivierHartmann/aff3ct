@@ -15,7 +15,9 @@ Encoder_RA::parameters
 : Encoder::parameters(Encoder_RA_name, prefix),
   itl(new Interleaver::parameters("itl"))
 {
-	this->type = "RA";
+	type = "RA";
+
+	type_set.insert({"RA"});
 }
 
 Encoder_RA::parameters* Encoder_RA::parameters
@@ -58,13 +60,9 @@ void Encoder_RA::parameters
 	{
 		itl->register_arguments(app);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(app, "--size", itl->get_prefix());
+		CLI::remove_option(app, "--fra" , itl->get_prefix());
 	}
-
-	tools::add_options(args.at({p+"-type"}), 0, "RA");
 }
 
 void Encoder_RA::parameters
@@ -74,10 +72,10 @@ void Encoder_RA::parameters
 
 	if (itl != nullptr)
 	{
-		this->itl->core->size     = this->N_cw;
-		this->itl->core->n_frames = this->n_frames;
+		itl->core->size     = N_cw;
+		itl->core->n_frames = n_frames;
 
-		this->itl->callback_arguments();
+		itl->callback_arguments();
 	}
 }
 
@@ -94,7 +92,7 @@ template <typename B>
 module::Encoder_RA<B>* Encoder_RA::parameters
 ::build(const module::Interleaver<B> &itl) const
 {
-	if (this->type == "RA") return new module::Encoder_RA<B>(this->K, this->N_cw, itl, this->n_frames);
+	if (type == "RA") return new module::Encoder_RA<B>(K, N_cw, itl, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

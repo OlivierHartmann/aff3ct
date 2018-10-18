@@ -20,7 +20,7 @@ struct Encoder_repetition : public Encoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional
-		bool buffered = true;
+		bool not_buffered = false;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_repetition_prefix);

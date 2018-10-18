@@ -14,12 +14,14 @@ Codec_RA::parameters
 : Codec     ::parameters(Codec_RA_name, prefix),
   Codec_SIHO::parameters(Codec_RA_name, prefix)
 {
-	auto enc_t = new Encoder_RA::parameters("enc");
-	auto dec_t = new Decoder_RA::parameters("dec");
+	auto enc_t = new Encoder_RA::parameters("");
+	auto dec_t = new Decoder_RA::parameters("");
+	enc_t->itl = nullptr;
+	dec_t->itl = nullptr;
+
 	Codec::parameters::set_enc(enc_t);
 	Codec::parameters::set_dec(dec_t);
-	Codec::parameters::set_itl(std::move(enc_t->itl));
-	dec_t->itl = nullptr;
+	Codec::parameters::set_itl(new Interleaver::parameters(""));
 }
 
 Codec_RA::parameters* Codec_RA::parameters
@@ -35,23 +37,19 @@ void Codec_RA::parameters
 
 	Codec_SIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto pdec = dec->get_prefix();
-
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
 
 	if (itl != nullptr)
 	{
-		itl->register_arguments(app);
+		itl->register_arguments(*sub_itl);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(sub_itl, "--size", itl->get_prefix());
+		CLI::remove_option(sub_itl, "--fra" , itl->get_prefix());
 	}
 }
 

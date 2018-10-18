@@ -15,8 +15,11 @@ Decoder_RA::parameters
 : Decoder::parameters(Decoder_RA_name, prefix),
   itl(new Interleaver::parameters("itl"))
 {
-	this->type   = "RA";
-	this->implem = "STD";
+	type   = "RA";
+	implem = "STD";
+
+	type_set  .insert({"RA"});
+	implem_set.insert({"STD"});
 }
 
 Decoder_RA::parameters* Decoder_RA::parameters
@@ -59,19 +62,16 @@ void Decoder_RA::parameters
 	{
 		itl->register_arguments(app);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(app, "--size", itl->get_prefix());
+		CLI::remove_option(app, "--fra" , itl->get_prefix());
 	}
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "RA");
-	tools::add_options(args.at({p+"-implem"   }), 0, "STD");
-
-	args.add(
-		{p+"-ite", "i"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"maximal number of iterations in the decoder.");
+	CLI::add_option(app, p,
+		"-i,--ite",
+		n_ite,
+		"Maximal number of iterations in the decoder.",
+		true)
+		->group("Standard");
 }
 
 void Decoder_RA::parameters
@@ -79,17 +79,13 @@ void Decoder_RA::parameters
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
 	if (itl != nullptr)
 	{
-		this->itl->core->size     = this->N_cw;
-		this->itl->core->n_frames = this->n_frames;
+		itl->core->size     = N_cw;
+		itl->core->n_frames = n_frames;
 
 		itl->callback_arguments();
 	}
-
-	if (vals.exist({p+"-ite", "i"})) this->n_ite = vals.to_int({p+"-ite", "i"});
 }
 
 void Decoder_RA::parameters
@@ -102,8 +98,8 @@ void Decoder_RA::parameters
 	if (itl != nullptr)
 		itl->get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
-		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(this->n_ite)));
+	if (type != "ML" && type != "CHASE")
+		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(n_ite)));
 }
 
 template <typename B, typename Q>
@@ -116,9 +112,9 @@ module::Decoder_SIHO<B,Q>* Decoder_RA::parameters
 	}
 	catch (tools::cannot_allocate const&)
 	{
-		if (this->type == "RA")
+		if (type == "RA")
 		{
-			if (this->implem == "STD" ) return new module::Decoder_RA<B,Q>(this->K, this->N_cw, itl, this->n_ite, this->n_frames);
+			if (implem == "STD" ) return new module::Decoder_RA<B,Q>(K, N_cw, itl, n_ite, n_frames);
 		}
 	}
 

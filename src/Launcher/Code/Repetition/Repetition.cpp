@@ -13,6 +13,12 @@ Repetition<L,B,R,Q>
 : L(argc, argv, stream), params_cdc(new factory::Codec_repetition::parameters("cdc"))
 {
 	this->params.set_cdc(params_cdc);
+
+	if (std::is_same<Q,int8_t>() || std::is_same<Q,int16_t>())
+	{
+		this->params.qnt->n_bits     = 6;
+		this->params.qnt->n_decimals = 2;
+	}
 }
 
 template <class L, typename B, typename R, typename Q>
@@ -21,10 +27,11 @@ void Repetition<L,B,R,Q>
 {
 	params_cdc->register_arguments(app);
 
-	auto penc = params_cdc->enc->get_prefix();
+	// auto sub_dec = app.get_subcommand("dec");
+	auto sub_enc = app.get_subcommand("enc");
 
-	this->args.erase({penc+"-fra",  "F"});
-	this->args.erase({penc+"-seed", "S"});
+	CLI::remove_option(sub_enc, "--fra",  params_cdc->enc->get_prefix());
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix());
 
 	L::register_arguments(app);
 }
@@ -34,12 +41,6 @@ void Repetition<L,B,R,Q>
 ::callback_arguments()
 {
 	params_cdc->callback_arguments();
-
-	if (std::is_same<Q,int8_t>() || std::is_same<Q,int16_t>())
-	{
-		this->params.qnt->n_bits     = 6;
-		this->params.qnt->n_decimals = 2;
-	}
 
 	L::callback_arguments();
 

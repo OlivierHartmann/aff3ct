@@ -21,7 +21,7 @@ struct Decoder_repetition : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		bool buffered = true;
+		bool not_buffered = false;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_repetition_prefix);
