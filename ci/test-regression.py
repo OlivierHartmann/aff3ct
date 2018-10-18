@@ -37,6 +37,7 @@ parser.add_argument('--max-snr-time',   action='store', dest='maxSNRTime',    ty
 parser.add_argument('--verbose',        action='store', dest='verbose',       type=bool,  default=False,                     help='Enable the verbose mode.')
 parser.add_argument('--mpi-np',         action='store', dest='mpinp',         type=int,   default=0,                         help='Enable MPI run with the given number of process each running on "--n-threads" threads.')
 parser.add_argument('--mpi-host',       action='store', dest='mpihost',       type=str,   default="",                        help='Run MPI with the given hosts (file).')
+parser.add_argument('--all',            action='store', dest='ci_ignore',     type=bool,  default=False,                     help='Replay all refs (ignore the ci=off metadata)')
 
 # supported file extensions (filename suffix)
 extensions     = ['.txt', '.perf', '.data', '.dat']
@@ -274,6 +275,12 @@ class compStats:
 		else:
 			return passRate
 
+
+def delete_entry(dict, entry):
+	if entry in dict:
+		del dict[entry];
+
+
 # =================================================================== FUNCTIONS
 # =============================================================================
 
@@ -326,17 +333,18 @@ else:
 
 
 
-argsAFFECTcommand = []
+MPIcommand = []
 activateMPI = False
 if args.mpinp > 0 or args.mpihost != "":
 	activateMPI = True
-	argsAFFECTcommand += ["mpirun", "--map-by", "socket"]
+	MPIcommand += ["mpirun", "--map-by", "socket"]
 
 	if args.mpinp > 0:
-		argsAFFECTcommand += ["-np", str(args.mpinp)]
+		MPIcommand += ["-np", str(args.mpinp)]
 
 	if args.mpihost != "":
-		argsAFFECTcommand += ["--hostfile", str(os.path.abspath(args.mpihost))]
+		MPIcommand += ["--hostfile", str(os.path.abspath(args.mpihost))]
+
 
 
 failIds     = []
@@ -357,7 +365,7 @@ for fn in fileNames:
 	# parse the reference file
 	simuRef = atr.aff3ctTraceReader(args.refsPath + "/" + fn)
 
-	if simuRef.getMetadata("ci") == "off":
+	if not args.ci_ignore and simuRef.getMetadata("ci") == "off":
 		print(" - IGNORED.", end="\n");
 		testId   += 1
 		nIgnored += 1
@@ -365,40 +373,52 @@ for fn in fileNames:
 
 
 
-	# get the command line to run
-	argsAFFECT = argsAFFECTcommand[:] # hard copy
-	argsAFFECT += simuRef.getSplitCommand()
-	argsAFFECT += ["--ter-freq", "0", "-t", str(args.nThreads), "--sim-meta", simuRef.getMetadata("title")]
-	if args.maxFE:
-		argsAFFECT += ["-e", str(args.maxFE)]
-
-	if args.maxSNRTime:
-		argsAFFECT += ["--sim-stop-time", str(args.maxSNRTime)]
+	RefCommand = simuRef.getCommand()
+	argsAFFECT = RefCommand.getCommandAsMap()
 
 	if activateMPI:
-		argsAFFECT += ["--sim-no-colors"]
+		argsAFFECT["global"] = MPIcommand + argsAFFECT["global"] + ["--no-colors"];
 
 
-	noiseVals = ""
+	argsAFFECT["sim"]["-t"    ] = str(args.nThreads);
+	argsAFFECT["sim"]["--meta"] = "CI: " + simuRef.getMetadata("title");
+
+	if args.maxSNRTime:
+		argsAFFECT["sim"]["--stop-time"] = str(args.maxSNRTime);
+
+	if args.maxFE:
+		argsAFFECT["mnt"]["-e"] = str(args.maxFE);
+
+	argsAFFECT["ter"]["--freq"] = "0";
+
+
+	noiseVals = "{"
 	for n in range(len(simuRef.getNoise())):
 		if n != 0:
 			noiseVals += ",";
 		noiseVals += str(simuRef.getNoise()[n])
+	noiseVals += "}"
 
+	delete_entry(argsAFFECT["sim"], "-m")
+	delete_entry(argsAFFECT["sim"], "-M")
+	delete_entry(argsAFFECT["sim"], "-s")
+	delete_entry(argsAFFECT["mnt"], "-e")
 
-	argsAFFECT += ["-R", noiseVals]
+	argsAFFECT["sim"]["-R"] = noiseVals
 
 	if simuRef.getNoiseType() == "ebn0":
-		argsAFFECT += ["-E", "EBN0"]
+		argsAFFECT["sim"]["-E"] = "EBN0"
 	elif simuRef.getNoiseType() == "esn0":
-		argsAFFECT += ["-E", "ESN0"]
+		argsAFFECT["sim"]["-E"] = "ESN0"
+
 
 
 	# run the tested simulator
+	strArgsAFFECT = RefCommand.commandMapToList(argsAFFECT);
 	os.chdir(args.buildPath)
 	startTime = time.time()
 	try:
-		processAFFECT = subprocess.Popen(argsAFFECT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		processAFFECT = subprocess.Popen(strArgsAFFECT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(stdoutAFFECT, stderrAFFECT) = processAFFECT.communicate()
 	except KeyboardInterrupt:
 		os.kill(processAFFECT.pid, signal.SIGINT)
@@ -418,6 +438,7 @@ for fn in fileNames:
 	stdOutput = stdoutAFFECT.decode(encoding='UTF-8').split("\n")
 	simuCur = atr.aff3ctTraceReader(stdOutput)
 
+
 	# result file
 	fRes = open(args.resultsPath + "/" + fn, 'w+')
 
@@ -426,13 +447,15 @@ for fn in fileNames:
 		if errAndWarnMessages:
 			print("---- Error message(s):", end="\n");
 			print(errAndWarnMessages)
+
+		print("---- Command:", end="\n");
+		print(strArgsAFFECT, end="\n\n")
 		nErrors += 1
 		failIds.append(testId +1)
 
 		for i in range(len(stdOutput)):
 			fRes.write(stdOutput[i] + "\n")
-		for i in range(len(errAndWarnMessages)):
-			fRes.write(errAndWarnMessages[i] + "\n")
+		fRes.write(errAndWarnMessages + "\n")
 
 	elif simuCur.getNoiseType() != simuRef.getNoiseType():
 		nErrors += 1
@@ -442,8 +465,7 @@ for fn in fileNames:
 
 		for i in range(len(stdOutput)):
 			fRes.write(stdOutput[i] + "\n")
-		for i in range(len(errAndWarnMessages)):
-			fRes.write(errAndWarnMessages[i] + "\n")
+		fRes.write(errAndWarnMessages + "\n")
 
 	else:
 		# parse the results to validate (or not) the BER/FER/MI performance
