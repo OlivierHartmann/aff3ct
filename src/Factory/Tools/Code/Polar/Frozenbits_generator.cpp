@@ -63,7 +63,7 @@ void Frozenbits_generator::parameters
 		"--awgn-path",
 		path_fb,
 		"Path to a file or a directory containing the best channels to use for information bits.")
-		->check(CLI::ExistingFile)
+		->check(CLI::ExistingPath)
 		->group("Standard");
 
 #ifdef ENABLE_POLAR_BOUNDS
