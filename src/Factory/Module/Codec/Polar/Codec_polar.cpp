@@ -99,8 +99,6 @@ std::vector<std::string> Codec_polar::parameters
 void Codec_polar::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
-
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
 	auto sub_fbg = sub_enc;
@@ -109,20 +107,20 @@ void Codec_polar::parameters
 	fbg->register_arguments(*sub_fbg);
 	dec->register_arguments(*sub_dec);
 
-	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
-	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
-	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
-	CLI::remove_option(sub_dec, "--no-sys"   , dec->get_prefix());
-	CLI::remove_option(sub_fbg, "--cw-size"  , fbg->get_prefix());
-	CLI::remove_option(sub_fbg, "--info-bits", fbg->get_prefix());
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--no-sys"   , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_fbg, "--cw-size"  , fbg->get_prefix(), fbg->no_argflag());
+	CLI::remove_option(sub_fbg, "--info-bits", fbg->get_prefix(), fbg->no_argflag());
 
 	if (pct != nullptr)
 	{
 		pct->register_arguments(*sub_pct);
 
-		CLI::remove_option(sub_enc, "--cw-size"  , enc->get_prefix());
-		CLI::remove_option(sub_enc, "--info-bits", enc->get_prefix());
-		CLI::remove_option(sub_enc, "--fra"      , enc->get_prefix());
+		CLI::remove_option(sub_enc, "--cw-size"  , enc->get_prefix(), enc->no_argflag());
+		CLI::remove_option(sub_enc, "--info-bits", enc->get_prefix(), enc->no_argflag());
+		CLI::remove_option(sub_enc, "--fra"      , enc->get_prefix(), enc->no_argflag());
 	}
 }
 

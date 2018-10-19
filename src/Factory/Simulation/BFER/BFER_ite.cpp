@@ -50,18 +50,19 @@ std::vector<std::string> BFER_ite::parameters
 void BFER_ite::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	BFER::parameters::register_arguments(app);
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-I,--ite",
 		n_ite,
 		"Number of global iterations between the demodulator and the decoder.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--crc-start",
 		crc_start,
 		"Iteration number to start the CRC checking in the turbo demodulation process.",

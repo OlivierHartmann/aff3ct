@@ -71,7 +71,8 @@ struct Real_splitter
 void Decoder_turbo_product::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 

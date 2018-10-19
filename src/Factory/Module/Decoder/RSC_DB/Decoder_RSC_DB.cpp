@@ -16,8 +16,11 @@ Decoder_RSC_DB::parameters
 ::parameters(const std::string &prefix)
 : Decoder::parameters(Decoder_RSC_DB_name, prefix)
 {
-	this->type   = "BCJR";
-	this->implem = "GENERIC";
+	type   = "BCJR";
+	implem = "GENERIC";
+
+	type_set  .insert("BCJR");
+	implem_set.insert({"GENERIC", "DVB-RCS1", "DVB-RCS2"});
 }
 
 Decoder_RSC_DB::parameters* Decoder_RSC_DB::parameters
@@ -29,24 +32,26 @@ Decoder_RSC_DB::parameters* Decoder_RSC_DB::parameters
 void Decoder_RSC_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "BCJR");
-	tools::add_options(args.at({p+"-implem"   }), 0, "GENERIC", "DVB-RCS1", "DVB-RCS2");
+	CLI::add_set(app, p, naf,
+		"--max",
+		max,
+		{"MAX", "MAXL", "MAXS"},
+		"The MAX implementation for the nodes.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-max"},
-		tools::Text(tools::Including_set("MAX", "MAXL", "MAXS")),
-		"the MAX implementation for the nodes.");
-
-	args.add(
-		{p+"-no-buff"},
-		tools::None(),
-		"does not suppose a buffered encoding.");
+	CLI::add_flag(app, p, naf,
+		"--no-buff",
+		not_buffered,
+		"Disable the !not_buffered encoding.")
+		->group("Standard");
 }
 
 void Decoder_RSC_DB::parameters
@@ -54,13 +59,8 @@ void Decoder_RSC_DB::parameters
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
-	if (vals.exist({p+"-max"    })) this->max      = vals.at({p+"-max"});
-	if (vals.exist({p+"-no-buff"})) this->buffered = false;
-
-	this->N_cw = 2 * this->K;
-	this->R    = (float)this->K / (float)this->N_cw;
+	N_cw = 2 * K;
+	R    = (float)K / (float)N_cw;
 }
 
 void Decoder_RSC_DB::parameters
@@ -70,14 +70,14 @@ void Decoder_RSC_DB::parameters
 
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
+	if (type != "ML" && type != "CHASE")
 	{
-		if (this->tail_length && full)
-			headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));
+		if (tail_length && full)
+			headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
 
-		if (full) headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
+		if (full) headers[p].push_back(std::make_pair("Buffered", (!not_buffered ? "on" : "off")));
 
-		headers[p].push_back(std::make_pair(std::string("Max type"), this->max));
+		headers[p].push_back(std::make_pair(std::string("Max type"), max));
 	}
 }
 
@@ -85,11 +85,11 @@ template <typename B, typename Q, tools::proto_max<Q> MAX>
 module::Decoder_RSC_DB_BCJR<B,Q>* Decoder_RSC_DB::parameters
 ::_build_siso(const std::vector<std::vector<int>> &trellis, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "BCJR")
+	if (type == "BCJR")
 	{
-		if (this->implem == "GENERIC" ) return new module::Decoder_RSC_DB_BCJR_generic <B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames);
-		if (this->implem == "DVB-RCS1") return new module::Decoder_RSC_DB_BCJR_DVB_RCS1<B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames);
-		if (this->implem == "DVB-RCS2") return new module::Decoder_RSC_DB_BCJR_DVB_RCS2<B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames);
+		if (implem == "GENERIC" ) return new module::Decoder_RSC_DB_BCJR_generic <B,Q,MAX>(K, trellis, !not_buffered, n_frames);
+		if (implem == "DVB-RCS1") return new module::Decoder_RSC_DB_BCJR_DVB_RCS1<B,Q,MAX>(K, trellis, !not_buffered, n_frames);
+		if (implem == "DVB-RCS2") return new module::Decoder_RSC_DB_BCJR_DVB_RCS2<B,Q,MAX>(K, trellis, !not_buffered, n_frames);
 	}
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
@@ -99,9 +99,9 @@ template <typename B, typename Q>
 module::Decoder_RSC_DB_BCJR<B,Q>* Decoder_RSC_DB::parameters
 ::build_siso(const std::vector<std::vector<int>> &trellis, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->max == "MAX" ) return _build_siso<B,Q,tools::max       <Q>>(trellis, encoder);
-	if (this->max == "MAXS") return _build_siso<B,Q,tools::max_star  <Q>>(trellis, encoder);
-	if (this->max == "MAXL") return _build_siso<B,Q,tools::max_linear<Q>>(trellis, encoder);
+	if (max == "MAX" ) return _build_siso<B,Q,tools::max       <Q>>(trellis, encoder);
+	if (max == "MAXS") return _build_siso<B,Q,tools::max_star  <Q>>(trellis, encoder);
+	if (max == "MAXL") return _build_siso<B,Q,tools::max_linear<Q>>(trellis, encoder);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

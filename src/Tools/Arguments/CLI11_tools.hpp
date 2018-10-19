@@ -44,8 +44,8 @@ bool has_subcommand(CLI::App* app, const std::string& command);
  * \param prefix is the prefix to add to long names only
  * \return true if the option has been found
  */
-bool has_option(CLI::App& app, const std::string& name, const std::string& prefix = "");
-bool has_option(CLI::App* app, const std::string& name, const std::string& prefix = "");
+bool has_option(CLI::App& app, const std::string& name, const std::string& prefix, bool no_argflag);
+bool has_option(CLI::App* app, const std::string& name, const std::string& prefix, bool no_argflag);
 
 
 /**
@@ -55,8 +55,8 @@ bool has_option(CLI::App* app, const std::string& name, const std::string& prefi
  * \param prefix is the prefix to add to long names only
  * \return pointer to the option
  */
-CLI::Option* get_option(CLI::App& app, const std::string& name, const std::string& prefix = "");
-CLI::Option* get_option(CLI::App* app, const std::string& name, const std::string& prefix = "");
+CLI::Option* get_option(CLI::App& app, const std::string& name, const std::string& prefix, bool no_argflag);
+CLI::Option* get_option(CLI::App* app, const std::string& name, const std::string& prefix, bool no_argflag);
 
 
 /**
@@ -65,13 +65,14 @@ CLI::Option* get_option(CLI::App* app, const std::string& name, const std::strin
  * \param name is the option name
  * \param prefix is the prefix to add to long names only
  */
-void remove_option(CLI::App& app, const std::string& name, const std::string& prefix = "");
-void remove_option(CLI::App* app, const std::string& name, const std::string& prefix = "");
+void remove_option(CLI::App& app, const std::string& name, const std::string& prefix, bool no_argflag);
+void remove_option(CLI::App* app, const std::string& name, const std::string& prefix, bool no_argflag);
 
 /**
  * \brief Add the option in the application if is not present already
  * \param app is the application in which the option should be
  * \param prefix is the prefix to add to long names only
+ * \param no_argflag when true, keep the option name without the flags but only the long tags
  * \param name is the option name (one or a list of tags)
  * \param variable is a reference to the variable in which the value will be stocked
  * \param description is the description displayed in the help
@@ -79,16 +80,17 @@ void remove_option(CLI::App* app, const std::string& name, const std::string& pr
  * \return pointer to the option
  */
 template <typename T>
-CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                         T& variable, const std::string& description, bool defaulted);
 template <typename T>
-CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                         T& variable, const std::string& description);
 
 /**
  * \brief Add the flag in the application if is not present already
  * \param app is the application in which the option should be
  * \param prefix is the prefix to add to long names only
+ * \param no_argflag when true, keep the option name without the flags but only the long tags
  * \param name is the flag name (one or a list of tags)
  * \param variable is a reference to the variable in which the value will be stocked
  * \param description is the description displayed in the help
@@ -96,13 +98,14 @@ CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::str
  * \return pointer to the option
  */
 template <typename T>
-CLI::Option* add_flag(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_flag(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                       T& variable, const std::string& description);
 
 /**
  * \brief Add the set in the application if is not present already
  * \param app is the application in which the option should be
  * \param prefix is the prefix to add to long names only
+ * \param no_argflag when true, keep the option name without the flags but only the long tags
  * \param name is the set name (one or a list of tags)
  * \param variable is a reference to the variable in which the value will be stocked
  * \param description is the description displayed in the help
@@ -110,26 +113,28 @@ CLI::Option* add_flag(CLI::App& app, const std::string& prefix, const std::strin
  * \return pointer to the option
  */
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &options, const std::string& description, bool defaulted);
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &options, const std::string& description);
 
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &&options, const std::string& description, bool defaulted);
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &&options, const std::string& description);
 
 /**
- * \brief From a tag list, add the given prefix to long tags only
+ * \brief From a tag list, add the given prefix to long tags only and remove eventually short flags
  * \param name is the option name
  * \param prefix is the prefix to add
+ * \param no_argflag when true, keep the option name without the flags but only the long tags
+ *        except if there only short flags
  * \return a new name list with prefix added
  */
-std::string add_prefix_to_name(const std::string& name, const std::string& prefix);
+std::string add_prefix_to_name(const std::string& name, const std::string& prefix, bool no_argflag);
 }
 
 #include "CLI11_tools.hxx"

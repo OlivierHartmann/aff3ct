@@ -43,6 +43,11 @@ struct Interleaver_core : public Factory
 		// builder
 		template <typename T = uint32_t>
 		tools::Interleaver_core<T>* build() const;
+
+		bool type_option_set_by_user() const;
+
+	protected:
+		CLI::Option* type_option = nullptr;
 	};
 
 	template <typename T = uint32_t>

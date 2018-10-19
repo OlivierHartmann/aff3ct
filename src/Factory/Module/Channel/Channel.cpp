@@ -55,9 +55,10 @@ Channel::parameters* Channel::parameters
 void Channel::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-N,--fra-size",
 		N,
 		"Number of symbols by frame.")
@@ -65,7 +66,7 @@ void Channel::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -74,7 +75,7 @@ void Channel::parameters
 		->group("Standard");
 
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--type",
 		type,
 		type_set,
@@ -83,7 +84,7 @@ void Channel::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--implem",
 		implem,
 		implem_set,
@@ -92,14 +93,14 @@ void Channel::parameters
 		->group("Standard");
 
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--path",
 		path,
 		"Path to a noisy file, to use with \"--type USER,OPTICAL\" or to a gain file (used with \"--type RAYLEIGH_USER\").")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--blk-fad",
 		block_fading,
 		{"NO", "FRAME", "ONETAP"},
@@ -107,33 +108,33 @@ void Channel::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--noise",
 		noise,
 		"Noise value (for SIGMA, ROP or EP noise type).")
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-S,--seed",
 		seed,
 		"Seed used to initialize the pseudo random generators.",
 		true)
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--add-users",
 		add_users,
 		"Add all the users (= frames) before generating the noise.")
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--complex",
 		complex,
 		"Enable complex noise generation.")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--gain-occur",
 		gain_occur,
 		"The number of times a gain is used on consecutive symbols (used with \"--type RAYLEIGH_USER\")",

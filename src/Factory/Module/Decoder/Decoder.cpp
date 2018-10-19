@@ -25,9 +25,10 @@ Decoder::parameters* Decoder::parameters
 void Decoder::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -35,7 +36,7 @@ void Decoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-N,--cw-size",
 		N_cw,
 		"The codeword size.")
@@ -43,7 +44,7 @@ void Decoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -51,7 +52,8 @@ void Decoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	type_option =
+	CLI::add_set(app, p, naf,
 		"-D,--type",
 		type,
 		type_set,
@@ -59,7 +61,8 @@ void Decoder::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	implem_option =
+	CLI::add_set(app, p, naf,
 		"--implem",
 		implem,
 		implem_set,
@@ -67,18 +70,31 @@ void Decoder::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--hamming",
 		hamming,
 		"Enable the computation of the Hamming distance instead of the Euclidean distance in the ML/CHASE decoders.")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--flips",
 		flips,
 		"Set the maximum number of flips in the CHASE decoder.",
 		true)
 		->group("Standard");
+}
+
+
+bool Decoder::parameters
+::implem_option_set_by_user() const
+{
+	return implem_option->count() != 0;
+}
+
+bool Decoder::parameters
+::type_option_set_by_user() const
+{
+	return type_option->count() != 0;
 }
 
 void Decoder::parameters

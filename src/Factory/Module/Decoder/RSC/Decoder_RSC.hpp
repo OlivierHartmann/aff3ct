@@ -29,7 +29,7 @@ struct Decoder_RSC : public Decoder
 		std::string      max           = "MAX";
 		std::string      simd_strategy = "";
 		std::string      standard      = "LTE";
-		bool             buffered      = true;
+		bool             not_buffered  = false;
 		std::vector<int> poly          = {013, 015};
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
@@ -56,6 +56,8 @@ struct Decoder_RSC : public Decoder
 		                                                 const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
 
 	private:
+		std::string poly_str;
+
 		template <typename B = int, typename Q = float, typename QD = Q, tools::proto_max<Q> MAX1, tools::proto_max<QD> MAX2>
 		module::Decoder_SISO_SIHO<B,Q>* _build_siso_seq(const std::vector<std::vector<int>> &trellis,
 		                                                      std::ostream                  &stream  = std::cout,

@@ -35,11 +35,12 @@ Decoder_BCH::parameters* Decoder_BCH::parameters
 void Decoder_BCH::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-T,--corr-pow",
 		t,
 		"Correction power of the BCH code.")

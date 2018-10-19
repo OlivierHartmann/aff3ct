@@ -114,7 +114,7 @@ get_interleaver()
 	{
 		std::stringstream message;
 		message << "'interleaver_core' is NULL.";
-		throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
+		throw tools::unavailable_error(__FILE__, __LINE__, __func__, message.str());
 	}
 
 	return this->interleaver_core;
@@ -128,7 +128,7 @@ get_encoder()
 	{
 		std::stringstream message;
 		message << "'encoder' is NULL.";
-		throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
+		throw tools::unavailable_error(__FILE__, __LINE__, __func__, message.str());
 	}
 
 	return this->encoder;
@@ -142,7 +142,7 @@ get_puncturer()
 	{
 		std::stringstream message;
 		message << "'puncturer' is NULL.";
-		throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
+		throw tools::unavailable_error(__FILE__, __LINE__, __func__, message.str());
 	}
 
 	return this->puncturer;

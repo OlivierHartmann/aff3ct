@@ -16,6 +16,17 @@ RSC<L,B,R,Q>
 : L(argc, argv, stream), params_cdc(new factory::Codec_RSC::parameters("cdc"))
 {
 	this->params.set_cdc(params_cdc);
+
+	if (std::is_same<Q,int8_t>())
+	{
+		this->params.qnt->n_bits     = 6;
+		this->params.qnt->n_decimals = 1;
+	}
+	else if (std::is_same<Q,int16_t>())
+	{
+		this->params.qnt->n_bits     = 6;
+		this->params.qnt->n_decimals = 3;
+	}
 }
 
 template <class L, typename B, typename R, typename Q>
@@ -24,10 +35,11 @@ void RSC<L,B,R,Q>
 {
 	params_cdc->register_arguments(app);
 
-	auto penc = params_cdc->enc->get_prefix();
+	// auto sub_dec = app.get_subcommand("dec");
+	auto sub_enc = app.get_subcommand("enc");
 
-	this->args.erase({penc+"-fra",  "F"});
-	this->args.erase({penc+"-seed", "S"});
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
+	CLI::remove_option(sub_enc, "--fra",  params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
 
 	L::register_arguments(app);
 }
@@ -44,17 +56,6 @@ void RSC<L,B,R,Q>
 		this->params.src->n_frames = mipp::N<Q>();
 	if (dec_rsc->simd_strategy == "INTRA")
 		this->params.src->n_frames = (int)std::ceil(mipp::N<Q>() / 8.f);
-
-	if (std::is_same<Q,int8_t>())
-	{
-		this->params.qnt->n_bits     = 6;
-		this->params.qnt->n_decimals = 1;
-	}
-	else if (std::is_same<Q,int16_t>())
-	{
-		this->params.qnt->n_bits     = 6;
-		this->params.qnt->n_decimals = 3;
-	}
 
 	L::callback_arguments();
 

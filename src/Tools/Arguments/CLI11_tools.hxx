@@ -6,10 +6,10 @@
 namespace CLI
 {
 template <typename T>
-CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                         T& variable, const std::string& description, bool defaulted)
 {
-	auto opt_name = CLI::add_prefix_to_name(name, prefix);
+	auto opt_name = CLI::add_prefix_to_name(name, prefix, no_argflag);
 
 	try
 	{
@@ -24,10 +24,10 @@ CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::str
 }
 
 template <typename T>
-CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                         T& variable, const std::string& description)
 {
-	auto opt_name = CLI::add_prefix_to_name(name, prefix);
+	auto opt_name = CLI::add_prefix_to_name(name, prefix, no_argflag);
 
 	try
 	{
@@ -44,10 +44,10 @@ CLI::Option* add_option(CLI::App& app, const std::string& prefix, const std::str
 
 
 template <typename T>
-CLI::Option* add_flag(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_flag(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                       T& variable, const std::string& description)
 {
-	auto opt_name = CLI::add_prefix_to_name(name, prefix);
+	auto opt_name = CLI::add_prefix_to_name(name, prefix, no_argflag);
 
 	try
 	{
@@ -65,10 +65,10 @@ CLI::Option* add_flag(CLI::App& app, const std::string& prefix, const std::strin
 
 
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &&options, const std::string& description, bool defaulted)
 {
-	auto opt_name = CLI::add_prefix_to_name(name, prefix);
+	auto opt_name = CLI::add_prefix_to_name(name, prefix, no_argflag);
 
 	try
 	{
@@ -83,10 +83,10 @@ CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string
 }
 
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &options, const std::string& description, bool defaulted)
 {
-	auto opt_name = CLI::add_prefix_to_name(name, prefix);
+	auto opt_name = CLI::add_prefix_to_name(name, prefix, no_argflag);
 
 	try
 	{
@@ -101,10 +101,10 @@ CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string
 }
 
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &&options, const std::string& description)
 {
-	auto opt_name = CLI::add_prefix_to_name(name, prefix);
+	auto opt_name = CLI::add_prefix_to_name(name, prefix, no_argflag);
 
 	try
 	{
@@ -119,10 +119,10 @@ CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string
 }
 
 template <typename T>
-CLI::Option* add_set(CLI::App& app, const std::string& prefix, const std::string& name,
+CLI::Option* add_set(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                      T& variable, const std::set<T> &options, const std::string& description)
 {
-	auto opt_name = CLI::add_prefix_to_name(name, prefix);
+	auto opt_name = CLI::add_prefix_to_name(name, prefix, no_argflag);
 
 	try
 	{

@@ -23,8 +23,6 @@ Flip_and_check_DB::parameters* Flip_and_check_DB::parameters
 void Flip_and_check_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
-
 	Flip_and_check::parameters::register_arguments(app);
 }
 

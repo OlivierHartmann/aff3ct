@@ -26,32 +26,33 @@ Frozenbits_generator::parameters* Frozenbits_generator::parameters
 void Frozenbits_generator::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
-		"--info-bits",
+	CLI::add_option(app, p, naf,
+		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
 		->required()
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
-		"--cw-size",
+	CLI::add_option(app, p, naf,
+		"-N,--cw-size",
 		N_cw,
 		"The codeword size.")
 		->required()
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--sigma",
 		sigma,
 		"Sigma value for the polar codes generation (adaptive frozen bits if sigma is not set)")
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--gen-method",
 		type,
 		{"GA", "FILE", "TV"},
@@ -59,7 +60,7 @@ void Frozenbits_generator::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--awgn-path",
 		path_fb,
 		"Path to a file or a directory containing the best channels to use for information bits.")
@@ -67,7 +68,7 @@ void Frozenbits_generator::parameters
 		->group("Standard");
 
 #ifdef ENABLE_POLAR_BOUNDS
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--pb-path",
 		path_pb,
 		"Path of the polar bounds code generator (generates best channels to use).")

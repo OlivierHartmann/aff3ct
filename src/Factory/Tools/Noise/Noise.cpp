@@ -28,10 +28,11 @@ Noise::parameters* Noise::parameters
 void Noise::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	auto noise_range_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-R,--noise-range",
 		range,
 		"Noise energy range to run (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).")
@@ -39,7 +40,7 @@ void Noise::parameters
 		->group("Standard");
 
 	noise_min_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-m,--noise-min",
 		noise_min,
 		"Minimal noise energy to simulate.")
@@ -47,7 +48,7 @@ void Noise::parameters
 		->group("Standard");
 
 	noise_max_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-M,--noise-max",
 		noise_max,
 		"Maximal noise energy to simulate.")
@@ -55,7 +56,7 @@ void Noise::parameters
 		->group("Standard");
 
 	noise_step_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-s,--noise-step",
 		noise_step,
 		"Noise energy step between each simulation iteration.",
@@ -64,7 +65,7 @@ void Noise::parameters
 		->group("Standard");
 
 	pdf_path_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--pdf-path",
 		pdf_path,
 		"A file that contains PDF for different SNR. Set the SNR range from the given ones."
@@ -77,7 +78,7 @@ void Noise::parameters
 	noise_range_option->excludes(noise_max_option );
 	noise_range_option->excludes(noise_step_option);
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"-E,--noise-type",
 		type,
 		{"ESN0", "EBN0", "ROP", "EP"},

@@ -13,13 +13,21 @@ using namespace aff3ct::factory;
 Decoder_turbo_DB::parameters
 ::parameters(const std::string &prefix)
 : Decoder::parameters(Decoder_turbo_DB_name, prefix),
-  sub(new Decoder_RSC_DB::parameters(prefix+"-sub")),
-  itl(new Interleaver::parameters("itl")),
-  sf (new Scaling_factor::parameters(prefix+"-sf")),
-  fnc(new Flip_and_check_DB::parameters(prefix+"-fnc"))
+  sub(new Decoder_RSC_DB   ::parameters("sub")),
+  itl(new Interleaver      ::parameters("itl")),
+  sf (new Scaling_factor   ::parameters("sf" )),
+  fnc(new Flip_and_check_DB::parameters("fnc"))
 {
 	type   = "TURBO_DB";
 	implem = "STD";
+
+	type_set  .insert("TURBO_DB");
+	implem_set.insert("STD");
+
+	sub->no_argflag(true);
+	itl->no_argflag(true);
+	sf ->no_argflag(true);
+	fnc->no_argflag(true);
 }
 
 Decoder_turbo_DB::parameters* Decoder_turbo_DB::parameters
@@ -64,51 +72,45 @@ std::vector<std::string> Decoder_turbo_DB::parameters
 void Decoder_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
 	if (itl != nullptr)
 	{
 		itl->register_arguments(app);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "TURBO_DB");
-	tools::add_options(args.at({p+"-implem"   }), 0, "STD");
+	CLI::add_option(app, p, naf,
+		"-i,--ite",
+		n_ite,
+		"Maximal number of iterations in the turbo decoder.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-ite", "i"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"maximal number of iterations in the turbo.");
 
 	sf->register_arguments(app);
 
-	auto psf = sf->get_prefix();
+	CLI::remove_option(app, "--ite", sf->get_prefix(), sf->no_argflag());
 
-	args.erase({psf+"-ite"});
 
 	fnc->register_arguments(app);
 
-	auto pfnc = fnc->get_prefix();
+	CLI::remove_option(app, "--size", fnc->get_prefix(), fnc->no_argflag());
+	CLI::remove_option(app, "--fra" , fnc->get_prefix(), fnc->no_argflag());
+	CLI::remove_option(app, "--ite" , fnc->get_prefix(), fnc->no_argflag());
 
-	args.erase({pfnc+"-size"     });
-	args.erase({pfnc+"-fra",  "F"});
-	args.erase({pfnc+"-ite",  "i"});
 
 	sub->register_arguments(app);
 
-	auto ps = sub->get_prefix();
-
-	args.erase({ps+"-info-bits", "K"});
-	args.erase({ps+"-cw-size",   "N"});
-	args.erase({ps+"-fra",       "F"});
+	CLI::remove_option(app, "--info-bits", sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--fra"      , sub->get_prefix(), sub->no_argflag());
 }
 
 void Decoder_turbo_DB::parameters
@@ -117,8 +119,6 @@ void Decoder_turbo_DB::parameters
 	auto p = get_short_name();
 
 	Decoder::parameters::callback_arguments();
-
-	if (vals.exist({p+"-ite", "i"})) n_ite = vals.to_int({p+"-ite", "i"});
 
 	sub->K        = K;
 	sub->n_frames = n_frames;
@@ -135,11 +135,13 @@ void Decoder_turbo_DB::parameters
 
 		itl->callback_arguments();
 
-		if (sub->implem == "DVB-RCS1" && !vals.exist({"itl-type"}))
-			itl->core->type = "DVB-RCS1";
-
-		if (sub->implem == "DVB-RCS2" && !vals.exist({"itl-type"}))
-			itl->core->type = "DVB-RCS2";
+		if (!itl->core->type_option_set_by_user())
+		{
+			if (sub->implem == "DVB-RCS1")
+				itl->core->type = "DVB-RCS1";
+			else if (sub->implem == "DVB-RCS2")
+				itl->core->type = "DVB-RCS2";
+		}
 	}
 
 	sf->n_ite = n_ite;

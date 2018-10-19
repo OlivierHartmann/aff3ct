@@ -15,12 +15,14 @@ Codec_turbo::parameters
 : Codec     ::parameters(Codec_turbo_name, prefix),
   Codec_SIHO::parameters(Codec_turbo_name, prefix)
 {
-	auto enc_t = new Encoder_turbo::parameters<>("enc");
-	auto dec_t = new Decoder_turbo::parameters<>("dec");
+	auto enc_t = new Encoder_turbo::parameters<>("");
+	auto dec_t = new Decoder_turbo::parameters<>("");
+	enc_t->itl = nullptr;
+	dec_t->itl = nullptr;
+
 	Codec::parameters::set_enc(enc_t);
 	Codec::parameters::set_dec(dec_t);
-	Codec::parameters::set_itl(std::move(enc_t->itl));
-	dec_t->itl = nullptr;
+	Codec::parameters::set_itl(new Interleaver::parameters(""));
 }
 
 Codec_turbo::parameters* Codec_turbo::parameters
@@ -32,53 +34,47 @@ Codec_turbo::parameters* Codec_turbo::parameters
 void Codec_turbo::parameters
 ::enable_puncturer()
 {
-	set_pct(new Puncturer_turbo::parameters("pct"));
+	set_pct(new Puncturer_turbo::parameters(""));
 }
 
 void Codec_turbo::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
-
 	Codec_SIHO::parameters::register_arguments(app);
-
-	auto dec_tur = dynamic_cast<Decoder_turbo::parameters<>*>(dec.get());
 
 	if (pct != nullptr)
 	{
-		pct->register_arguments(app);
+		pct->register_arguments(*sub_pct);
 
-		auto ppct = pct->get_prefix();
-
-		args.erase({ppct+"-info-bits", "K"});
-		args.erase({ppct+"-no-buff"       });
-		args.erase({ppct+"-fra",       "F"});
-		args.erase({ppct+"-tail-length"   });
+		CLI::remove_option(sub_pct, "--info-bits"  , pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--fra"        , pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--no-buff"    , pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--tail-length", pct->get_prefix(), pct->no_argflag());
 	}
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto pdec = dec_tur->get_prefix();
-	auto pdes = dec_tur->sub1->get_prefix();
 
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
-	args.erase({pdes+"-no-buff"       });
-	args.erase({pdes+"-poly"          });
-	args.erase({pdes+"-std"           });
-	args.erase({pdec+"-json"          });
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--json"     , dec->get_prefix(), dec->no_argflag());
+
+
+	// auto dec_tur = dynamic_cast<Decoder_turbo::parameters<>*>(dec.get());
+	// auto des = dec_tur->sub1; // sub decoder
+
+	// CLI::remove_option(sub_des, "--no-buff"  , des->get_prefix());
+	// CLI::remove_option(sub_des, "--poly"     , des->get_prefix());
+	// CLI::remove_option(sub_des, "--std"      , des->get_prefix());
 
 
 	if (itl != nullptr)
 	{
-		itl->register_arguments(app);
+		itl->register_arguments(*sub_itl);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(sub_itl, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(sub_itl, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 }
 
@@ -96,30 +92,30 @@ void Codec_turbo::parameters
 	{
 		auto pct_tur = dynamic_cast<Puncturer_turbo::parameters*>(pct.get());
 
-		pct_tur->K           = enc_tur->K;
-		pct_tur->N_cw        = enc_tur->N_cw;
-		pct_tur->no_buffered = !enc_tur->sub1->buffered;
-		pct_tur->n_frames    = enc_tur->n_frames;
-		pct_tur->tail_length = enc_tur->tail_length;
+		pct_tur->K            = enc_tur->K;
+		pct_tur->N_cw         = enc_tur->N_cw;
+		pct_tur->not_buffered =!enc_tur->sub1->not_buffered;
+		pct_tur->n_frames     = enc_tur->n_frames;
+		pct_tur->tail_length  = enc_tur->tail_length;
 
 		pct->callback_arguments();
 	}
 
-	dec_tur->K                 = enc_tur->K;
-	dec_tur->N_cw              = enc_tur->N_cw;
-	dec_tur->sub1->buffered    = enc_tur->sub1->buffered;
-	dec_tur->sub2->buffered    = enc_tur->sub2->buffered;
-	dec_tur->n_frames          = enc_tur->n_frames;
-	dec_tur->sub1->n_frames    = enc_tur->sub1->n_frames;
-	dec_tur->sub2->n_frames    = enc_tur->sub2->n_frames;
-	dec_tur->tail_length       = enc_tur->tail_length;
-	dec_tur->sub1->tail_length = enc_tur->sub1->tail_length;
-	dec_tur->sub2->tail_length = enc_tur->sub2->tail_length;
-	dec_tur->sub1->poly        = enc_tur->sub1->poly;
-	dec_tur->sub2->poly        = enc_tur->sub2->poly;
-	dec_tur->sub1->standard    = enc_tur->sub1->standard;
-	dec_tur->sub2->standard    = enc_tur->sub2->standard;
-	dec_tur->enable_json       =!enc_tur->json_path.empty();
+	dec_tur->K                  = enc_tur->K;
+	dec_tur->N_cw               = enc_tur->N_cw;
+	dec_tur->sub1->not_buffered = enc_tur->sub1->not_buffered;
+	dec_tur->sub2->not_buffered = enc_tur->sub2->not_buffered;
+	dec_tur->n_frames           = enc_tur->n_frames;
+	dec_tur->sub1->n_frames     = enc_tur->sub1->n_frames;
+	dec_tur->sub2->n_frames     = enc_tur->sub2->n_frames;
+	dec_tur->tail_length        = enc_tur->tail_length;
+	dec_tur->sub1->tail_length  = enc_tur->sub1->tail_length;
+	dec_tur->sub2->tail_length  = enc_tur->sub2->tail_length;
+	dec_tur->sub1->poly         = enc_tur->sub1->poly;
+	dec_tur->sub2->poly         = enc_tur->sub2->poly;
+	dec_tur->sub1->standard     = enc_tur->sub1->standard;
+	dec_tur->sub2->standard     = enc_tur->sub2->standard;
+	dec_tur->enable_json        =!enc_tur->json_path.empty();
 
 	dec->callback_arguments();
 
@@ -135,11 +131,13 @@ void Codec_turbo::parameters
 
 		itl->callback_arguments();
 
-		if (enc_tur->sub1->standard == "LTE" && !vals.exist({"itl-type"}))
-			itl->core->type = "LTE";
-
-		if (enc_tur->sub1->standard == "CCSDS" && !vals.exist({"itl-type"}))
-			itl->core->type = "CCSDS";
+		if (!itl->core->type_option_set_by_user())
+		{
+			if (enc_tur->sub1->standard == "LTE")
+				itl->core->type = "LTE";
+			else if (enc_tur->sub1->standard == "CCSDS")
+				itl->core->type = "CCSDS";
+		}
 	}
 }
 
@@ -147,12 +145,15 @@ void Codec_turbo::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
 	Codec_SIHO::parameters::get_headers(headers, full);
+
 	enc->get_headers(headers, full);
 	dec->get_headers(headers, full);
+
 	if (pct != nullptr)
 		pct->get_headers(headers, full);
+
 	if (itl != nullptr)
-		itl->get_headers(headers, full);
+		itl->get_headers(headers, true);
 }
 
 template <typename B, typename Q>

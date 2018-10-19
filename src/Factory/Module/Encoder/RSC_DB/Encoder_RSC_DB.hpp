@@ -20,8 +20,8 @@ struct Encoder_RSC_DB : public Encoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional
-		bool        buffered = true;
-		std::string standard = "DVB-RCS1";
+		bool        not_buffered = false;
+		std::string standard     = "DVB-RCS1";
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_RSC_DB_prefix);

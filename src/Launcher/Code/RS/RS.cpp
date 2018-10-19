@@ -21,11 +21,11 @@ void RS<L,B,R,Q>
 {
 	params_cdc->register_arguments(app);
 
-	auto penc = params_cdc->enc->get_prefix();
-	auto pdec = params_cdc->dec->get_prefix();
+	// auto sub_dec = app.get_subcommand("dec");
+	auto sub_enc = app.get_subcommand("enc");
 
-	this->args.erase({penc+"-fra",  "F"});
-	this->args.erase({penc+"-seed", "S"});
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
+	CLI::remove_option(sub_enc, "--fra",  params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
 
 	L::register_arguments(app);
 }

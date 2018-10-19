@@ -55,7 +55,8 @@ std::vector<std::string> Encoder_turbo_product::parameters
 void Encoder_turbo_product::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 

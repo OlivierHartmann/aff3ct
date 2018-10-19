@@ -60,10 +60,14 @@ struct Factory
 
 		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const = 0;
 
+		void no_argflag(bool v) ;
+		bool no_argflag() const;
+
 	private:
 		const std::string name;
 		const std::string short_name;
 		const std::string prefix;
+		bool no_argflag_ = false;
 	};
 
 	static std::unique_ptr<CLI::App> make_argument_handler();

@@ -35,37 +35,38 @@ factory::Launcher_global::parameters* factory::Launcher_global::parameters
 void factory::Launcher_global::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	if (!CLI::has_option(app, "--help"))
-	CLI::add_flag(app, p,
+	if (!CLI::has_option(app, "--help", p, naf))
+	CLI::add_flag(app, p, naf,
 		"-h,--help",
 		help,
 		"Print the help.")
 		->group("Standard");
 
-	if (!CLI::has_option(app, "--Help"))
-	CLI::add_flag(app, p,
+	if (!CLI::has_option(app, "--Help", p, naf))
+	CLI::add_flag(app, p, naf,
 		"-H,--Help",
 		advanced_help,
 		"Print this help with the advanced arguments.")
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"-v,--version",
 		display_version,
 		"Print informations about the code version.")
 		->group("Standard");
 
 #ifdef ENABLE_BACK_TRACE
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--disable-bt",
 		disable_bt,
 		"Disable the backtrace when displaying exception.")
 		->group("Advanced");
 
 #ifndef NDEBUG
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--full-bt",
 		enable_full_bt,
 		"Enable full backtrace with file names and lines (may take additional time).")
@@ -74,13 +75,13 @@ void factory::Launcher_global::parameters
 #endif
 
 	auto no_legend_option =
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-legend",
 		hide_legend,
 		"Do not display any legend when launching the simulation.")
 		->group("Advanced");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--full-legend",
 		full_legend,
 		"Display fully the legend when launching the simulation.")
@@ -88,7 +89,7 @@ void factory::Launcher_global::parameters
 		->group("Advanced");
 
 #ifdef ENABLE_COOL_BASH
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-colors",
 		disable_colors,
 		"Disable the colors in the shell.")

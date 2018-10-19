@@ -45,7 +45,7 @@ void BFER_std<B,R,Q>
 	auto sub_ter = CLI::make_subcommand(app, "ter", params.ter   ->get_name() + " parameters");
 
 	params.        register_arguments(*sub_sim);
-	params.glb   ->register_arguments(app);
+	params.glb   ->register_arguments(     app);
 	params.src   ->register_arguments(*sub_src);
 	params.crc   ->register_arguments(*sub_crc);
 	params.mdm   ->register_arguments(*sub_mdm);
@@ -67,38 +67,39 @@ void BFER_std<B,R,Q>
 
 	auto sub_enc = app.get_subcommand("enc");
 
-	if (CLI::has_option(sub_enc, "--info-bits", params.cdc->enc->get_prefix()) || CLI::has_option(sub_pct, "--info-bits", params.cdc->pct->get_prefix()))
-		CLI::remove_option(sub_src, "--info-bits", params.src->get_prefix());
-	CLI::remove_option(sub_src, "--seed"     , params.src->get_prefix());
+	if (CLI::has_option(sub_enc, "--info-bits", params.cdc->enc->get_prefix(), params.cdc->enc->no_argflag()) || CLI::has_option(sub_pct, "--info-bits", params.cdc->pct->get_prefix(), params.cdc->pct->no_argflag()))
+		CLI::remove_option(sub_src, "--info-bits", params.src->get_prefix(), params.src->no_argflag());
+	CLI::remove_option(sub_src, "--seed"     , params.src->get_prefix(), params.src->no_argflag());
 
-	CLI::remove_option(sub_crc, "--info-bits", params.crc->get_prefix());
-	CLI::remove_option(sub_crc, "--fra"      , params.crc->get_prefix());
+	CLI::remove_option(sub_crc, "--info-bits", params.crc->get_prefix(), params.crc->no_argflag());
+	CLI::remove_option(sub_crc, "--fra"      , params.crc->get_prefix(), params.crc->no_argflag());
 
-	CLI::remove_option(sub_mdm, "--fra-size" , params.mdm->get_prefix());
-	CLI::remove_option(sub_mdm, "--fra"      , params.mdm->get_prefix());
-	CLI::remove_option(sub_mdm, "--noise"    , params.mdm->get_prefix());
+	CLI::remove_option(sub_mdm, "--fra-size" , params.mdm->get_prefix(), params.mdm->no_argflag());
+	CLI::remove_option(sub_mdm, "--fra"      , params.mdm->get_prefix(), params.mdm->no_argflag());
+	CLI::remove_option(sub_mdm, "--noise"    , params.mdm->get_prefix(), params.mdm->no_argflag());
 
-	CLI::remove_option(sub_chn, "--fra-size" , params.chn->get_prefix());
-	CLI::remove_option(sub_chn, "--fra"      , params.chn->get_prefix());
-	CLI::remove_option(sub_chn, "--noise"    , params.chn->get_prefix());
-	CLI::remove_option(sub_chn, "--seed"     , params.chn->get_prefix());
-	CLI::remove_option(sub_chn, "--add-users", params.chn->get_prefix());
-	CLI::remove_option(sub_chn, "--complex"  , params.chn->get_prefix());
+	CLI::remove_option(sub_chn, "--fra-size" , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--fra"      , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--noise"    , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--seed"     , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--add-users", params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--complex"  , params.chn->get_prefix(), params.chn->no_argflag());
 
-	CLI::remove_option(sub_qnt, "--size"     , params.qnt->get_prefix());
-	CLI::remove_option(sub_qnt, "--fra"      , params.qnt->get_prefix());
+	CLI::remove_option(sub_qnt, "--size"     , params.qnt->get_prefix(), params.qnt->no_argflag());
+	CLI::remove_option(sub_qnt, "--fra"      , params.qnt->get_prefix(), params.qnt->no_argflag());
 
-	CLI::remove_option(sub_mnt, "--info-bits", params.mnt_er->get_prefix());
-	CLI::remove_option(sub_mnt, "--fra-size" , params.mnt_er->get_prefix());
-	CLI::remove_option(sub_mnt, "--fra"      , params.mnt_er->get_prefix());
-	CLI::remove_option(sub_mnt, "--max-frame", params.mnt_er->get_prefix());
-	CLI::remove_option(sub_mnt, "--trials"   , params.mnt_er->get_prefix());
+	CLI::remove_option(sub_mnt, "--info-bits", params.mnt_er->get_prefix(), params.mnt_er->no_argflag());
+	CLI::remove_option(sub_mnt, "--fra-size" , params.mnt_er->get_prefix(), params.mnt_er->no_argflag());
+	CLI::remove_option(sub_mnt, "--fra"      , params.mnt_er->get_prefix(), params.mnt_er->no_argflag());
+	CLI::remove_option(sub_mnt, "--max-frame", params.mnt_er->get_prefix(), params.mnt_er->no_argflag());
+	CLI::remove_option(sub_mnt, "--trials"   , params.mnt_er->get_prefix(), params.mnt_er->no_argflag());
 
 #ifdef ENABLE_MPI
-	CLI::remove_option(sub_ter, "--freq"     , params.ter->get_prefix());
+	CLI::remove_option(sub_ter, "--freq"     , params.ter->get_prefix(), params.ter->no_argflag());
 #endif
 
-	sub_mnt->add_flag(
+
+	CLI::add_flag(*sub_mnt, params.mnt_er->get_prefix(), params.mnt_er->no_argflag(),
 		"--mutinfo",
 		params.mutinfo,
 		"Allow the computation of the mutual information.")

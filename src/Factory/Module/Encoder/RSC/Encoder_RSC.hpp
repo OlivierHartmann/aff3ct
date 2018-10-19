@@ -20,9 +20,9 @@ struct Encoder_RSC : public Encoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional
-		bool             buffered = true;
-		std::string      standard = "LTE";
-		std::vector<int> poly     = {013, 015};
+		bool             not_buffered = false;
+		std::string      standard     = "LTE";
+		std::vector<int> poly         = {013, 015};
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_RSC_prefix);
@@ -37,6 +37,9 @@ struct Encoder_RSC : public Encoder
 		// builder
 		template <typename B = int>
 		module::Encoder_RSC_sys<B>* build(std::ostream &stream = std::cout) const;
+
+	private:
+		std::string poly_str = "{013, 015}";
 	};
 
 	template <typename B = int>

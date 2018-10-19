@@ -45,12 +45,12 @@ void LDPC<L,B,R,Q>
 	// auto sub_dec = app.get_subcommand("dec");
 	auto sub_enc = app.get_subcommand("enc");
 
-	CLI::remove_option(sub_enc, "--fra" , params_cdc->enc->get_prefix());
-	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix());
+	CLI::remove_option(sub_enc, "--fra" , params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
 
 
-	sub_enc->get_option(CLI::add_prefix_to_name("--info-bits", params_cdc->enc->get_prefix()))->required(false);
-	sub_enc->get_option(CLI::add_prefix_to_name("--cw-size"  , params_cdc->enc->get_prefix()))->required(false);
+	sub_enc->get_option(CLI::add_prefix_to_name("--info-bits", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag()))->required(false);
+	sub_enc->get_option(CLI::add_prefix_to_name("--cw-size"  , params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag()))->required(false);
 	// sub_dec.get_option("--h-path")->excludes(sub_dec.get_option("--type"));
 	// this->args.add_link({pdec+"-h-path"}, {penc+"-type"}, enc_dvb_no_h_matrix);
 

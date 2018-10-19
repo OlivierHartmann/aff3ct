@@ -53,5 +53,6 @@ public:
 #include "runtime_error/runtime_error.hpp"
 #include "underflow_error/underflow_error.hpp"
 #include "unimplemented_error/unimplemented_error.hpp"
+#include "unavailable_error/unavailable_error.hpp"
 
 #endif /* EXCEPTION_HPP_ */

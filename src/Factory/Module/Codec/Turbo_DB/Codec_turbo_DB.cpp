@@ -11,12 +11,14 @@ Codec_turbo_DB::parameters
 : Codec     ::parameters(Codec_turbo_DB_name, prefix),
   Codec_SIHO::parameters(Codec_turbo_DB_name, prefix)
 {
-	auto enc_t = new Encoder_turbo_DB::parameters("enc");
-	auto dec_t = new Decoder_turbo_DB::parameters("dec");
+	auto enc_t = new Encoder_turbo_DB::parameters("");
+	auto dec_t = new Decoder_turbo_DB::parameters("");
+	enc_t->itl = nullptr;
+	dec_t->itl = nullptr;
+
 	Codec::parameters::set_enc(enc_t);
 	Codec::parameters::set_dec(dec_t);
-	Codec::parameters::set_itl(std::move(enc_t->itl));
-	dec_t->itl = nullptr;
+	Codec::parameters::set_itl(new Interleaver::parameters(""));
 }
 
 Codec_turbo_DB::parameters* Codec_turbo_DB::parameters
@@ -28,54 +30,45 @@ Codec_turbo_DB::parameters* Codec_turbo_DB::parameters
 void Codec_turbo_DB::parameters
 ::enable_puncturer()
 {
-	set_pct(new Puncturer_turbo_DB::parameters("pct"));
+	set_pct(new Puncturer_turbo_DB::parameters(""));
 }
 
 void Codec_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
-
 	Codec_SIHO::parameters::register_arguments(app);
-
-	auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());
 
 	if (pct != nullptr)
 	{
-		pct->register_arguments(app);
+		pct->register_arguments(*sub_pct);
 
-		auto ppct = pct->get_prefix();
+		CLI::remove_option(sub_pct, "--info-bits"  , pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--fra"        , pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--no-buff"    , pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--tail-length", pct->get_prefix(), pct->no_argflag());
 
-		args.erase({ppct+"-info-bits", "K"});
-		args.erase({ppct+"-no-buff"       });
-		args.erase({ppct+"-fra",       "F"});
-		args.erase({ppct+"-tail-length"   });
-
-		args[{ppct+"-fra-size", "N"}]->rank = tools::arg_rank::OPT;
+		CLI::get_option(sub_pct, "--fra-size", pct->get_prefix(), pct->no_argflag())->required(false);
 	}
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto pdec = dec_tur->get_prefix();
-	auto pdes = dec_tur->sub->get_prefix();
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
 
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
-	args.erase({pdes+"-no-buff"       });
-	args.erase({pdes+"-std"           });
-	args.erase({pdec+"-json"          });
 
+	// auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());
+	// auto des = dec_tur->sub; // sub decoder
+
+	// CLI::remove_option(sub_des, "--no-buff"  , des->get_prefix());
+	// CLI::remove_option(sub_des, "--std"      , des->get_prefix());
 
 	if (itl != nullptr)
 	{
-		itl->register_arguments(app);
+		itl->register_arguments(*sub_itl);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(sub_itl, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(sub_itl, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 }
 
@@ -99,11 +92,11 @@ void Codec_turbo_DB::parameters
 		pct->callback_arguments();
 	}
 
-	dec_tur->K             = enc_tur->K;
-	dec_tur->N_cw          = enc_tur->N_cw;
-	dec_tur->sub->buffered = enc_tur->sub->buffered;
-	dec_tur->n_frames      = enc_tur->n_frames;
-	dec_tur->sub->n_frames = enc_tur->sub->n_frames;
+	dec_tur->K                 = enc_tur->K;
+	dec_tur->N_cw              = enc_tur->N_cw;
+	dec_tur->sub->not_buffered = enc_tur->sub->not_buffered;
+	dec_tur->n_frames          = enc_tur->n_frames;
+	dec_tur->sub->n_frames     = enc_tur->sub->n_frames;
 
 	dec->callback_arguments();
 
@@ -125,11 +118,13 @@ void Codec_turbo_DB::parameters
 
 		itl->callback_arguments();
 
-		if (dec_tur->sub->implem == "DVB-RCS1" && !vals.exist({"itl-type"}))
-			itl->core->type = "DVB-RCS1";
-
-		if (dec_tur->sub->implem == "DVB-RCS2" && !vals.exist({"itl-type"}))
-			itl->core->type = "DVB-RCS2";
+		if (!itl->core->type_option_set_by_user())
+		{
+			if (enc_tur->sub->type == "DVB-RCS1")
+				itl->core->type = "DVB-RCS1";
+			else if (enc_tur->sub->type == "DVB-RCS2")
+				itl->core->type = "DVB-RCS2";
+		}
 	}
 }
 

@@ -52,8 +52,12 @@ struct Encoder : public Factory
 		template <typename B = int>
 		module::Encoder<B>* build() const;
 
+		bool type_option_set_by_user() const;
+
 	protected:
 		parameters(const std::string &n, const std::string &p);
+
+		CLI::Option* type_option = nullptr;
 	};
 
 	template <typename B = int>

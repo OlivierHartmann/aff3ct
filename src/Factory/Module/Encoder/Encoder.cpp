@@ -34,9 +34,10 @@ Encoder::parameters* Encoder::parameters
 void Encoder::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -44,7 +45,7 @@ void Encoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-N,--cw-size",
 		N_cw,
 		"The codeword size.")
@@ -52,7 +53,7 @@ void Encoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -60,7 +61,8 @@ void Encoder::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	type_option =
+	CLI::add_set(app, p, naf,
 		"--type",
 		type,
 		type_set,
@@ -68,26 +70,32 @@ void Encoder::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--path",
 		path,
 		"Path to a file containing one or a set of pre-computed codewords, to use with \"--enc-type USER\".")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--start-idx",
 		start_idx,
 		"Start idx to use in the USER type encoder.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-S,--seed",
 		seed,
 		"Seed used to initialize the pseudo random generators.",
 		true)
 		->group("Standard");
+}
+
+bool Encoder::parameters
+::type_option_set_by_user() const
+{
+	return type_option->count() != 0;
 }
 
 void Encoder::parameters

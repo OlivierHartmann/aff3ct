@@ -14,8 +14,8 @@ Codec_RS::parameters
 : Codec          ::parameters(Codec_RS_name, prefix),
   Codec_SIHO_HIHO::parameters(Codec_RS_name, prefix)
 {
-	Codec::parameters::set_enc(new Encoder_RS::parameters("enc"));
-	Codec::parameters::set_dec(new Decoder_RS::parameters("dec"));
+	Codec::parameters::set_enc(new Encoder_RS::parameters(""));
+	Codec::parameters::set_dec(new Decoder_RS::parameters(""));
 }
 
 Codec_RS::parameters* Codec_RS::parameters
@@ -27,22 +27,19 @@ Codec_RS::parameters* Codec_RS::parameters
 void Codec_RS::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
 
 	Codec_SIHO_HIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto pdec = dec->get_prefix();
-	auto penc = enc->get_prefix();
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
 
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
-	args.erase({pdec+"-no-sys"        });
-
-	args.add_link({pdec+"-corr-pow", "T"}, {penc+"-info-bits", "K"});
+	CLI::get_option(sub_enc, "--info-bits", enc->get_prefix(), enc->no_argflag())->required(false);
+	// CLI::get_option(sub_dec, "--corr-pow", dec->get_prefix(), dec->no_argflag())->excludes(CLI::get_option(sub_enc, "--info-bits", enc->get_prefix(), enc->no_argflag());
 }
 
 void Codec_RS::parameters

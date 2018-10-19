@@ -33,8 +33,11 @@ Decoder_RSC::parameters
 ::parameters(const std::string &prefix)
 : Decoder::parameters(Decoder_RSC_name, prefix)
 {
-	this->type   = "BCJR";
-	this->implem = "STD";
+	type   = "BCJR";
+	implem = "STD";
+
+	type_set  .insert({"BCJR"});
+	implem_set.insert({"GENERIC", "FAST", "VERY_FAST"});
 }
 
 Decoder_RSC::parameters* Decoder_RSC::parameters
@@ -46,39 +49,49 @@ Decoder_RSC::parameters* Decoder_RSC::parameters
 void Decoder_RSC::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "BCJR");
-	tools::add_options(args.at({p+"-implem"   }), 0, "GENERIC", "FAST", "VERY_FAST");
+	CLI::add_set(app, p, naf,
+		"--simd",
+		simd_strategy,
+		{"INTRA", "INTER"},
+		"The SIMD strategy you want to use.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-simd"},
-		tools::Text(tools::Including_set("INTRA", "INTER")),
-		"the SIMD strategy you want to use.");
+	CLI::add_set(app, p, naf,
+		"--max",
+		max,
+		{"MAX", "MAXL", "MAXS"},
+		"The MAX implementation for the nodes.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-max"},
-		tools::Text(tools::Including_set("MAX", "MAXL", "MAXS")),
-		"the MAX implementation for the nodes.");
+	CLI::add_flag(app, p, naf,
+		"--no-buff",
+		not_buffered,
+		"Disable the buffered encoding.")
+		->group("Standard");
 
-	args.add(
-		{p+"-no-buff"},
-		tools::None(),
-		"does not suppose a buffered encoding.");
+	CLI::add_option(app, p, naf,
+		"--poly",
+		poly_str,
+		"The polynomials describing RSC code, should be of the form \"{A,B}\" in octal base.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-poly"},
-		tools::Text(),
-		"the polynomials describing RSC code, should be of the form \"{A,B}\".");
-
-	args.add(
-		{p+"-std"},
-		tools::Text(tools::Including_set("LTE", "CCSDS")),
-		"select a standard and set automatically some parameters (overwritten with user given arguments).");
+	CLI::add_set(app, p, naf,
+		"--std",
+		standard,
+		{"LTE", "CCSDS"},
+		"Select a standard and set automatically some parameters (overwritten by \"--poly\").",
+		true)
+		->group("Standard");
 }
 
 void Decoder_RSC::parameters
@@ -88,41 +101,34 @@ void Decoder_RSC::parameters
 
 	auto p = get_prefix();
 
-	if (vals.exist({p+"-simd"   })) this->simd_strategy = vals.at({p+"-simd"});
-	if (vals.exist({p+"-max"    })) this->max           = vals.at({p+"-max" });
-	if (vals.exist({p+"-std"    })) this->standard      = vals.at({p+"-std" });
-	if (vals.exist({p+"-no-buff"})) this->buffered      = false;
 
-	if (this->standard == "LTE" && !vals.exist({p+"-poly"}))
-		this->poly = {013, 015};
+	if (standard == "LTE" && !vals.exist({p+"-poly"}))
+		poly = {013, 015};
 
-	if (this->standard == "CCSDS" && !vals.exist({p+"-poly"}))
-		this->poly = {023, 033};
+	if (standard == "CCSDS" && !vals.exist({p+"-poly"}))
+		poly = {023, 033};
 
-	if (vals.exist({p+"-poly"}))
+	if (poly_str != "")
 	{
-		this->standard = "";
-		auto poly_str = vals.at({p+"-poly"});
-
 #ifdef _MSC_VER
-		sscanf_s   (poly_str.c_str(), "{%o,%o}", &this->poly[0], &this->poly[1]);
+		sscanf_s   (poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #else
-		std::sscanf(poly_str.c_str(), "{%o,%o}", &this->poly[0], &this->poly[1]);
+		std::sscanf(poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #endif
 	}
 
-	if (this->poly[0] == 013 && this->poly[1] == 015)
-		this->standard = "LTE";
+	if (poly[0] == 013 && poly[1] == 015)
+		standard = "LTE";
 
-	if (this->poly[0] == 023 && this->poly[1] == 033)
-		this->standard = "CCSDS";
+	if (poly[0] == 023 && poly[1] == 033)
+		standard = "CCSDS";
 
-	if (this->poly[0] != 013 || this->poly[1] != 015)
-		this->implem = "GENERIC";
+	if (poly[0] != 013 || poly[1] != 015)
+		implem = "GENERIC";
 
-	this->tail_length = (int)(2 * std::floor(std::log2((float)std::max(this->poly[0], this->poly[1]))));
-	this->N_cw        = 2 * this->K + this->tail_length;
-	this->R           = (float)this->K / (float)this->N_cw;
+	tail_length = (int)(2 * std::floor(std::log2((float)std::max(poly[0], poly[1]))));
+	N_cw        = 2 * K + tail_length;
+	R           = (float)K / (float)N_cw;
 }
 
 void Decoder_RSC::parameters
@@ -132,24 +138,24 @@ void Decoder_RSC::parameters
 
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
+	if (type != "ML" && type != "CHASE")
 	{
-		if (this->tail_length && full)
-			headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));
+		if (tail_length && full)
+			headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
 
-		if (full) headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
+		if (full) headers[p].push_back(std::make_pair("!not_buffered", (!not_buffered ? "on" : "off")));
 
-		if (!this->standard.empty())
-			headers[p].push_back(std::make_pair("Standard", this->standard));
+		if (!standard.empty())
+			headers[p].push_back(std::make_pair("Standard", standard));
 
-		std::stringstream poly;
-		poly << "{0" << std::oct << this->poly[0] << ",0" << std::oct << this->poly[1] << "}";
-		headers[p].push_back(std::make_pair(std::string("Polynomials"), poly.str()));
+		std::stringstream ss_poly;
+		ss_poly << "{0" << std::oct << poly[0] << ",0" << std::oct << poly[1] << "}";
+		headers[p].push_back(std::make_pair(std::string("Polynomials"), ss_poly.str()));
 
-		if (!this->simd_strategy.empty())
-			headers[p].push_back(std::make_pair(std::string("SIMD strategy"), this->simd_strategy));
+		if (!simd_strategy.empty())
+			headers[p].push_back(std::make_pair(std::string("SIMD strategy"), simd_strategy));
 
-		headers[p].push_back(std::make_pair(std::string("Max type"), this->max));
+		headers[p].push_back(std::make_pair(std::string("Max type"), max));
 	}
 }
 
@@ -160,14 +166,14 @@ module::Decoder_SISO_SIHO<B,Q>* Decoder_RSC::parameters
                   const int                            n_ite,
                   const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "BCJR")
+	if (type == "BCJR")
 	{
-		if (this->implem == "STD"         ) return new module::Decoder_RSC_BCJR_seq_std             <B,Q,QD,MAX1,MAX2>(this->K, trellis,        this->buffered,         this->n_frames);
-		if (this->implem == "GENERIC"     ) return new module::Decoder_RSC_BCJR_seq_generic_std     <B,Q,QD,MAX1,MAX2>(this->K, trellis,        this->buffered,         this->n_frames);
-		if (this->implem == "GENERIC_JSON") return new module::Decoder_RSC_BCJR_seq_generic_std_json<B,Q,QD,MAX1,MAX2>(this->K, trellis, n_ite, this->buffered, stream, this->n_frames);
-		if (this->implem == "FAST"        ) return new module::Decoder_RSC_BCJR_seq_fast            <B,Q,QD,MAX1,MAX2>(this->K, trellis,        this->buffered,         this->n_frames);
-		if (this->implem == "VERY_FAST"   ) return new module::Decoder_RSC_BCJR_seq_very_fast       <B,Q,QD,MAX1,MAX2>(this->K, trellis,        this->buffered,         this->n_frames);
-		if (this->implem == "SCAN"        ) return new module::Decoder_RSC_BCJR_seq_scan            <B,Q,QD          >(this->K, trellis,        this->buffered,         this->n_frames);
+		if (implem == "STD"         ) return new module::Decoder_RSC_BCJR_seq_std             <B,Q,QD,MAX1,MAX2>(K, trellis,        !not_buffered,         n_frames);
+		if (implem == "GENERIC"     ) return new module::Decoder_RSC_BCJR_seq_generic_std     <B,Q,QD,MAX1,MAX2>(K, trellis,        !not_buffered,         n_frames);
+		if (implem == "GENERIC_JSON") return new module::Decoder_RSC_BCJR_seq_generic_std_json<B,Q,QD,MAX1,MAX2>(K, trellis, n_ite, !not_buffered, stream, n_frames);
+		if (implem == "FAST"        ) return new module::Decoder_RSC_BCJR_seq_fast            <B,Q,QD,MAX1,MAX2>(K, trellis,        !not_buffered,         n_frames);
+		if (implem == "VERY_FAST"   ) return new module::Decoder_RSC_BCJR_seq_very_fast       <B,Q,QD,MAX1,MAX2>(K, trellis,        !not_buffered,         n_frames);
+		if (implem == "SCAN"        ) return new module::Decoder_RSC_BCJR_seq_scan            <B,Q,QD          >(K, trellis,        !not_buffered,         n_frames);
 	}
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
@@ -177,40 +183,40 @@ template <typename B, typename Q, typename QD, tools::proto_max_i<Q> MAX>
 module::Decoder_SISO_SIHO<B,Q>* Decoder_RSC::parameters
 ::_build_siso_simd(const std::vector<std::vector<int>> &trellis, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "BCJR" && this->simd_strategy == "INTER")
+	if (type == "BCJR" && simd_strategy == "INTER")
 	{
-		if (this->implem == "STD"      ) return new module::Decoder_RSC_BCJR_inter_std      <B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames);
-		if (this->implem == "FAST"     ) return new module::Decoder_RSC_BCJR_inter_fast     <B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames);
-		if (this->implem == "VERY_FAST") return new module::Decoder_RSC_BCJR_inter_very_fast<B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames);
+		if (implem == "STD"      ) return new module::Decoder_RSC_BCJR_inter_std      <B,Q,MAX>(K, trellis, !not_buffered, n_frames);
+		if (implem == "FAST"     ) return new module::Decoder_RSC_BCJR_inter_fast     <B,Q,MAX>(K, trellis, !not_buffered, n_frames);
+		if (implem == "VERY_FAST") return new module::Decoder_RSC_BCJR_inter_very_fast<B,Q,MAX>(K, trellis, !not_buffered, n_frames);
 	}
 
-	if (this->type == "BCJR" && this->simd_strategy == "INTRA")
+	if (type == "BCJR" && simd_strategy == "INTRA")
 	{
-		if (this->implem == "STD")
+		if (implem == "STD")
 		{
 			switch (mipp::nElReg<Q>())
 			{
-				case 8: return new module::Decoder_RSC_BCJR_intra_std<B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames);
+				case 8: return new module::Decoder_RSC_BCJR_intra_std<B,Q,MAX>(K, trellis, !not_buffered, n_frames);
 				default:
 					break;
 			}
 		}
-		else if (this->implem == "FAST")
+		else if (implem == "FAST")
 		{
 #ifdef __AVX__
 			switch (mipp::nElReg<Q>())
 			{
-				case 8:  return new module::Decoder_RSC_BCJR_intra_fast             <B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames); break;
-				case 16: return new module::Decoder_RSC_BCJR_inter_intra_fast_x2_AVX<B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames); break;
-				case 32: return new module::Decoder_RSC_BCJR_inter_intra_fast_x4_AVX<B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames); break;
+				case 8:  return new module::Decoder_RSC_BCJR_intra_fast             <B,Q,MAX>(K, trellis, !not_buffered, n_frames); break;
+				case 16: return new module::Decoder_RSC_BCJR_inter_intra_fast_x2_AVX<B,Q,MAX>(K, trellis, !not_buffered, n_frames); break;
+				case 32: return new module::Decoder_RSC_BCJR_inter_intra_fast_x4_AVX<B,Q,MAX>(K, trellis, !not_buffered, n_frames); break;
 				default:
 					break;
 			}
 #else /* NEON and SSE */
 			switch (mipp::nElReg<Q>())
 			{
-				case 8:  return new module::Decoder_RSC_BCJR_intra_fast             <B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames); break;
-				case 16: return new module::Decoder_RSC_BCJR_inter_intra_fast_x2_SSE<B,Q,MAX>(this->K, trellis, this->buffered, this->n_frames); break;
+				case 8:  return new module::Decoder_RSC_BCJR_intra_fast             <B,Q,MAX>(K, trellis, !not_buffered, n_frames); break;
+				case 16: return new module::Decoder_RSC_BCJR_inter_intra_fast_x2_SSE<B,Q,MAX>(K, trellis, !not_buffered, n_frames); break;
 				default:
 					break;
 			}
@@ -230,17 +236,17 @@ module::Decoder_SISO_SIHO<B,Q>* Decoder_RSC::parameters
 {
 	using QD = typename std::conditional<std::is_same<Q,int8_t>::value,int16_t,Q>::type;
 
-	if (this->simd_strategy.empty())
+	if (simd_strategy.empty())
 	{
-		if (this->max == "MAX" ) return _build_siso_seq<B,Q,QD,tools::max       <Q>,tools::max       <QD>>(trellis, stream, n_ite, encoder);
-		if (this->max == "MAXS") return _build_siso_seq<B,Q,QD,tools::max_star  <Q>,tools::max_star  <QD>>(trellis, stream, n_ite, encoder);
-		if (this->max == "MAXL") return _build_siso_seq<B,Q,QD,tools::max_linear<Q>,tools::max_linear<QD>>(trellis, stream, n_ite, encoder);
+		if (max == "MAX" ) return _build_siso_seq<B,Q,QD,tools::max       <Q>,tools::max       <QD>>(trellis, stream, n_ite, encoder);
+		if (max == "MAXS") return _build_siso_seq<B,Q,QD,tools::max_star  <Q>,tools::max_star  <QD>>(trellis, stream, n_ite, encoder);
+		if (max == "MAXL") return _build_siso_seq<B,Q,QD,tools::max_linear<Q>,tools::max_linear<QD>>(trellis, stream, n_ite, encoder);
 	}
 	else
 	{
-		if (this->max == "MAX" ) return _build_siso_simd<B,Q,QD,tools::max_i       <Q>>(trellis, encoder);
-		if (this->max == "MAXS") return _build_siso_simd<B,Q,QD,tools::max_star_i  <Q>>(trellis, encoder);
-		if (this->max == "MAXL") return _build_siso_simd<B,Q,QD,tools::max_linear_i<Q>>(trellis, encoder);
+		if (max == "MAX" ) return _build_siso_simd<B,Q,QD,tools::max_i       <Q>>(trellis, encoder);
+		if (max == "MAXS") return _build_siso_simd<B,Q,QD,tools::max_star_i  <Q>>(trellis, encoder);
+		if (max == "MAXL") return _build_siso_simd<B,Q,QD,tools::max_linear_i<Q>>(trellis, encoder);
 	}
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);

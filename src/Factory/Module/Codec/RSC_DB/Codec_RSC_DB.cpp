@@ -14,8 +14,8 @@ Codec_RSC_DB::parameters
 : Codec          ::parameters(Codec_RSC_DB_name, prefix),
   Codec_SISO_SIHO::parameters(Codec_RSC_DB_name, prefix)
 {
-	Codec::parameters::set_enc(new Encoder_RSC_DB::parameters("enc"));
-	Codec::parameters::set_dec(new Decoder_RSC_DB::parameters("dec"));
+	Codec::parameters::set_enc(new Encoder_RSC_DB::parameters(""));
+	Codec::parameters::set_dec(new Decoder_RSC_DB::parameters(""));
 }
 
 Codec_RSC_DB::parameters* Codec_RSC_DB::parameters
@@ -27,19 +27,17 @@ Codec_RSC_DB::parameters* Codec_RSC_DB::parameters
 void Codec_RSC_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
 
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	// enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto pdec = dec->get_prefix();
-
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
-	args.erase({pdec+"-no-buff"       });
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--no-buff"  , dec->get_prefix(), dec->no_argflag());
 }
 
 void Codec_RSC_DB::parameters
@@ -52,16 +50,15 @@ void Codec_RSC_DB::parameters
 
 	enc->callback_arguments();
 
-	dec_rsc->K        = enc_rsc->K;
-	dec_rsc->N_cw     = enc_rsc->N_cw;
-	dec_rsc->n_frames = enc_rsc->n_frames;
-	dec_rsc->buffered = enc_rsc->buffered;
+	dec_rsc->K            = enc_rsc->K;
+	dec_rsc->N_cw         = enc_rsc->N_cw;
+	dec_rsc->n_frames     = enc_rsc->n_frames;
+	dec_rsc->not_buffered = enc_rsc->not_buffered;
 
 	dec->callback_arguments();
 
-	auto pdec = dec->get_prefix();
 
-	if (!enc_rsc->standard.empty() && !vals.exist({pdec+"-implem"}))
+	if (!enc_rsc->standard.empty() && !dec->implem_option_set_by_user())
 		dec->implem = enc_rsc->standard;
 
 	K    = enc->K;
@@ -83,7 +80,7 @@ module::Codec_RSC_DB<B,Q>* Codec_RSC_DB::parameters
 ::build(module::CRC<B>* crc) const
 {
 	return new module::Codec_RSC_DB<B,Q>(dynamic_cast<const Encoder_RSC_DB::parameters&>(*enc),
-	                                      dynamic_cast<const Decoder_RSC_DB::parameters&>(*dec));
+	                                     dynamic_cast<const Decoder_RSC_DB::parameters&>(*dec));
 }
 
 template <typename B, typename Q>

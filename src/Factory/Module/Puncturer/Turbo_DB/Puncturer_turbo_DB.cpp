@@ -30,8 +30,6 @@ Puncturer_turbo_DB::parameters* Puncturer_turbo_DB::parameters
 void Puncturer_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
-
 	Puncturer::parameters::register_arguments(app);
 }
 

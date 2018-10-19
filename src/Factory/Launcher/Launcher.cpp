@@ -92,17 +92,18 @@ std::vector<std::string> Launcher::parameters
 void factory::Launcher::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"-C,--cde-type",
 		cde_type,
-		{"POLAR", "TURBO", "TURBO_DB", "LDPC", "REP", "RA", "RSC", "RSC_DB", "BCH", "UNCODED"},
+		{"BCH", "LDPC", "POLAR", "RA", "REP", "RS", "RSC", "RSC_DB", "TURBO", "TURBO_DB", "TURBO_PROD", "UNCODED"},
 		"Select the code type you want to use.")
 		->required()
 		->group("Standard");
 
- 	CLI::add_set(app, p,
+ 	CLI::add_set(app, p, naf,
 		"--type",
 		sim_type,
 #if !defined(PREC_8_BIT) && !defined(PREC_16_BIT)
@@ -115,7 +116,7 @@ void factory::Launcher::parameters
 		->group("Standard");
 
 #ifdef MULTI_PREC
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"-p,--prec",
 		sim_prec,
 #if defined(__x86_64) || defined(__x86_64__) || defined(_WIN64) || defined(__aarch64__)

@@ -33,23 +33,23 @@ Codec_RA::parameters* Codec_RA::parameters
 void Codec_RA::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
 
 	Codec_SIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(*sub_enc);
 	dec->register_arguments(*sub_dec);
 
-	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
-	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
-	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
 
 	if (itl != nullptr)
 	{
 		itl->register_arguments(*sub_itl);
 
-		CLI::remove_option(sub_itl, "--size", itl->get_prefix());
-		CLI::remove_option(sub_itl, "--fra" , itl->get_prefix());
+		CLI::remove_option(sub_itl, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(sub_itl, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 }
 
@@ -62,9 +62,9 @@ void Codec_RA::parameters
 
 	enc->callback_arguments();
 
-	dec_ra->K                   = enc->K;
-	dec_ra->N_cw                = enc->N_cw;
-	dec_ra->n_frames            = enc->n_frames;
+	dec_ra->K        = enc->K;
+	dec_ra->N_cw     = enc->N_cw;
+	dec_ra->n_frames = enc->n_frames;
 
 	if (dec_ra->itl != nullptr)
 		dec_ra->itl->core->n_frames = enc->n_frames;

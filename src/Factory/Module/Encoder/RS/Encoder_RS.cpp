@@ -17,7 +17,9 @@ Encoder_RS::parameters
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_RS_name, prefix)
 {
-	this->type = "RS";
+	type = "RS";
+
+	type_set.insert("RS");
 }
 
 Encoder_RS::parameters* Encoder_RS::parameters
@@ -29,11 +31,7 @@ Encoder_RS::parameters* Encoder_RS::parameters
 void Encoder_RS::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
-
 	Encoder::parameters::register_arguments(app);
-
-	tools::add_options(args.at({p+"-type"}), 0, "RS");
 }
 
 void Encoder_RS::parameters
@@ -52,7 +50,7 @@ template <typename B>
 module::Encoder_RS<B>* Encoder_RS::parameters
 ::build(const tools::RS_polynomial_generator &GF) const
 {
-	if (this->type == "RS") return new module::Encoder_RS<B>(this->K, this->N_cw, GF, this->n_frames);
+	if (type == "RS") return new module::Encoder_RS<B>(K, N_cw, GF, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

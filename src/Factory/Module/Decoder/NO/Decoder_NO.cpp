@@ -29,7 +29,8 @@ Decoder_NO::parameters* Decoder_NO::parameters
 void Decoder_NO::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 

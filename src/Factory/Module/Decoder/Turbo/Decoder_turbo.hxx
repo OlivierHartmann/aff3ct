@@ -13,14 +13,23 @@ template <class D1, class D2>
 Decoder_turbo::parameters<D1,D2>
 ::parameters(const std::string &prefix)
 : Decoder::parameters(Decoder_turbo_name, prefix),
-  sub1(new typename D1::parameters(std::is_same<D1,D2>() ? prefix+"-sub" : prefix+"-sub1")),
-  sub2(new typename D2::parameters(std::is_same<D1,D2>() ? prefix+"-sub" : prefix+"-sub2")),
-  itl (new Interleaver::parameters("itl")),
-  sf  (new Scaling_factor::parameters(prefix+"-sf")),
-  fnc (new Flip_and_check::parameters(prefix+"-fnc"))
+  sub1(new typename D1::parameters(std::is_same<D1,D2>() ? "sub" : "sub1")),
+  sub2(new typename D2::parameters(std::is_same<D1,D2>() ? "sub" : "sub2")),
+  itl (new Interleaver   ::parameters("itl")),
+  sf  (new Scaling_factor::parameters("sf" )),
+  fnc (new Flip_and_check::parameters("fnc"))
 {
-	this->type   = "TURBO";
-	this->implem = "FAST";
+	type   = "TURBO";
+	implem = "FAST";
+
+	type_set  .insert("TURBO");
+	implem_set.insert({"STD", "FAST"});
+
+	sub1->no_argflag(true);
+	sub2->no_argflag(true);
+	itl ->no_argflag(true);
+	sf  ->no_argflag(true);
+	fnc ->no_argflag(true);
 }
 
 template <class D1, class D2>
@@ -73,70 +82,65 @@ template <class D1, class D2>
 void Decoder_turbo::parameters<D1,D2>
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
 	if (itl != nullptr)
 	{
 		itl->register_arguments(app);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "TURBO"      );
-	tools::add_options(args.at({p+"-implem"   }), 0, "STD", "FAST");
+	CLI::add_option(app, p, naf,
+		"-i,--ite",
+		n_ite,
+		"Maximal number of iterations in the turbo decoder.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-ite", "i"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"maximal number of iterations in the turbo.");
+	CLI::add_flag(app, p, naf,
+		"--sc",
+		self_corrected,
+		"Enable the self corrected decoder (requires \"crc --type\").")
+		->group("Standard");
 
-	args.add(
-		{p+"-sc"},
-		tools::None(),
-		"enables the self corrected decoder (requires \"--crc-type\").");
-
-	args.add(
-		{p+"-json"},
-		tools::None(),
-		"enable the json output trace.");
+	CLI::add_flag(app, p, naf,
+		"--json",
+		enable_json,
+		"Enable the json output trace.")
+		->group("Standard");
 
 
 	sf->register_arguments(app);
 
-	auto psf = sf->get_prefix();
+	CLI::remove_option(app, "--ite", sf->get_prefix(), sf->no_argflag());
 
-	args.erase({psf+"-ite"});
 
 	fnc->register_arguments(app);
 
-	auto pfnc = fnc->get_prefix();
+	CLI::remove_option(app, "--size", fnc->get_prefix(), fnc->no_argflag());
+	CLI::remove_option(app, "--fra" , fnc->get_prefix(), fnc->no_argflag());
+	CLI::remove_option(app, "--ite" , fnc->get_prefix(), fnc->no_argflag());
 
-	args.erase({pfnc+"-size"     });
-	args.erase({pfnc+"-fra",  "F"});
-	args.erase({pfnc+"-ite",  "i"});
 
 	sub1->register_arguments(app);
 
-	auto ps1 = sub1->get_prefix();
+	CLI::remove_option(app, "--info-bits", sub1->get_prefix(), sub1->no_argflag());
+	CLI::remove_option(app, "--fra"      , sub1->get_prefix(), sub1->no_argflag());
 
-	args.erase({ps1+"-info-bits", "K"});
-	args.erase({ps1+"-cw-size",   "N"});
-	args.erase({ps1+"-fra",       "F"});
 
 	if (!std::is_same<D1,D2>())
 	{
-		auto ps2 = sub2->get_prefix();
+		sub2->register_arguments(app);
 
-		args.erase({ps2+"-info-bits", "K"});
-		args.erase({ps2+"-cw-size",   "N"});
-		args.erase({ps2+"-fra",       "F"});
+		CLI::remove_option(app, "--info-bits", sub2->get_prefix(), sub2->no_argflag());
+		CLI::remove_option(app, "--fra"      , sub2->get_prefix(), sub2->no_argflag());
 	}
 }
 
@@ -148,51 +152,47 @@ void Decoder_turbo::parameters<D1,D2>
 
 	auto p = get_prefix();
 
-	if (vals.exist({p+"-ite", "i"})) this->n_ite          = vals.to_int({p+"-ite", "i"});
-	if (vals.exist({p+"-sc"      })) this->self_corrected = true;
-	if (vals.exist({p+"-json"    })) this->enable_json    = true;
-
-	this->sub1->K        = this->K;
-	this->sub2->K        = this->K;
-	this->sub1->n_frames = this->n_frames;
-	this->sub2->n_frames = this->n_frames;
+	sub1->K        = sub2->K        = K;
+	sub1->n_frames = sub2->n_frames = n_frames;
 
 	sub1->callback_arguments();
 	sub2->callback_arguments();
 
-	if (this->enable_json)
+	if (enable_json)
 	{
-		this->sub1->implem        = "GENERIC_JSON";
-		this->sub2->implem        = "GENERIC_JSON";
-		this->sub1->simd_strategy = "";
-		this->sub2->simd_strategy = "";
+		sub1->implem        = "GENERIC_JSON";
+		sub2->implem        = "GENERIC_JSON";
+		sub1->simd_strategy = "";
+		sub2->simd_strategy = "";
 	}
 
-	this->tail_length = this->sub1->tail_length + this->sub2->tail_length;
-	this->N_cw        = this->sub1->N_cw + this->sub2->N_cw - this->K;
-	this->R           = (float)this->K / (float)this->N_cw;
+	tail_length = sub1->tail_length + sub2->tail_length;
+	N_cw        = sub1->N_cw + sub2->N_cw - K;
+	R           = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{
-		this->itl->core->size     = this->K;
-		this->itl->core->n_frames = this->n_frames;
+		itl->core->size     = K;
+		itl->core->n_frames = n_frames;
 
 		itl->callback_arguments();
 
-		if (this->sub1->standard == "LTE" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "LTE";
-
-		if (this->sub1->standard == "CCSDS" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "CCSDS";
+		if (!itl->core->type_option_set_by_user())
+		{
+			if (sub1->standard == "LTE")
+				itl->core->type = "LTE";
+			else if (sub1->standard == "CCSDS")
+				itl->core->type = "CCSDS";
+		}
 	}
 
-	this->sf->n_ite = this->n_ite;
+	sf->n_ite = n_ite;
 
 	sf->callback_arguments();
 
-	this->fnc->size     = this->K;
-	this->fnc->n_frames = this->n_frames;
-	this->fnc->n_ite    = this->n_ite;
+	fnc->size     = K;
+	fnc->n_frames = n_frames;
+	fnc->n_ite    = n_ite;
 
 	fnc->callback_arguments();
 }
@@ -208,21 +208,21 @@ void Decoder_turbo::parameters<D1,D2>
 	if (itl != nullptr)
 		itl->get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
+	if (type != "ML" && type != "CHASE")
 	{
-		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(this->n_ite)));
-		if (this->tail_length && full)
-			headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));
-		headers[p].push_back(std::make_pair("Enable json", ((this->enable_json) ? "on" : "off")));
-		headers[p].push_back(std::make_pair("Self-corrected", ((this->self_corrected) ? "on" : "off")));
+		headers[p].push_back(std::make_pair("Num. of iterations (i)", std::to_string(n_ite)));
+		if (tail_length && full)
+			headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
+		headers[p].push_back(std::make_pair("Enable json", ((enable_json) ? "on" : "off")));
+		headers[p].push_back(std::make_pair("Self-corrected", ((self_corrected) ? "on" : "off")));
 
-		sf->get_headers(headers, full);
+		sf ->get_headers(headers, full);
 		fnc->get_headers(headers, full);
 
-		this->sub1->get_headers(headers, full);
+		sub1->get_headers(headers, full);
 		if (!std::is_same<D1,D2>())
 		{
-			this->sub2->get_headers(headers, full);
+			sub2->get_headers(headers, full);
 		}
 	}
 }
@@ -235,10 +235,10 @@ module::Decoder_turbo<B,Q>* Decoder_turbo::parameters<D1,D2>
               module::Decoder_SISO<Q> &siso_i,
               const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "TURBO")
+	if (type == "TURBO")
 	{
-		if (this->implem == "STD" ) return new module::Decoder_turbo_std <B,Q>(this->K, this->N_cw, this->n_ite, itl, siso_n, siso_i, this->sub1->buffered);
-		if (this->implem == "FAST") return new module::Decoder_turbo_fast<B,Q>(this->K, this->N_cw, this->n_ite, itl, siso_n, siso_i, this->sub1->buffered);
+		if (implem == "STD" ) return new module::Decoder_turbo_std <B,Q>(K, N_cw, n_ite, itl, siso_n, siso_i, !sub1->not_buffered);
+		if (implem == "FAST") return new module::Decoder_turbo_fast<B,Q>(K, N_cw, n_ite, itl, siso_n, siso_i, !sub1->not_buffered);
 	}
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);

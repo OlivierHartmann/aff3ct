@@ -17,8 +17,11 @@ Decoder_RS::parameters
 ::parameters(const std::string &prefix)
 : Decoder::parameters(Decoder_RS_name, prefix)
 {
-	this->type   = "ALGEBRAIC";
-	this->implem = "STD";
+	type   = "ALGEBRAIC";
+	implem = "STD";
+
+	type_set  .insert("ALGEBRAIC");
+	implem_set.insert("STD");
 }
 
 Decoder_RS::parameters* Decoder_RS::parameters
@@ -30,19 +33,18 @@ Decoder_RS::parameters* Decoder_RS::parameters
 void Decoder_RS::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	args.add(
-		{p+"-corr-pow", "T"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"correction power of the RS code.");
-
-	args.add_link({p+"-corr-pow", "T"}, {p+"-info-bits", "K"});
-
-	tools::add_options(args.at({p+"-type", "D"}), 0, "ALGEBRAIC");
-	tools::add_options(args.at({p+"-implem"   }), 0, "GENIUS");
+	CLI::add_option(app, p, naf,
+		"-T,--corr-pow",
+		t,
+		"Correction power of the RS code.")
+		->check(CLI::StrictlyPositiveRange(0u))
+		// ->excludes(app.get_option("--info-bits"))
+		->group("Standard");
 }
 
 void Decoder_RS::parameters
@@ -52,25 +54,24 @@ void Decoder_RS::parameters
 
 	auto p = get_prefix();
 
-	this->m = (int)std::ceil(std::log2(this->N_cw));
-	if (this->m == 0)
+	m = (int)std::ceil(std::log2(N_cw));
+	if (m == 0)
 	{
 		std::stringstream message;
-		message << "The Galois Field order is null (because N_cw = " << this->N_cw << ").";
+		message << "The Galois Field order is null (because N_cw = " << N_cw << ").";
 		throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
 	}
 
-	if (vals.exist({p+"-corr-pow", "T"}))
+	if (t != 0)
 	{
-		this->t = vals.to_int({p + "-corr-pow", "T"});
 		if (K == 0)
 		{
-			this->K = this->N_cw - this->t * 2;
-			this->R = (float) this->K / (float) this->N_cw;
+			K = N_cw - t * 2;
+			R = (float) K / (float) N_cw;
 		}
 	}
 	else
-		this->t = (this->N_cw - this->K) / 2;
+		t = (N_cw - K) / 2;
 }
 
 void Decoder_RS::parameters
@@ -80,10 +81,10 @@ void Decoder_RS::parameters
 
 	Decoder::parameters::get_headers(headers, full);
 
-	if (this->type != "ML" && this->type != "CHASE")
+	if (type != "ML" && type != "CHASE")
 	{
-		headers[p].push_back(std::make_pair("Galois field order (m)", std::to_string(this->m)));
-		headers[p].push_back(std::make_pair("Correction power (T)",   std::to_string(this->t)));
+		headers[p].push_back(std::make_pair("Galois field order (m)", std::to_string(m)));
+		headers[p].push_back(std::make_pair("Correction power (T)",   std::to_string(t)));
 	}
 }
 
@@ -112,13 +113,13 @@ template <typename B, typename Q>
 module::Decoder_SIHO_HIHO<B,Q>* Decoder_RS::parameters
 ::build_hiho(const tools::RS_polynomial_generator &GF, const std::unique_ptr<module::Encoder<B>>& encoder) const
 {
-	if (this->type == "ALGEBRAIC")
+	if (type == "ALGEBRAIC")
 	{
-		if (this->implem == "STD") return new module::Decoder_RS_std<B,Q>(this->K, this->N_cw, GF, this->n_frames);
+		if (implem == "STD") return new module::Decoder_RS_std<B,Q>(K, N_cw, GF, n_frames);
 
 		if (encoder)
 		{
-			if (this->implem == "GENIUS") return new module::Decoder_RS_genius<B,Q>(this->K, this->N_cw, GF, *encoder, this->n_frames);
+			if (implem == "GENIUS") return new module::Decoder_RS_genius<B,Q>(K, N_cw, GF, *encoder, n_frames);
 		}
 	}
 

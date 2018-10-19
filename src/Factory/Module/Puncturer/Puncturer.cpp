@@ -29,9 +29,10 @@ Puncturer::parameters* Puncturer::parameters
 void Puncturer::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -39,7 +40,7 @@ void Puncturer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-N,--fra-size",
 		N,
 		"The frame size.")
@@ -47,7 +48,7 @@ void Puncturer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -55,7 +56,7 @@ void Puncturer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--type",
 		type,
 		type_set,

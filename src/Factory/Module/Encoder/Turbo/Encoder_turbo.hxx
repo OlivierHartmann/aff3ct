@@ -14,11 +14,17 @@ template <class E1, class E2>
 Encoder_turbo::parameters<E1,E2>
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_turbo_name, prefix),
-  itl(new Interleaver::parameters("itl")),
-  sub1(new typename E1::parameters(std::is_same<E1,E2>() ? prefix+"-sub" : prefix+"-sub1")),
-  sub2(new typename E2::parameters(std::is_same<E1,E2>() ? prefix+"-sub" : prefix+"-sub2"))
+  itl (new Interleaver::parameters("itl")),
+  sub1(new typename E1::parameters(std::is_same<E1,E2>() ? "sub" : "sub1")),
+  sub2(new typename E2::parameters(std::is_same<E1,E2>() ? "sub" : "sub2"))
 {
-	this->type = "TURBO";
+	type = "TURBO";
+
+	type_set.insert("TURBO");
+
+	sub1->no_argflag(true);
+	sub2->no_argflag(true);
+	itl ->no_argflag(true);
 }
 
 template <class E1, class E2>
@@ -65,51 +71,43 @@ template <class E1, class E2>
 void Encoder_turbo::parameters<E1,E2>
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
 	if (itl != nullptr)
 	{
 		itl->register_arguments(app);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
-
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 
-	tools::add_options(args.at({p+"-type"}), 0, "TURBO");
-
-	args.add(
-		{p+"-json-path"},
-		tools::File(tools::openmode::write),
-		"path to store the encoder and decoder traces formated in JSON.");
+	CLI::add_option(app, p, naf,
+		"--json-path",
+		json_path,
+		"Path of store the encoder and decoder traces formated in JSON.")
+		// ->check(CLI::ExistingFile) <- need write mode
+		->group("Standard");
 
 	sub1->register_arguments(app);
 
-	auto ps1 = sub1->get_prefix();
-
-	args.erase({ps1+"-info-bits", "K"});
-	args.erase({ps1+"-cw-size",   "N"});
-	args.erase({ps1+"-fra",       "F"});
-	args.erase({ps1+"-seed",      "S"});
-	args.erase({ps1+"-path"          });
+	CLI::remove_option(app, "--info-bits", sub1->get_prefix(), sub1->no_argflag());
+	CLI::remove_option(app, "--fra"      , sub1->get_prefix(), sub1->no_argflag());
+	CLI::remove_option(app, "--seed"     , sub1->get_prefix(), sub1->no_argflag());
+	CLI::remove_option(app, "--path"     , sub1->get_prefix(), sub1->no_argflag());
 
 	if (!std::is_same<E1,E2>())
 	{
 		sub2->register_arguments(app);
 
-		auto ps2 = sub2->get_prefix();
-
-		args.erase({ps2+"-info-bits", "K"});
-		args.erase({ps2+"-cw-size",   "N"});
-		args.erase({ps2+"-fra",       "F"});
-		args.erase({ps2+"-seed",      "S"});
-		args.erase({ps2+"-path"          });
+		CLI::remove_option(app, "--info-bits", sub2->get_prefix(), sub2->no_argflag());
+		CLI::remove_option(app, "--fra"      , sub2->get_prefix(), sub2->no_argflag());
+		CLI::remove_option(app, "--seed"     , sub2->get_prefix(), sub2->no_argflag());
+		CLI::remove_option(app, "--path"     , sub2->get_prefix(), sub2->no_argflag());
 	}
 }
 
@@ -121,40 +119,37 @@ void Encoder_turbo::parameters<E1,E2>
 
 	auto p = get_prefix();
 
-	if (vals.exist({p+"-json-path"})) this->json_path = vals.at({p+"-json-path"});
-
-	this->sub1->K        = this->K;
-	this->sub2->K        = this->K;
-	this->sub1->n_frames = this->n_frames;
-	this->sub2->n_frames = this->n_frames;
-	this->sub1->seed     = this->seed;
-	this->sub2->seed     = this->seed;
+	sub1->K        = sub2->K        = K;
+	sub1->n_frames = sub2->n_frames = n_frames;
+	sub1->seed     = sub2->seed     = seed;
 
 	sub1->callback_arguments();
 	sub2->callback_arguments();
 
-	if (!this->json_path.empty())
+	if (!json_path.empty())
 	{
-		this->sub1->type += "_JSON";
-		this->sub2->type += "_JSON";
+		sub1->type += "_JSON";
+		sub2->type += "_JSON";
 	}
 
-	this->tail_length = this->sub1->tail_length + this->sub2->tail_length;
-	this->N_cw        = this->sub1->N_cw + this->sub2->N_cw - this->K;
-	this->R           = (float)this->K / (float)this->N_cw;
+	tail_length = sub1->tail_length + sub2->tail_length;
+	N_cw        = sub1->N_cw + sub2->N_cw - K;
+	R           = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{
-		this->itl->core->size     = this->K;
-		this->itl->core->n_frames = this->n_frames;
+		itl->core->size     = K;
+		itl->core->n_frames = n_frames;
 
 		itl->callback_arguments();
 
-		if (this->sub1->standard == "LTE" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "LTE";
-
-		if (this->sub1->standard == "CCSDS" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "CCSDS";
+		if (!itl->core->type_option_set_by_user())
+		{
+			if (sub1->standard == "LTE")
+				itl->core->type = "LTE";
+			else if (sub1->standard == "CCSDS")
+				itl->core->type = "CCSDS";
+		}
 	}
 }
 
@@ -169,11 +164,11 @@ void Encoder_turbo::parameters<E1,E2>
 	if (itl != nullptr)
 		itl->get_headers(headers);
 
-	if (this->tail_length)
-		headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));
+	if (tail_length)
+		headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
 
-	if (!this->json_path.empty())
-		headers[p].push_back(std::make_pair("Path to the JSON file", this->json_path));
+	if (!json_path.empty())
+		headers[p].push_back(std::make_pair("Path to the JSON file", json_path));
 
 	sub1->get_headers(headers, full);
 	if (!std::is_same<E1,E2>())
@@ -189,13 +184,13 @@ module::Encoder_turbo<B>* Encoder_turbo::parameters<E1,E2>
 {
 	enc_i = (enc_i == nullptr) ? enc_n : enc_i;
 
-	if (this->sub1->buffered)
+	if (!sub1->not_buffered)
 	{
-		if (this->type == "TURBO") return new module::Encoder_turbo       <B>(this->K, this->N_cw, itl, *enc_n, *enc_i);
+		if (type == "TURBO") return new module::Encoder_turbo       <B>(K, N_cw, itl, *enc_n, *enc_i);
 	}
 	else if (enc_n == enc_i)
 	{
-		if (this->type == "TURBO") return new module::Encoder_turbo_legacy<B>(this->K, this->N_cw, itl, *enc_n);
+		if (type == "TURBO") return new module::Encoder_turbo_legacy<B>(K, N_cw, itl, *enc_n);
 	}
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);

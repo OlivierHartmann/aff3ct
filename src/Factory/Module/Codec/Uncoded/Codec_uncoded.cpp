@@ -26,7 +26,8 @@ Codec_uncoded::parameters* Codec_uncoded::parameters
 void Codec_uncoded::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 

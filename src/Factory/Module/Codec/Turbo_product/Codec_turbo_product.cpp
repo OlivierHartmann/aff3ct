@@ -31,7 +31,8 @@ Codec_turbo_product::parameters* Codec_turbo_product::parameters
 void Codec_turbo_product::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Codec_SIHO::parameters::register_arguments(app);
 

@@ -32,9 +32,10 @@ Terminal::parameters* Terminal::parameters
 void Terminal::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--type",
 		type,
 		{"STD"},
@@ -42,13 +43,13 @@ void Terminal::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no",
 		disabled,
 		"Disable recurrent report but only at the end of each noise point.")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--freq",
 		frequency,
 		"Display frequency (refresh time step for each iteration, 0 = disable display refresh).",

@@ -26,8 +26,8 @@ struct Decoder_RSC_DB : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		std::string max      = "MAX";
-		bool        buffered = true;
+		std::string max          = "MAX";
+		bool        not_buffered = true;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_RSC_DB_prefix);

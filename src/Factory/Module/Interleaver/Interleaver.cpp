@@ -24,8 +24,6 @@ Interleaver::parameters* Interleaver::parameters
 void Interleaver::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
-
 	core->register_arguments(app);
 }
 

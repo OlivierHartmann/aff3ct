@@ -24,7 +24,7 @@ struct Decoder_RS : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		unsigned t = 5; // correction power of the RS
+		unsigned t = 0; // correction power of the RS
 
 		// deduced parameters
 		unsigned m = 0; // Gallois field order

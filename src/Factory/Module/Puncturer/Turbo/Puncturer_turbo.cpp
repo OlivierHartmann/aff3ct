@@ -51,13 +51,14 @@ Puncturer_turbo::parameters* Puncturer_turbo::parameters
 void Puncturer_turbo::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Puncturer::parameters::register_arguments(app);
 
-	CLI::remove_option(app, "--fra-size", p);
+	CLI::remove_option(app, "--fra-size", p, naf);
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--pattern",
 		str_pattern,
 		"Puncturing pattern for the turbo encoder (ex: \"11,10,01\").",
@@ -71,16 +72,16 @@ void Puncturer_turbo::parameters
 	// 	                    std::make_tuple(tools::Length(1))),
 	// 	"puncturing pattern for the turbo encoder (ex: \"11,10,01\").");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--tail-length",
 		tail_length,
 		"Total number of tail bits at the end of the frame.",
 		true)
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-buff",
-		no_buffered,
+		not_buffered,
 		"Does not suppose a buffered encoding")
 		->group("Standard");
 }
@@ -108,7 +109,7 @@ void Puncturer_turbo::parameters
 	{
 		headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + PT::display_pattern(pattern) + "}")));
 		if (full) headers[p].push_back(std::make_pair(std::string("Tail length"), std::to_string(tail_length)));
-		if (full) headers[p].push_back(std::make_pair(std::string("Buffered"), no_buffered ? "off" : "on"));
+		if (full) headers[p].push_back(std::make_pair(std::string("Buffered"), not_buffered ? "off" : "on"));
 	}
 }
 
@@ -116,7 +117,7 @@ template <typename B, typename Q>
 module::Puncturer<B,Q>* Puncturer_turbo::parameters
 ::build() const
 {
-	if (type == "TURBO") return new module::Puncturer_turbo<B,Q>(K, N, tail_length, pattern, !no_buffered, n_frames);
+	if (type == "TURBO") return new module::Puncturer_turbo<B,Q>(K, N, tail_length, pattern, !not_buffered, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

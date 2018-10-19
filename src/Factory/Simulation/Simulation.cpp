@@ -52,31 +52,32 @@ std::vector<std::string> Simulation::parameters
 void Simulation::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Launcher::parameters::register_arguments(app);
 
 	noise->register_arguments(app);
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--meta",
 		meta,
 		"Print the output with metadata, takes the simulation title.")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--stop-time",
 		stop_time,
 		"Time in sec after what the current simulatated noise stops (0 is infinite).")
 		->group("Advanced");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--max-frame",
 		max_frame,
 		"Maximum number of frames to play after what the current simulatated noise stops (0 is infinite).")
 		->group("Advanced");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--crit-nostop",
 		crit_nostop,
 		"The stop criteria arguments -stop-time or -max-frame kill the current simulatated noise point"
@@ -85,26 +86,26 @@ void Simulation::parameters
 
 
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--debug",
 		debug,
 		"Enable debug mode: print array values after each step.")
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--debug-hex",
 		debug_hex,
 		"Enable debug mode: prints values in the hexadecimal format.")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-d,--debug-limit",
 		debug_limit,
 		"Enable debug mode: set the max number of elements to display in the debug mode (0 is all).")
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--debug-prec",
 		debug_precision,
 		"Set the precision of real elements when displayed in debug mode.",
@@ -113,7 +114,7 @@ void Simulation::parameters
 		->group("Standard");
 
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--stats",
 		statistics,
 		"Display statistics module by module.")
@@ -121,14 +122,14 @@ void Simulation::parameters
 
 
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-t,--threads",
 		n_threads,
 		"Enable multi-threaded mode and specify the number of threads (0 means the maximum supported by the core).",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-S,--seed",
 		global_seed,
 		"Seed used in the simulation to initialize the pseudo random generators in general.",
@@ -136,7 +137,7 @@ void Simulation::parameters
 		->group("Standard");
 
 #ifdef ENABLE_MPI
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--mpi-comm",
 		mpi_comm_freq,
 		"MPI communication frequency between the nodes (in millisec).")

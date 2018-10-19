@@ -37,19 +37,19 @@ void Codec_LDPC::parameters
 void Codec_LDPC::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
 
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(*sub_enc);
 	dec->register_arguments(*sub_dec);
 
-	CLI::remove_option(sub_enc, "--h-path"   , enc->get_prefix());
-	CLI::remove_option(sub_enc, "--h-reorder", enc->get_prefix());
+	CLI::remove_option(sub_enc, "--h-path"   , enc->get_prefix(), enc->no_argflag());
+	CLI::remove_option(sub_enc, "--h-reorder", enc->get_prefix(), enc->no_argflag());
 
-	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
-	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
-	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
 
 
 
@@ -62,9 +62,9 @@ void Codec_LDPC::parameters
 	{
 		pct->register_arguments(*sub_pct);
 
-		CLI::remove_option(sub_pct, "--cw-size"  , pct->get_prefix());
-		CLI::remove_option(sub_pct, "--info-bits", pct->get_prefix());
-		CLI::remove_option(sub_pct, "--fra"      , pct->get_prefix());
+		CLI::remove_option(sub_pct, "--cw-size"  , pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--info-bits", pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--fra"      , pct->get_prefix(), pct->no_argflag());
 
 		// h_path_option->excludes(sub_pct->get_option("--fra-size"));
 	}

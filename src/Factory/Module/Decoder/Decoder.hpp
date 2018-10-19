@@ -49,11 +49,17 @@ struct Decoder : Factory
 		virtual void callback_arguments();
 		virtual void get_headers(std::map<std::string,header_list>& headers, const bool full = true) const;
 
+		bool implem_option_set_by_user() const;
+		bool   type_option_set_by_user() const;
+
 	protected:
 		parameters(const std::string &n, const std::string &p);
 
 		template <typename B = int, typename Q = float>
 		module::Decoder_SIHO<B,Q>* build(const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
+
+		CLI::Option* type_option   = nullptr;
+		CLI::Option* implem_option = nullptr;
 	};
 };
 }

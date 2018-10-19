@@ -72,17 +72,18 @@ std::vector<std::string> BFER::parameters
 void BFER::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Simulation::parameters::register_arguments(app);
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"-c,--coset",
 		coset,
 		"Enable the coset approach.")
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--coded",
 		coded_monitoring,
 		"Enable the coded monitoring (extends the monitored bits to the entire codeword).")
@@ -90,26 +91,26 @@ void BFER::parameters
 
 
 	auto flag_err_trk =
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--err-trk",
 		err_track_enable,
 		"Enable the tracking of the bad frames (by default the frames are stored in the current folder).")
 		->group("Advanced");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--err-trk-rev",
 		err_track_revert,
 		"Automatically replay the saved frames.")
 		->group("Advanced");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--err-trk-path",
 		err_track_path,
 		"Base path for the files where the bad frames will be stored or read.")
 		->needs(flag_err_trk)
 		->group("Advanced");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--err-trk-thold",
 		err_track_threshold,
 		"Dump only frames with a bit error count above or equal to this threshold.")

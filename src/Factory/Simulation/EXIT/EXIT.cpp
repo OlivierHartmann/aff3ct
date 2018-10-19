@@ -69,12 +69,13 @@ std::vector<std::string> EXIT::parameters
 void EXIT::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Simulation::parameters::register_arguments(app);
 
 	auto opt_siga_range =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--siga-range",
 		sig_a_range,
 		"Sigma range used in EXIT charts (Matlab style: \"0.5:2.5,2.55,2.6:0.05:3\" with a default step of 0.1).")
@@ -83,7 +84,7 @@ void EXIT::parameters
 		->group("Standard");
 
 	sig_a_min_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-a,--siga-min",
 		sig_a_min,
 		"Sigma min value used in EXIT charts.")
@@ -93,7 +94,7 @@ void EXIT::parameters
 		->group("Standard");
 
 	sig_a_max_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-A,--siga-max",
 		sig_a_max,
 		"Sigma max value used in EXIT charts.")
@@ -102,7 +103,7 @@ void EXIT::parameters
 		->excludes(opt_siga_range)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--siga-step",
 		sig_a_step,
 		"Sigma step value used in EXIT charts.",
@@ -112,7 +113,7 @@ void EXIT::parameters
 		->group("Standard");
 
 
-	CLI::remove_option(app, "--threads");
+	CLI::remove_option(app, "--threads", p, naf);
 }
 
 void EXIT::parameters

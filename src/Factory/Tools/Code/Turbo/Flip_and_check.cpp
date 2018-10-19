@@ -29,9 +29,10 @@ Flip_and_check::parameters* Flip_and_check::parameters
 void Flip_and_check::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--size",
 		size,
 		"Size (in bit) of the extrinsic for the fnc processing.")
@@ -39,7 +40,7 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -47,13 +48,13 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_flag(app, p,
-		get_prefix(),
+	CLI::add_flag(app, p, naf,
+		"--enable",
 		enable,
 		"Enables the flip and check decoder (requires \"crc --type\").")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-q",
 		q,
 		"Set the search's space for the fnc algorithm.",
@@ -61,7 +62,7 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--ite-m",
 		ite_min,
 		"Set first iteration at which the fnc is used.",
@@ -69,14 +70,14 @@ void Flip_and_check::parameters
 		->group("Standard");
 
 	ite_M_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--ite-M",
 		ite_min,
 		"Set last iteration at which the fnc is used.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--ite-s",
 		ite_step,
 		"Set iteration step for the fnc algorithm.",
@@ -84,14 +85,14 @@ void Flip_and_check::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-i,--ite",
 		ite_step,
 		"Maximal number of iterations in the turbo.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--crc-ite",
 		start_crc_check_ite,
 		"Set the iteration to start the CRC checking.",

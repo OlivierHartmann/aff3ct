@@ -28,9 +28,10 @@ Source::parameters* Source::parameters
 void Source::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-K,--info-bits",
 		K,
 		"Useful number of bit transmitted (information bits).")
@@ -38,7 +39,7 @@ void Source::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -46,7 +47,7 @@ void Source::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--type",
 		type,
 		{"RAND", "AZCW", "USER"},
@@ -54,7 +55,7 @@ void Source::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--implem",
 		implem,
 		{"STD", "FAST"},
@@ -62,21 +63,21 @@ void Source::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--path",
 		path,
 		"Path to a file containing one or a set of pre-computed source bits (to use with \"--type USER\").")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--start-idx",
 		start_idx,
 		"Start idx to use in the USER type source.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-S,--seed",
 		seed,
 		"Seed used to initialize the pseudo random generators.",

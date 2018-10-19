@@ -15,7 +15,7 @@ Codec_RSC<B,Q>
             const factory::Decoder_RSC::parameters &dec_params)
 : Codec          <B,Q>(enc_params.K, enc_params.N_cw, enc_params.N_cw, enc_params.tail_length, enc_params.n_frames),
   Codec_SISO_SIHO<B,Q>(enc_params.K, enc_params.N_cw, enc_params.N_cw, enc_params.tail_length, enc_params.n_frames),
-  buffered_encoding(enc_params.buffered)
+  buffered_encoding(!enc_params.not_buffered)
 {
 	const std::string name = "Codec_RSC";
 	this->set_name(name);

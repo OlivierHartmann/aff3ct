@@ -33,12 +33,13 @@ Encoder_LDPC::parameters* Encoder_LDPC::parameters
 void Encoder_LDPC::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 
 	// auto h_path_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--h-path",
 		H_path,
 		"Path to the H matrix (AList or QC formated file, required by the \"LDPC_H\" encoder).")
@@ -51,7 +52,7 @@ void Encoder_LDPC::parameters
 
 
 	// auto g_path_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--g-path",
 		G_path,
 		"Path to the G matrix (AList or QC formated file, required by the \"LDPC\", \"LDPC_QC\" and \"LDPC_IRA\" encoders).")
@@ -62,7 +63,7 @@ void Encoder_LDPC::parameters
 	// g_path_option->excludes(app.get_option("--info-bits"));
 
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--h-reorder",
 		H_reorder,
 		{"NONE", "ASC", "DSC"},
@@ -71,7 +72,7 @@ void Encoder_LDPC::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--g-method",
 		G_method,
 		{"IDENTITY", "LU_DEC"},
@@ -82,7 +83,7 @@ void Encoder_LDPC::parameters
 		->group("Standard");
 
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--save-g",
 		G_save,
 		"Path where the generated G matrix with the 'LDPC_H' encoder type will be saved.")

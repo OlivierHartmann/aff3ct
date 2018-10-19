@@ -13,27 +13,6 @@ RSC_DB<L,B,R,Q>
 : L(argc, argv, stream), params_cdc(new factory::Codec_RSC_DB::parameters("cdc"))
 {
 	this->params.set_cdc(params_cdc);
-}
-
-template <class L, typename B, typename R, typename Q>
-void RSC_DB<L,B,R,Q>
-::register_arguments(CLI::App &app)
-{
-	params_cdc->register_arguments(app);
-
-	auto penc = params_cdc->enc->get_prefix();
-
-	this->args.erase({penc+"-fra",  "F"});
-	this->args.erase({penc+"-seed", "S"});
-
-	L::register_arguments(app);
-}
-
-template <class L, typename B, typename R, typename Q>
-void RSC_DB<L,B,R,Q>
-::callback_arguments()
-{
-	params_cdc->callback_arguments();
 
 	if (std::is_same<Q,int8_t>())
 	{
@@ -45,6 +24,28 @@ void RSC_DB<L,B,R,Q>
 		this->params.qnt->n_bits     = 6;
 		this->params.qnt->n_decimals = 3;
 	}
+}
+
+template <class L, typename B, typename R, typename Q>
+void RSC_DB<L,B,R,Q>
+::register_arguments(CLI::App &app)
+{
+	params_cdc->register_arguments(app);
+
+	// auto sub_dec = app.get_subcommand("dec");
+	auto sub_enc = app.get_subcommand("enc");
+
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
+	CLI::remove_option(sub_enc, "--fra",  params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
+
+	L::register_arguments(app);
+}
+
+template <class L, typename B, typename R, typename Q>
+void RSC_DB<L,B,R,Q>
+::callback_arguments()
+{
+	params_cdc->callback_arguments();
 
 	L::callback_arguments();
 

@@ -17,7 +17,7 @@ Encoder_polar::parameters
 {
 	type = "POLAR";
 
-	type_set.insert({"POLAR"});
+	type_set.insert("POLAR");
 }
 
 Encoder_polar::parameters* Encoder_polar::parameters
@@ -29,11 +29,12 @@ Encoder_polar::parameters* Encoder_polar::parameters
 void Encoder_polar::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-sys",
 		not_systematic,
 		"Disable the systematic encoding.")

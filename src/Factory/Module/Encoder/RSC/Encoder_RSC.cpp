@@ -18,7 +18,9 @@ Encoder_RSC::parameters
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_RSC_name, prefix)
 {
-	this->type = "RSC";
+	type = "RSC";
+
+	type_set.insert({"RSC"});
 }
 
 Encoder_RSC::parameters* Encoder_RSC::parameters
@@ -30,28 +32,33 @@ Encoder_RSC::parameters* Encoder_RSC::parameters
 void Encoder_RSC::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
-	tools::add_options(args.at({p+"-type"}), 0, "RSC");
+	CLI::add_flag(app, p, naf,
+		"--no-buff",
+		not_buffered,
+		"Disable the buffered encoding.")
+		->group("Standard");
 
-	args.add(
-		{p+"-no-buff"},
-		tools::None(),
-		"disable the buffered encoding.");
+	CLI::add_option(app, p, naf,
+		"--poly",
+		poly_str,
+		"The polynomials describing RSC code, should be of the form \"{A,B}\" in octal base.",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-poly"},
-		tools::Text(),
-		"the polynomials describing RSC code, should be of the form \"{A,B}\".");
-
-	args.add(
-		{p+"-std"},
-		tools::Text(tools::Including_set("LTE", "CCSDS")),
-		"select a standard and set automatically some parameters (overwritten with user given arguments)");
+	CLI::add_set(app, p, naf,
+		"--std",
+		standard,
+		{"LTE", "CCSDS"},
+		"Select a standard and set automatically some parameters (overwritten by \"--poly\").",
+		true)
+		->group("Standard");
 }
 
 void Encoder_RSC::parameters
@@ -61,36 +68,32 @@ void Encoder_RSC::parameters
 
 	auto p = get_prefix();
 
-	if (vals.exist({p+"-no-buff"})) this->buffered = false;
-	if (vals.exist({p+"-std"    })) this->standard = vals.at({p+"-std"});
+	if (standard == "LTE")
+		poly = {013, 015};
 
-	if (this->standard == "LTE")
-		this->poly = {013, 015};
+	if (standard == "CCSDS")
+		poly = {023, 033};
 
-	if (this->standard == "CCSDS")
-		this->poly = {023, 033};
-
-	if (vals.exist({p+"-poly"}))
+	if (poly_str != "")
 	{
-		this->standard = "";
-		auto poly_str = vals.at({p+"-poly"});
+		standard = "";
 
 #ifdef _MSC_VER
-		sscanf_s   (poly_str.c_str(), "{%o,%o}", &this->poly[0], &this->poly[1]);
+		sscanf_s   (poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #else
-		std::sscanf(poly_str.c_str(), "{%o,%o}", &this->poly[0], &this->poly[1]);
+		std::sscanf(poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #endif
 	}
 
-	if (this->poly[0] == 013 && this->poly[1] == 015)
-		this->standard = "LTE";
+	if (poly[0] == 013 && poly[1] == 015)
+		standard = "LTE";
 
-	if (this->poly[0] == 023 && this->poly[1] == 033)
-		this->standard = "CCSDS";
+	if (poly[0] == 023 && poly[1] == 033)
+		standard = "CCSDS";
 
-	this->tail_length = (int)(2 * std::floor(std::log2((float)std::max(this->poly[0], this->poly[1]))));
-	this->N_cw        = 2 * this->K + this->tail_length;
-	this->R           = (float)this->K / (float)this->N_cw;
+	tail_length = (int)(2 * std::floor(std::log2((float)std::max(poly[0], poly[1]))));
+	N_cw        = 2 * K + tail_length;
+	R           = (float)K / (float)N_cw;
 }
 
 void Encoder_RSC::parameters
@@ -100,25 +103,25 @@ void Encoder_RSC::parameters
 
 	Encoder::parameters::get_headers(headers, full);
 
-	if (this->tail_length)
-		headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));
+	if (tail_length)
+		headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
 
-	headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
+	headers[p].push_back(std::make_pair("Buffered", (!not_buffered ? "on" : "off")));
 
-	if (!this->standard.empty())
-		headers[p].push_back(std::make_pair("Standard", this->standard));
+	if (!standard.empty())
+		headers[p].push_back(std::make_pair("Standard", standard));
 
-	std::stringstream poly;
-	poly << "{0" << std::oct << this->poly[0] << ",0" << std::oct << this->poly[1] << "}";
-	headers[p].push_back(std::make_pair(std::string("Polynomials"), poly.str()));
+	std::stringstream ss_poly;
+	ss_poly << "{0" << std::oct << poly[0] << ",0" << std::oct << poly[1] << "}";
+	headers[p].push_back(std::make_pair(std::string("Polynomials"), ss_poly.str()));
 }
 
 template <typename B>
 module::Encoder_RSC_sys<B>* Encoder_RSC::parameters
 ::build(std::ostream &stream) const
 {
-	if (this->type == "RSC_JSON") return new module::Encoder_RSC_generic_json_sys<B>(this->K, this->N_cw, this->buffered, this->poly, stream, this->n_frames);
-	if (this->type == "RSC"     ) return new module::Encoder_RSC_generic_sys     <B>(this->K, this->N_cw, this->buffered, this->poly,         this->n_frames);
+	if (type == "RSC_JSON") return new module::Encoder_RSC_generic_json_sys<B>(K, N_cw, !not_buffered, poly, stream, n_frames);
+	if (type == "RSC"     ) return new module::Encoder_RSC_generic_sys     <B>(K, N_cw, !not_buffered, poly,         n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

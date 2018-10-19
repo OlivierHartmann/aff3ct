@@ -37,10 +37,11 @@ Modem::parameters* Modem::parameters
 void Modem::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	// ----------------------------------------------------------------------------------------------------- modulator
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-N,--fra-size",
 		N,
 		"Number of symbols by frame.")
@@ -48,7 +49,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -56,7 +57,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--type",
 		type,
 		{"BPSK", "OOK", "PSK", "PAM", "QAM", "CPM", "USER", "SCMA"},
@@ -64,7 +65,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--implem",
 		implem,
 		{"STD", "FAST"},
@@ -73,7 +74,7 @@ void Modem::parameters
 		->group("Standard");
 
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--bps",
 		bps,
 		"Select the number of bits per symbol.",
@@ -81,7 +82,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--ups",
 		ups,
 		"Select the symbol sampling factor.",
@@ -89,14 +90,14 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--const-path",
 		const_path,
 		"Path to the ordered modulation symbols (constellation), to use with \"--type USER\".")
 		->check(CLI::ExistingFile)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--cpm-std",
 		cpm_std,
 		{"GSM"},
@@ -104,7 +105,7 @@ void Modem::parameters
 		" the other arguments given by the user).")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--cpm-L",
 		cpm_L,
 		"CPM pulse width or CPM memory.",
@@ -112,7 +113,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--cpm-k",
 		cpm_k,
 		"Modulation index numerator.",
@@ -120,7 +121,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--cpm-p",
 		cpm_p,
 		"Modulation index denominator.",
@@ -128,7 +129,7 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--cpm-map",
 		mapping,
 		{"NATURAL", "GRAY"},
@@ -136,7 +137,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--cpm-ws",
 		wave_shape,
 		{"GMSK", "REC", "RCOS"},
@@ -146,7 +147,7 @@ void Modem::parameters
 
 
 	// --------------------------------------------------------------------------------------------------- demodulator
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--max",
 		wave_shape,
 		{"MAX", "MAXL", "MAXS", "MAXSS"},
@@ -154,7 +155,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--noise",
 		noise,
 		"Noise variance value for the demodulator.",
@@ -162,13 +163,13 @@ void Modem::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-sig2",
 		no_sig2,
 		"Turn off the division by sigma square in the demodulator.")
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--psi",
 		psi,
 		{"PSI0", "PSI1", "PSI2", "PSI3"},
@@ -176,7 +177,7 @@ void Modem::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--ite",
 		n_ite,
 		"Number of iteration in the demodulator.",

@@ -25,11 +25,12 @@ Monitor_MI::parameters* Monitor_MI::parameters
 void Monitor_MI::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Monitor::parameters::register_arguments(app);
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-N,--fra-size",
 		N,
 		"The frame size for the mutual information computation.")
@@ -37,8 +38,8 @@ void Monitor_MI::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	if (!CLI::has_option(app, "--fra", p))
-	CLI::add_option(app, p,
+	if (!CLI::has_option(app, "--fra", p, naf))
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -46,7 +47,7 @@ void Monitor_MI::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--trials",
 		n_trials,
 		"Number of frames to simulate per noise point.",

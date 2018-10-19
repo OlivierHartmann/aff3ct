@@ -30,9 +30,10 @@ Quantizer::parameters* Quantizer::parameters
 void Quantizer::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-N,--size",
 		size,
 		"Number of real to quantize.")
@@ -40,7 +41,7 @@ void Quantizer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -48,7 +49,7 @@ void Quantizer::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--type",
 		type,
 		{"POW2", "CUSTOM"},
@@ -56,7 +57,7 @@ void Quantizer::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--implem",
 		implem,
 		{"STD", "FAST"},
@@ -64,21 +65,21 @@ void Quantizer::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--dec",
 		n_decimals,
 		"The position of the fixed point in the quantified representation.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--bits",
 		n_bits,
 		"The number of bits used for the quantizer.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--range",
 		range,
 		"The min/max bound for the tricky quantizer.",

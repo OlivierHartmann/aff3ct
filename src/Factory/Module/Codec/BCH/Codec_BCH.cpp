@@ -27,19 +27,19 @@ Codec_BCH::parameters* Codec_BCH::parameters
 void Codec_BCH::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
 
 	Codec_SIHO_HIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(*sub_enc);
 	dec->register_arguments(*sub_dec);
 
-	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
-	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
-	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
 
-	CLI::get_option(sub_enc, "--info-bits", enc->get_prefix())->required(false);
-	// CLI::get_option(sub_dec, "--corr-pow", dec->get_prefix())->excludes(CLI::get_option(sub_enc, "--info-bits", enc->get_prefix());
+	CLI::get_option(sub_enc, "--info-bits", enc->get_prefix(), enc->no_argflag())->required(false);
+	// CLI::get_option(sub_dec, "--corr-pow", dec->get_prefix(), dec->no_argflag())->excludes(CLI::get_option(sub_enc, "--info-bits", enc->get_prefix(), enc->no_argflag());
 }
 
 void Codec_BCH::parameters

@@ -31,11 +31,12 @@ Decoder_repetition::parameters* Decoder_repetition::parameters
 void Decoder_repetition::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-buff",
 		not_buffered,
 		"Does not suppose a buffered encoding.")

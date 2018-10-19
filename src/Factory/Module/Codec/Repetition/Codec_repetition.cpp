@@ -14,8 +14,8 @@ Codec_repetition::parameters
 : Codec     ::parameters(Codec_repetition_name, prefix),
   Codec_SIHO::parameters(Codec_repetition_name, prefix)
 {
-	Codec::parameters::set_enc(new Encoder_repetition::parameters("enc"));
-	Codec::parameters::set_dec(new Decoder_repetition::parameters("dec"));
+	Codec::parameters::set_enc(new Encoder_repetition::parameters(""));
+	Codec::parameters::set_dec(new Decoder_repetition::parameters(""));
 }
 
 Codec_repetition::parameters* Codec_repetition::parameters
@@ -27,17 +27,17 @@ Codec_repetition::parameters* Codec_repetition::parameters
 void Codec_repetition::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
 
 	Codec_SIHO::parameters::register_arguments(app);
 
 	enc->register_arguments(*sub_enc);
 	dec->register_arguments(*sub_dec);
 
-	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix());
-	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix());
-	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix());
-	CLI::remove_option(sub_dec, "--no-buff"  , dec->get_prefix());
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--no-buff"  , dec->get_prefix(), dec->no_argflag());
 }
 
 void Codec_repetition::parameters

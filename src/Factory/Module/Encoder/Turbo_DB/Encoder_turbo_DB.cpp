@@ -14,9 +14,14 @@ Encoder_turbo_DB::parameters
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_turbo_DB_name, prefix),
   itl(new Interleaver::parameters("itl")),
-  sub(new Encoder_RSC_DB::parameters(prefix+"-sub"))
+  sub(new Encoder_RSC_DB::parameters("sub"))
 {
-	this->type = "TURBO_DB";
+	type = "TURBO_DB";
+
+	type_set.insert("TURBO_DB");
+
+	sub->no_argflag(true);
+	itl->no_argflag(true);
 }
 
 Encoder_turbo_DB::parameters* Encoder_turbo_DB::parameters
@@ -54,39 +59,35 @@ std::vector<std::string> Encoder_turbo_DB::parameters
 void Encoder_turbo_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
 	if (itl != nullptr)
 	{
 		itl->register_arguments(app);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 
-	tools::add_options(args.at({p+"-type"}), 0, "TURBO_DB");
-
-	args.add(
-		{p+"-json-path"},
-		tools::File(tools::openmode::write),
-		"path to store the encoder and decoder traces formated in JSON.");
+	CLI::add_option(app, p, naf,
+		"--json-path",
+		json_path,
+		"Path of store the encoder and decoder traces formated in JSON.")
+		// ->check(CLI::ExistingFile) <- need write mode
+		->group("Standard");
 
 	sub->register_arguments(app);
 
-	auto ps = sub->get_prefix();
-
-	args.erase({ps+"-info-bits", "K"});
-	args.erase({ps+"-cw-size",   "N"});
-	args.erase({ps+"-fra",       "F"});
-	args.erase({ps+"-seed",      "S"});
-	args.erase({ps+"-path"          });
-	args.erase({ps+"-no-buff"       });
+	CLI::remove_option(app, "--info-bits", sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--fra"      , sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--seed"     , sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--path"     , sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--no-buff"  , sub->get_prefix(), sub->no_argflag());
 }
 
 void Encoder_turbo_DB::parameters
@@ -94,27 +95,29 @@ void Encoder_turbo_DB::parameters
 {
 	Encoder::parameters::callback_arguments();
 
-	this->sub->K        = this->K;
-	this->sub->n_frames = this->n_frames;
-	this->sub->seed     = this->seed;
+	sub->K        = K;
+	sub->n_frames = n_frames;
+	sub->seed     = seed;
 
 	sub->callback_arguments();
 
-	this->N_cw = 2 * this->sub->N_cw - this->K;
-	this->R    = (float)this->K / (float)this->N_cw;
+	N_cw = 2 * sub->N_cw - K;
+	R    = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{
-		this->itl->core->size     = this->K >> 1;
-		this->itl->core->n_frames = this->n_frames;
+		itl->core->size     = K >> 1;
+		itl->core->n_frames = n_frames;
 
 		itl->callback_arguments();
 
-		if (this->sub->standard == "DVB-RCS1" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "DVB-RCS1";
-
-		if (this->sub->standard == "DVB-RCS2" && !vals.exist({"itl-type"}))
-			this->itl->core->type = "DVB-RCS2";
+		if (!itl->core->type_option_set_by_user())
+		{
+			if (sub->standard == "DVB-RCS1")
+				itl->core->type = "DVB-RCS1";
+			else if (sub->standard == "DVB-RCS2")
+				itl->core->type = "DVB-RCS2";
+		}
 	}
 }
 
@@ -128,11 +131,11 @@ void Encoder_turbo_DB::parameters
 	if (itl != nullptr)
 		itl->get_headers(headers, full);
 
-	if (this->tail_length)
-		headers[p].push_back(std::make_pair("Tail length", std::to_string(this->tail_length)));
+	if (tail_length)
+		headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
 
-	if (!this->json_path.empty())
-		headers[p].push_back(std::make_pair("Path to the JSON file", this->json_path));
+	if (!json_path.empty())
+		headers[p].push_back(std::make_pair("Path to the JSON file", json_path));
 
 	sub->get_headers(headers, full);
 }
@@ -141,7 +144,7 @@ template <typename B>
 module::Encoder_turbo_DB<B>* Encoder_turbo_DB::parameters
 ::build(const module::Interleaver<B> &itl, module::Encoder_RSC_DB<B> &sub_enc) const
 {
-	if (this->type == "TURBO_DB") return new module::Encoder_turbo_DB<B>(this->K, this->N_cw, itl, sub_enc, sub_enc);
+	if (type == "TURBO_DB") return new module::Encoder_turbo_DB<B>(K, N_cw, itl, sub_enc, sub_enc);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

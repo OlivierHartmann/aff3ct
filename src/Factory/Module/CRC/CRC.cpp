@@ -29,9 +29,10 @@ CRC::parameters* CRC::parameters
 void CRC::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-K,--info-bits",
 		K,
 		"Number of generated bits (information bits, the CRC is not included).")
@@ -39,7 +40,7 @@ void CRC::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -47,7 +48,7 @@ void CRC::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--type,--poly",
 		type,
 		"Select the CRC type/polynomial you want to use (ex: \"8-DVB-S2\": 0xD5,"
@@ -55,7 +56,7 @@ void CRC::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--implem",
 		implem,
 		{"STD", "FAST", "INTER"},
@@ -63,7 +64,7 @@ void CRC::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--size",
 		size,
 		"Size of the CRC (divisor size in bit -1), required if you selected an unknown CRC.")

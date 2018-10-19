@@ -63,12 +63,13 @@ Decoder_LDPC::parameters* Decoder_LDPC::parameters
 void Decoder_LDPC::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
 	// auto h_path_option =
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--h-path",
 		H_path,
 		"Path to the H matrix (AList or QC formated file).")
@@ -82,28 +83,28 @@ void Decoder_LDPC::parameters
 
 
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-i,--ite",
 		n_ite,
 		"Maximal number of iterations in the LDPC decoder.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--off",
 		offset,
 		"Offset used in the offset min-sum BP algorithm (works only with \"--implem NMS\").",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--norm",
 		norm_factor,
 		"Normalization factor used in the normalized min-sum BP algorithm (works only with \"--implem NMS\").",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--mwbf",
 		mwbf_factor,
 		"Factor used in the modified WBF algorithm (works only with \"--implem WBF\"). Set 0 for basic WBF.",
@@ -111,13 +112,13 @@ void Decoder_LDPC::parameters
 		->group("Standard");
 
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-synd",
 		disable_syndrome,
 		"Disable the syndrome detection (and so the stop criterion).")
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--synd-depth",
 		syndrome_depth,
 		"Successive number of iterations to validate the syndrome detection.",
@@ -126,7 +127,7 @@ void Decoder_LDPC::parameters
 		->group("Standard");
 
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--simd",
 		simd_strategy,
 		{"INTER"},
@@ -134,7 +135,7 @@ void Decoder_LDPC::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--min",
 		min,
 		{"MIN", "MINL", "MINS"},
@@ -142,7 +143,7 @@ void Decoder_LDPC::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--h-reorder",
 		H_reorder,
 		{"NONE", "ASC", "DSC"},

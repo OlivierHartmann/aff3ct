@@ -68,25 +68,26 @@ Decoder_polar::parameters* Decoder_polar::parameters
 void Decoder_polar::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-i,--ite",
 		n_ite,
 		"Maximal number of iterations in the SCAN decoder.",
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-L,--lists",
 		L,
 		"Maximal number of paths in the SCL decoder.",
 		true)
 		->group("Standard");
 
-	CLI::add_set(app, p,
+	CLI::add_set(app, p, naf,
 		"--simd",
 		simd_strategy,
 		{"INTRA", "INTER"},
@@ -94,20 +95,20 @@ void Decoder_polar::parameters
 		true)
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"--polar-nodes",
 		polar_nodes,
 		"The type of nodes you want to detect in the Polar tree (ex: \"{R0,R1,R0L,REP_2-8,REPL,SPC_4+}\").",
 		true)
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--partial-adaptive",
 		partial_adaptive,
 		"Enable the partial adaptive mode for the ASCL decoder (by default full adaptive is selected).")
 		->group("Standard");
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-sys",
 		not_systematic,
 		"Does not suppose a systematic encoding.")

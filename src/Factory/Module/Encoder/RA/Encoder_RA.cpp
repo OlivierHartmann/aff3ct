@@ -18,6 +18,8 @@ Encoder_RA::parameters
 	type = "RA";
 
 	type_set.insert({"RA"});
+
+	itl->no_argflag(true);
 }
 
 Encoder_RA::parameters* Encoder_RA::parameters
@@ -52,7 +54,7 @@ std::vector<std::string> Encoder_RA::parameters
 void Encoder_RA::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
 
 	Encoder::parameters::register_arguments(app);
 
@@ -60,8 +62,8 @@ void Encoder_RA::parameters
 	{
 		itl->register_arguments(app);
 
-		CLI::remove_option(app, "--size", itl->get_prefix());
-		CLI::remove_option(app, "--fra" , itl->get_prefix());
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 }
 

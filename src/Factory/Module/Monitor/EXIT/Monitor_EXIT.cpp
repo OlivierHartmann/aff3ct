@@ -26,11 +26,12 @@ Monitor_EXIT::parameters* Monitor_EXIT::parameters
 void Monitor_EXIT::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Monitor::parameters::register_arguments(app);
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-K,--info-bits",
 		size,
 		"Number of bits to check.")
@@ -38,7 +39,7 @@ void Monitor_EXIT::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-F,--fra",
 		n_frames,
 		"Set the number of inter frame level to process.",
@@ -46,7 +47,7 @@ void Monitor_EXIT::parameters
 		->check(CLI::StrictlyPositiveRange(0u))
 		->group("Standard");
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-n,--trials",
 		n_trials,
 		"Number of frames to simulate per sigma A value.",

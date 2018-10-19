@@ -20,6 +20,8 @@ Decoder_RA::parameters
 
 	type_set  .insert({"RA"});
 	implem_set.insert({"STD"});
+
+	itl->no_argflag(true);
 }
 
 Decoder_RA::parameters* Decoder_RA::parameters
@@ -54,7 +56,8 @@ std::vector<std::string> Decoder_RA::parameters
 void Decoder_RA::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Decoder::parameters::register_arguments(app);
 
@@ -62,11 +65,11 @@ void Decoder_RA::parameters
 	{
 		itl->register_arguments(app);
 
-		CLI::remove_option(app, "--size", itl->get_prefix());
-		CLI::remove_option(app, "--fra" , itl->get_prefix());
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 
-	CLI::add_option(app, p,
+	CLI::add_option(app, p, naf,
 		"-i,--ite",
 		n_ite,
 		"Maximal number of iterations in the decoder.",

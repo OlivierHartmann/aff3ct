@@ -14,7 +14,9 @@ Encoder_RSC_DB::parameters
 ::parameters(const std::string &prefix)
 : Encoder::parameters(Encoder_RSC_DB_name, prefix)
 {
-	this->type = "RSC_DB";
+	type = "RSC_DB";
+
+	type_set.insert("RSC_DB");
 }
 
 Encoder_RSC_DB::parameters* Encoder_RSC_DB::parameters
@@ -26,23 +28,26 @@ Encoder_RSC_DB::parameters* Encoder_RSC_DB::parameters
 void Encoder_RSC_DB::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 
-	args.erase({p+"-cw-size", "N"});
+	CLI::remove_option(app, "--cw-size", p, naf);
 
-	tools::add_options(args.at({p+"-type"}), 0, "RSC_DB");
+	CLI::add_set(app, p, naf,
+		"--std",
+		standard,
+		{"DVB-RCS1", "DVB-RCS2"},
+		"Select a standard and set automatically some parameters (overwritten by user given arguments).",
+		true)
+		->group("Standard");
 
-	args.add(
-		{p+"-std"},
-		tools::Text(tools::Including_set("DVB-RCS1", "DVB-RCS2")),
-		"select a standard and set automatically some parameters (overwritten with user given arguments).");
-
-	args.add(
-		{p+"-no-buff"},
-		tools::None(),
-		"disable the buffered encoding.");
+	CLI::add_flag(app, p, naf,
+		"--no-buff",
+		not_buffered,
+		"Disable the buffered encoding.")
+		->group("Standard");
 }
 
 void Encoder_RSC_DB::parameters
@@ -50,13 +55,8 @@ void Encoder_RSC_DB::parameters
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
-	if (vals.exist({p+"-no-buff"})) this->buffered = false;
-	if (vals.exist({p+"-std"    })) this->standard = vals.at({p+"-std"});
-
-	this->N_cw = 2 * this->K;
-	this->R    = (float)this->K / (float)this->N_cw;
+	N_cw = 2 * K;
+	R    = (float)K / (float)N_cw;
 }
 
 void Encoder_RSC_DB::parameters
@@ -66,17 +66,17 @@ void Encoder_RSC_DB::parameters
 
 	Encoder::parameters::get_headers(headers, full);
 
-	headers[p].push_back(std::make_pair("Buffered", (this->buffered ? "on" : "off")));
+	headers[p].push_back(std::make_pair("Buffered", (!not_buffered ? "on" : "off")));
 
-	if (!this->standard.empty())
-		headers[p].push_back(std::make_pair("Standard", this->standard));
+	if (!standard.empty())
+		headers[p].push_back(std::make_pair("Standard", standard));
 }
 
 template <typename B>
 module::Encoder_RSC_DB<B>* Encoder_RSC_DB::parameters
 ::build() const
 {
-	if (this->type == "RSC_DB") return new module::Encoder_RSC_DB<B>(this->K, this->N_cw, this->standard, this->buffered, this->n_frames);
+	if (type == "RSC_DB") return new module::Encoder_RSC_DB<B>(K, N_cw, standard, !not_buffered, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

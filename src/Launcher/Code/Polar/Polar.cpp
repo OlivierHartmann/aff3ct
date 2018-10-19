@@ -36,15 +36,15 @@ void Polar<L,B,R,Q>
 	// auto sub_dec = app.get_subcommand("dec");
 	auto sub_enc = app.get_subcommand("enc");
 
-	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix());
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
 
 	if (params_cdc->pct != nullptr)
 	{
 		auto sub_pct = app.get_subcommand("pct");
-		CLI::remove_option(sub_pct, "--fra", params_cdc->pct->get_prefix());
+		CLI::remove_option(sub_pct, "--fra", params_cdc->pct->get_prefix(), params_cdc->pct->no_argflag());
 	}
 	else
-		CLI::remove_option(sub_enc, "--fra", params_cdc->enc->get_prefix());
+		CLI::remove_option(sub_enc, "--fra", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
 
 	L::register_arguments(app);
 }

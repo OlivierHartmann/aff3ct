@@ -24,15 +24,14 @@ void RA<L,B,R,Q>
 	// auto sub_dec = app.get_subcommand("dec");
 	auto sub_enc = app.get_subcommand("enc");
 
-	CLI::remove_option(sub_enc, "--fra",  params_cdc->enc->get_prefix());
-	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix());
+	CLI::remove_option(sub_enc, "--fra",  params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
+	CLI::remove_option(sub_enc, "--seed", params_cdc->enc->get_prefix(), params_cdc->enc->no_argflag());
 
 	if (params_cdc->itl != nullptr)
 	{
 		auto sub_itl = app.get_subcommand("itl");
-		CLI::remove_option(sub_itl, "--seed", params_cdc->itl->get_prefix());
+		CLI::remove_option(sub_itl, "--seed", params_cdc->itl->get_prefix(), params_cdc->itl->no_argflag());
 	}
-	else
 
 	L::register_arguments(app);
 }

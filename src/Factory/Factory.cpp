@@ -65,6 +65,18 @@ std::vector<std::string> Factory::parameters
 	return p;
 }
 
+void Factory::parameters
+::no_argflag(bool v)
+{
+	no_argflag_ = v;
+}
+
+bool Factory::parameters
+::no_argflag() const
+{
+	return no_argflag_;
+}
+
 void Factory
 ::register_arguments(const std::vector<Factory::parameters*> &params, CLI::App &app)
 {

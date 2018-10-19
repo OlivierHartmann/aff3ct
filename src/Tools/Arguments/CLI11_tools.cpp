@@ -41,11 +41,11 @@ bool CLI::has_subcommand(CLI::App& app, const std::string& subcommand)
 }
 
 
-bool CLI::has_option(CLI::App& app, const std::string& name, const std::string& prefix)
+bool CLI::has_option(CLI::App& app, const std::string& name, const std::string& prefix, bool no_argflag)
 {
 	try
 	{
-		app.get_option(CLI::add_prefix_to_name(name, prefix));
+		app.get_option(CLI::add_prefix_to_name(name, prefix, no_argflag));
 		return true;
 	}
 	catch (const CLI::OptionNotFound&)
@@ -54,42 +54,42 @@ bool CLI::has_option(CLI::App& app, const std::string& name, const std::string& 
 	}
 }
 
-bool CLI::has_option(CLI::App* app, const std::string& name, const std::string& prefix)
+bool CLI::has_option(CLI::App* app, const std::string& name, const std::string& prefix, bool no_argflag)
 {
 	if (app == nullptr)
 		return false;
 
-	return CLI::has_option(*app, name, prefix);
+	return CLI::has_option(*app, name, prefix, no_argflag);
 }
 
 
-CLI::Option* CLI::get_option(CLI::App& app, const std::string& name, const std::string& prefix)
+CLI::Option* CLI::get_option(CLI::App& app, const std::string& name, const std::string& prefix, bool no_argflag)
 {
-	return app.get_option(CLI::add_prefix_to_name(name, prefix));
+	return app.get_option(CLI::add_prefix_to_name(name, prefix, no_argflag));
 }
 
-CLI::Option* CLI::get_option(CLI::App* app, const std::string& name, const std::string& prefix)
+CLI::Option* CLI::get_option(CLI::App* app, const std::string& name, const std::string& prefix, bool no_argflag)
 {
-	return CLI::get_option(*app, name, prefix);
+	return CLI::get_option(*app, name, prefix, no_argflag);
 }
 
 
 
-void CLI::remove_option(CLI::App& app, const std::string& name, const std::string& prefix)
+void CLI::remove_option(CLI::App& app, const std::string& name, const std::string& prefix, bool no_argflag)
 {
-	app.remove_option(app.get_option(CLI::add_prefix_to_name(name, prefix)));
+	app.remove_option(app.get_option(CLI::add_prefix_to_name(name, prefix, no_argflag)));
 }
 
-void CLI::remove_option(CLI::App* app, const std::string& name, const std::string& prefix)
+void CLI::remove_option(CLI::App* app, const std::string& name, const std::string& prefix, bool no_argflag)
 {
 	if (app == nullptr)
 		return;
 
-	CLI::remove_option(*app, name, prefix);
+	CLI::remove_option(*app, name, prefix, no_argflag);
 }
 
 
-std::string CLI::add_prefix_to_name(const std::string& name, const std::string& prefix)
+std::string CLI::add_prefix_to_name(const std::string& name, const std::string& prefix, bool no_argflag)
 {
 	if (prefix.empty())
 		return name;
@@ -103,12 +103,14 @@ std::string CLI::add_prefix_to_name(const std::string& name, const std::string& 
 
 	// then reconstruct the name with prefix on long names
 	std::string new_name;
-	for (auto it = snames.begin(); it != snames.end(); it++)
-	{
-		if (!new_name.empty())
-			new_name += ",";
-		new_name += "-" + *it;
-	}
+
+	if (!no_argflag || (lnames.empty() && pname.empty()))
+		for (auto it = snames.begin(); it != snames.end(); it++)
+		{
+			if (!new_name.empty())
+				new_name += ",";
+			new_name += "-" + *it;
+		}
 
 	for (auto it = lnames.begin(); it != lnames.end(); it++)
 	{

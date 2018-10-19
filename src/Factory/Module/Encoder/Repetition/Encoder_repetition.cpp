@@ -28,11 +28,12 @@ Encoder_repetition::parameters* Encoder_repetition::parameters
 void Encoder_repetition::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p = get_prefix();
+	auto p   = get_prefix();
+	auto naf = no_argflag();
 
 	Encoder::parameters::register_arguments(app);
 
-	CLI::add_flag(app, p,
+	CLI::add_flag(app, p, naf,
 		"--no-buff",
 		not_buffered,
 		"Disable the buffered encoding.")

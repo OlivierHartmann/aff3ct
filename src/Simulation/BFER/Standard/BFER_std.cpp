@@ -76,7 +76,7 @@ void BFER_std<B,R,Q>
 		if (this->params_BFER_std.err_track_enable && interleaver->is_uniform())
 			this->dumper[tid]->register_data(interleaver->get_lut(), this->params_BFER_std.err_track_threshold, "itl", false, this->params_BFER_std.src->n_frames, {});
 	}
-	catch (const std::exception&) { /* do nothing if there is no interleaver */ }
+	catch (const tools::unavailable_error&) { /* do nothing if there is no interleaver */ }
 
 	if (this->params_BFER_std.err_track_enable)
 	{
