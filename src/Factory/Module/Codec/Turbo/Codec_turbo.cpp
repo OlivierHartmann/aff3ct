@@ -94,7 +94,7 @@ void Codec_turbo::parameters
 
 		pct_tur->K            = enc_tur->K;
 		pct_tur->N_cw         = enc_tur->N_cw;
-		pct_tur->not_buffered =!enc_tur->sub1->not_buffered;
+		pct_tur->not_buffered = enc_tur->sub1->not_buffered;
 		pct_tur->n_frames     = enc_tur->n_frames;
 		pct_tur->tail_length  = enc_tur->tail_length;
 

@@ -149,7 +149,7 @@ void Decoder_RSC::parameters
 		if (tail_length && full)
 			headers[p].push_back(std::make_pair("Tail length", std::to_string(tail_length)));
 
-		if (full) headers[p].push_back(std::make_pair("!not_buffered", (!not_buffered ? "on" : "off")));
+		if (full) headers[p].push_back(std::make_pair("Buffered", (!not_buffered ? "on" : "off")));
 
 		if (!standard.empty())
 			headers[p].push_back(std::make_pair("Standard", standard));

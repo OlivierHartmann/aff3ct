@@ -99,12 +99,9 @@ void Puncturer_turbo::parameters
 
 	Puncturer::parameters::get_headers(headers, full);
 
-	if (type != "NO")
-	{
-		headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + PT::display_pattern(pattern) + "}")));
-		if (full) headers[p].push_back(std::make_pair(std::string("Tail length"), std::to_string(tail_length)));
-		if (full) headers[p].push_back(std::make_pair(std::string("Buffered"), not_buffered ? "off" : "on"));
-	}
+	headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + PT::display_pattern(pattern) + "}")));
+	if (full) headers[p].push_back(std::make_pair(std::string("Tail length"), std::to_string(tail_length)));
+	if (full) headers[p].push_back(std::make_pair(std::string("Buffered"), not_buffered ? "off" : "on"));
 }
 
 template <typename B, typename Q>

@@ -75,14 +75,11 @@ void Puncturer_LDPC::parameters
 
 	Puncturer::parameters::get_headers(headers, full);
 
-	if (type != "NO")
-	{
-		std::stringstream pat;
-		for (auto p : pattern)
-			pat << p;
+	std::stringstream pat;
+	for (auto p : pattern)
+		pat << p;
 
-		headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + pat.str() + "}")));
-	}
+	headers[p].push_back(std::make_pair(std::string("Pattern"), std::string("{" + pat.str() + "}")));
 }
 
 template <typename B, typename Q>
