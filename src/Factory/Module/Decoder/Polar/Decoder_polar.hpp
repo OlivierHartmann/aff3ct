@@ -33,6 +33,7 @@ struct Decoder_polar : public Decoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_polar_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Decoder_polar::parameters* clone() const;
 
@@ -67,9 +68,6 @@ struct Decoder_polar : public Decoder
 		template <typename B = int, typename Q = float, class API_polar>
 		module::Decoder_SIHO<B,Q>* _build_gen(module::CRC<B> *crc = nullptr,
 		                                      const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
-
-	protected:
-		parameters(const std::string &n, const std::string &p);
 	};
 
 	template <typename B = int, typename Q = float>

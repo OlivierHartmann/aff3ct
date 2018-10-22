@@ -86,6 +86,12 @@ template <typename T>
 CLI::Option* add_option(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
                         T& variable, const std::string& description);
 
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
+                        std::vector<std::vector<bool>>& variable, const std::string& description, bool defaulted);
+
+CLI::Option* add_option(CLI::App& app, const std::string& prefix, bool no_argflag, const std::string& name,
+                        std::vector<std::vector<bool>>& variable, const std::string& description);
+
 /**
  * \brief Add the flag in the application if is not present already
  * \param app is the application in which the option should be

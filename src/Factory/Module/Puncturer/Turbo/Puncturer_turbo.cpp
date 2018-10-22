@@ -58,19 +58,13 @@ void Puncturer_turbo::parameters
 
 	CLI::remove_option(app, "--fra-size", p, naf);
 
+
 	CLI::add_option(app, p, naf,
 		"--pattern",
-		str_pattern,
-		"Puncturing pattern for the turbo encoder (ex: \"11,10,01\").",
+		pattern,
+		"The binary puncturing pattern for the turbo encoder (ex: \"11,10,01\").",
 		true)
 		->group("Standard");
-
-	// args.add(
-	// 	{p+"-pattern"},
-	// 	tools::List2D<bool>(tools::Boolean(),
-	// 	                    std::make_tuple(tools::Length(3, 3), tools::Function<sub_same_length>("elements of same length")),
-	// 	                    std::make_tuple(tools::Length(1))),
-	// 	"puncturing pattern for the turbo encoder (ex: \"11,10,01\").");
 
 	CLI::add_option(app, p, naf,
 		"--tail-length",
@@ -101,7 +95,7 @@ void Puncturer_turbo::parameters
 void Puncturer_turbo::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Puncturer::parameters::get_headers(headers, full);
 

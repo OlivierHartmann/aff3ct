@@ -12,7 +12,13 @@ using namespace aff3ct::factory;
 
 Encoder_turbo_product::parameters
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_turbo_product_name, prefix),
+: Encoder_turbo_product::parameters(Encoder_turbo_product_name, prefix)
+{
+}
+
+Encoder_turbo_product::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix),
   sub(new Encoder_BCH::parameters(prefix+"-sub")),
   itl(new Interleaver::parameters("itl"))
 {
@@ -126,7 +132,7 @@ void Encoder_turbo_product::parameters
 void Encoder_turbo_product::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Encoder::parameters::get_headers(headers, full);
 

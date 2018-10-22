@@ -29,6 +29,7 @@ struct Encoder_RA : public Encoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_RA_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Encoder_RA::parameters* clone() const;
 

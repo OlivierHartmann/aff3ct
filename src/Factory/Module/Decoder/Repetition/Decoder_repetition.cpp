@@ -13,7 +13,13 @@ const std::string aff3ct::factory::Decoder_repetition_prefix = "dec";
 
 Decoder_repetition::parameters
 ::parameters(const std::string &prefix)
-: Decoder::parameters(Decoder_repetition_name, prefix)
+: Decoder_repetition::parameters(Decoder_repetition_name, prefix)
+{
+}
+
+Decoder_repetition::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Decoder::parameters(name, prefix)
 {
 	type   = "REPETITION";
 	implem = "STD";
@@ -52,7 +58,7 @@ void Decoder_repetition::parameters
 void Decoder_repetition::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Decoder::parameters::get_headers(headers, full);
 

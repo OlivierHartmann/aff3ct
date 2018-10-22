@@ -17,7 +17,13 @@ const std::string aff3ct::factory::Encoder_LDPC_prefix = "enc";
 
 Encoder_LDPC::parameters
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_LDPC_name, prefix)
+: Encoder_LDPC::parameters(Encoder_LDPC_name, prefix)
+{
+}
+
+Encoder_LDPC::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix)
 {
 	type = "AZCW";
 
@@ -118,7 +124,7 @@ void Encoder_LDPC::parameters
 void Encoder_LDPC::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Encoder::parameters::get_headers(headers, full);
 

@@ -14,7 +14,13 @@ const std::string aff3ct::factory::Decoder_NO_prefix = "dec";
 
 Decoder_NO::parameters
 ::parameters(const std::string &prefix)
-: Decoder::parameters(Decoder_NO_name, prefix)
+: Decoder_NO::parameters(Decoder_NO_name, prefix)
+{
+}
+
+Decoder_NO::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Decoder::parameters(name, prefix)
 {
 	this->type   = "NONE";
 	this->implem = "HARD_DECISION";

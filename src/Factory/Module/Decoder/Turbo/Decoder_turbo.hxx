@@ -12,9 +12,16 @@ namespace factory
 template <class D1, class D2>
 Decoder_turbo::parameters<D1,D2>
 ::parameters(const std::string &prefix)
-: Decoder::parameters(Decoder_turbo_name, prefix),
-  sub1(new typename D1::parameters(std::is_same<D1,D2>() ? "sub" : "sub1")),
-  sub2(new typename D2::parameters(std::is_same<D1,D2>() ? "sub" : "sub2")),
+: Decoder_turbo::parameters<D1,D2>(Decoder_turbo_name, prefix)
+{
+}
+
+template <class D1, class D2>
+Decoder_turbo::parameters<D1,D2>
+::parameters(const std::string &name, const std::string &prefix)
+: Decoder::parameters(name, prefix),
+  sub1(new typename D1::parameters(std::is_same<D1,D2>() ? "sub Decoder" : "sub Decoder 1", std::is_same<D1,D2>() ? "sub" : "sub1")),
+  sub2(new typename D2::parameters(std::is_same<D1,D2>() ? "sub Decoder" : "sub Decoder 2", std::is_same<D1,D2>() ? "sub" : "sub2")),
   itl (new Interleaver   ::parameters("itl")),
   sf  (new Scaling_factor::parameters("sf" )),
   fnc (new Flip_and_check::parameters("fnc"))
@@ -47,6 +54,7 @@ std::vector<std::string> Decoder_turbo::parameters<D1,D2>
 	if (sf   != nullptr) { auto nn = sf  ->get_names(); for (auto &x : nn) n.push_back(x); }
 	if (fnc  != nullptr) { auto nn = fnc ->get_names(); for (auto &x : nn) n.push_back(x); }
 	if (sub1 != nullptr) { auto nn = sub1->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (!std::is_same<D1,D2>())
 	if (sub2 != nullptr) { auto nn = sub2->get_names(); for (auto &x : nn) n.push_back(x); }
 	if (itl  != nullptr) { auto nn = itl ->get_names(); for (auto &x : nn) n.push_back(x); }
 	return n;
@@ -60,6 +68,7 @@ std::vector<std::string> Decoder_turbo::parameters<D1,D2>
 	if (sf   != nullptr) { auto nn = sf  ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	if (fnc  != nullptr) { auto nn = fnc ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	if (sub1 != nullptr) { auto nn = sub1->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (!std::is_same<D1,D2>())
 	if (sub2 != nullptr) { auto nn = sub2->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	if (itl  != nullptr) { auto nn = itl ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	return sn;
@@ -73,6 +82,7 @@ std::vector<std::string> Decoder_turbo::parameters<D1,D2>
 	if (sf   != nullptr) { auto nn = sf  ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	if (fnc  != nullptr) { auto nn = fnc ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	if (sub1 != nullptr) { auto nn = sub1->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (!std::is_same<D1,D2>())
 	if (sub2 != nullptr) { auto nn = sub2->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	if (itl  != nullptr) { auto nn = itl ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	return p;
@@ -201,7 +211,7 @@ template <class D1, class D2>
 void Decoder_turbo::parameters<D1,D2>
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Decoder::parameters::get_headers(headers, full);
 

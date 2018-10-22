@@ -141,7 +141,7 @@ void BFER::parameters
 void BFER::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Simulation::parameters::get_headers(headers, full);
 

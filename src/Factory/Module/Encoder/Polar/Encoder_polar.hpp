@@ -24,6 +24,7 @@ struct Encoder_polar : public Encoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_polar_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Encoder_polar::parameters* clone() const;
 

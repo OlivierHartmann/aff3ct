@@ -12,7 +12,13 @@ const std::string aff3ct::factory::Encoder_RSC_DB_prefix = "enc";
 
 Encoder_RSC_DB::parameters
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_RSC_DB_name, prefix)
+: Encoder_RSC_DB::parameters(Encoder_RSC_DB_name, prefix)
+{
+}
+
+Encoder_RSC_DB::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix)
 {
 	type = "RSC_DB";
 
@@ -62,7 +68,7 @@ void Encoder_RSC_DB::parameters
 void Encoder_RSC_DB::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Encoder::parameters::get_headers(headers, full);
 

@@ -65,7 +65,7 @@ void Terminal::parameters
 void Terminal::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	headers[p].push_back(std::make_pair("Enabled", this->disabled ? "no" : "yes"));
 	headers[p].push_back(std::make_pair("Frequency (ms)", std::to_string(this->frequency.count())));

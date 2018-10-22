@@ -12,7 +12,13 @@ using namespace aff3ct::factory;
 
 Decoder_turbo_DB::parameters
 ::parameters(const std::string &prefix)
-: Decoder::parameters(Decoder_turbo_DB_name, prefix),
+: Decoder_turbo_DB::parameters(Decoder_turbo_DB_name, prefix)
+{
+}
+
+Decoder_turbo_DB::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Decoder::parameters(name, prefix),
   sub(new Decoder_RSC_DB   ::parameters("sub")),
   itl(new Interleaver      ::parameters("itl")),
   sf (new Scaling_factor   ::parameters("sf" )),
@@ -116,7 +122,7 @@ void Decoder_turbo_DB::parameters
 void Decoder_turbo_DB::parameters
 ::callback_arguments()
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Decoder::parameters::callback_arguments();
 
@@ -158,7 +164,7 @@ void Decoder_turbo_DB::parameters
 void Decoder_turbo_DB::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Decoder::parameters::get_headers(headers, full);
 

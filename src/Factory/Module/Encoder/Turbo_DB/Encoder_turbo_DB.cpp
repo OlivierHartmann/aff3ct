@@ -12,7 +12,13 @@ using namespace aff3ct::factory;
 
 Encoder_turbo_DB::parameters
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_turbo_DB_name, prefix),
+: Encoder_turbo_DB::parameters(Encoder_turbo_DB_name, prefix)
+{
+}
+
+Encoder_turbo_DB::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix),
   itl(new Interleaver::parameters("itl")),
   sub(new Encoder_RSC_DB::parameters("sub"))
 {
@@ -124,7 +130,7 @@ void Encoder_turbo_DB::parameters
 void Encoder_turbo_DB::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Encoder::parameters::get_headers(headers, full);
 

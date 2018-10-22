@@ -45,6 +45,7 @@ struct Decoder_turbo : public Decoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_turbo_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Decoder_turbo::parameters<D1,D2>* clone() const;
 

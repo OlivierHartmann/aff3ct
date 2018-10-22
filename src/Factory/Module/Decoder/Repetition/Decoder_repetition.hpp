@@ -25,6 +25,7 @@ struct Decoder_repetition : public Decoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_repetition_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Decoder_repetition::parameters* clone() const;
 

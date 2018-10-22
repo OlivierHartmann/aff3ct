@@ -174,15 +174,16 @@ void aff3ct::factory::Header
 		p->get_headers(headers, full);
 
 		auto prefixes    = p->get_prefixes   ();
+		auto names       = p->get_names      ();
 		auto short_names = p->get_short_names();
 
-		// if (prefixes.size() != short_names.size())
-		// {
-		// 	std::stringstream message;
-		// 	message << "'prefixes.size()' has to be equal to 'short_names.size()' ('prefixes.size()' = "
-		// 	        << prefixes.size() << ", 'short_names.size()' = " << short_names.size() << ").";
-		// 	throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
-		// }
+		if (prefixes.size() != names.size() && prefixes.size() != short_names.size())
+		{
+			std::stringstream message;
+			message << "'prefixes.size()' has to be equal to 'names.size()' and 'short_names.size()' ('prefixes.size()' = "
+			        << prefixes.size() << ", 'names.size()' = " << names.size() << " and 'short_names.size()' = " << short_names.size() << ").";
+			throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
+		}
 
 		// bool print_first_title = false;
 		// for (size_t i = 1; i < short_names.size(); i++)
@@ -208,10 +209,11 @@ void aff3ct::factory::Header
 				break;
 			}
 
-		for (size_t i = 0; i < short_names.size(); i++)
+		for (size_t i = 0; i < names.size(); i++)
 		{
-			auto& n = short_names[i];
-			auto& h = headers    [n];
+			auto& sn = short_names[i];
+			auto& n  = names      [i];
+			auto& h  = headers    [n];
 			auto print_head = (i == 0) ? print_first_title || h.size() : h.size();
 
 			if (full || (h.size() && (h[0].first != "Type" || h[0].second != "NO")))
@@ -219,7 +221,12 @@ void aff3ct::factory::Header
 				if (print_head && (std::find(dup_h.begin(), dup_h.end(), h) == dup_h.end() ||
 				                   std::find(dup_n.begin(), dup_n.end(), n) == dup_n.end()))
 				{
-					Header::print_parameters(prefixes[i].empty(), n, h, max_n_chars, stream);
+					auto is_top_module = prefixes[i].empty();
+					auto name = sn;
+					if (!is_top_module)
+						name = n;
+
+					Header::print_parameters(is_top_module, name, h, max_n_chars, stream);
 
 					dup_h.push_back(h);
 					dup_n.push_back(n);

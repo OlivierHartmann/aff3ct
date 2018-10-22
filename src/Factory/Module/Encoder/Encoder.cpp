@@ -107,7 +107,7 @@ void Encoder::parameters
 void Encoder::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	headers[p].push_back(std::make_pair("Type", type));
 	if (full) headers[p].push_back(std::make_pair("Info. bits (K)", std::to_string(K)));

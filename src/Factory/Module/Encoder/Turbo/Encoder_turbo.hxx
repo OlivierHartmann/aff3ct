@@ -13,10 +13,17 @@ namespace factory
 template <class E1, class E2>
 Encoder_turbo::parameters<E1,E2>
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_turbo_name, prefix),
+: Encoder_turbo::parameters<E1,E2>(Encoder_turbo_name, prefix)
+{
+}
+
+template <class E1, class E2>
+Encoder_turbo::parameters<E1,E2>
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix),
   itl (new Interleaver::parameters("itl")),
-  sub1(new typename E1::parameters(std::is_same<E1,E2>() ? "sub" : "sub1")),
-  sub2(new typename E2::parameters(std::is_same<E1,E2>() ? "sub" : "sub2"))
+  sub1(new typename E1::parameters(std::is_same<E1,E2>() ? "sub Encoder" : "sub Encoder 1", std::is_same<E1,E2>() ? "sub" : "sub1")),
+  sub2(new typename E2::parameters(std::is_same<E1,E2>() ? "sub Encoder" : "sub Encoder 2", std::is_same<E1,E2>() ? "sub" : "sub2"))
 {
 	type = "TURBO";
 
@@ -40,6 +47,7 @@ std::vector<std::string> Encoder_turbo::parameters<E1,E2>
 {
 	auto n = Encoder::parameters::get_names();
 	if (sub1 != nullptr) { auto nn = sub1->get_names(); for (auto &x : nn) n.push_back(x); }
+	if (!std::is_same<E1,E2>())
 	if (sub2 != nullptr) { auto nn = sub2->get_names(); for (auto &x : nn) n.push_back(x); }
 	if (itl  != nullptr) { auto nn = itl ->get_names(); for (auto &x : nn) n.push_back(x); }
 	return n;
@@ -51,6 +59,7 @@ std::vector<std::string> Encoder_turbo::parameters<E1,E2>
 {
 	auto sn = Encoder::parameters::get_short_names();
 	if (sub1 != nullptr) { auto nn = sub1->get_short_names(); for (auto &x : nn) sn.push_back(x); }
+	if (!std::is_same<E1,E2>())
 	if (sub2 != nullptr) { auto nn = sub2->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	if (itl  != nullptr) { auto nn = itl ->get_short_names(); for (auto &x : nn) sn.push_back(x); }
 	return sn;
@@ -62,6 +71,7 @@ std::vector<std::string> Encoder_turbo::parameters<E1,E2>
 {
 	auto p = Encoder::parameters::get_prefixes();
 	if (sub1 != nullptr) { auto nn = sub1->get_prefixes(); for (auto &x : nn) p.push_back(x); }
+	if (!std::is_same<E1,E2>())
 	if (sub2 != nullptr) { auto nn = sub2->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	if (itl  != nullptr) { auto nn = itl ->get_prefixes(); for (auto &x : nn) p.push_back(x); }
 	return p;
@@ -157,7 +167,7 @@ template <class E1, class E2>
 void Encoder_turbo::parameters<E1,E2>
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Encoder::parameters::get_headers(headers, full);
 

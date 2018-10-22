@@ -32,6 +32,7 @@ struct Decoder_RA : public Decoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_RA_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Decoder_RA::parameters* clone() const;
 

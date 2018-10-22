@@ -13,7 +13,13 @@ const std::string aff3ct::factory::Encoder_BCH_prefix = "enc";
 
 Encoder_BCH::parameters
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_BCH_name, prefix)
+: Encoder_BCH::parameters(Encoder_BCH_name, prefix)
+{
+}
+
+Encoder_BCH::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix)
 {
 	type = "BCH";
 

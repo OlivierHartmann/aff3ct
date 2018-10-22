@@ -15,7 +15,13 @@ const std::string aff3ct::factory::Encoder_RS_prefix = "enc";
 
 Encoder_RS::parameters
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_RS_name, prefix)
+: Encoder_RS::parameters(Encoder_RS_name, prefix)
+{
+}
+
+Encoder_RS::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix)
 {
 	type = "RS";
 

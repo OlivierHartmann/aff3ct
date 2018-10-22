@@ -34,6 +34,7 @@ struct Encoder_turbo_DB : public Encoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_turbo_DB_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Encoder_turbo_DB::parameters* clone() const;
 

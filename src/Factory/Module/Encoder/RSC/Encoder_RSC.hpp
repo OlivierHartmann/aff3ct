@@ -26,6 +26,7 @@ struct Encoder_RSC : public Encoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_RSC_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Encoder_RSC::parameters* clone() const;
 

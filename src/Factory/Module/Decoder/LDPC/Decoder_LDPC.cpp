@@ -42,7 +42,13 @@ const std::string aff3ct::factory::Decoder_LDPC_prefix = "dec";
 
 Decoder_LDPC::parameters
 ::parameters(const std::string &prefix)
-: Decoder::parameters(Decoder_LDPC_name, prefix)
+: Decoder_LDPC::parameters(Decoder_LDPC_name, prefix)
+{
+}
+
+Decoder_LDPC::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Decoder::parameters(name, prefix)
 {
 	type   = "BP_FLOODING";
 	implem = "SPA";
@@ -173,7 +179,7 @@ void Decoder_LDPC::parameters
 void Decoder_LDPC::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Decoder::parameters::get_headers(headers, full);
 

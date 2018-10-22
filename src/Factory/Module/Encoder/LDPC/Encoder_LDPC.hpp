@@ -35,6 +35,7 @@ struct Encoder_LDPC : public Encoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_LDPC_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Encoder_LDPC::parameters* clone() const;
 

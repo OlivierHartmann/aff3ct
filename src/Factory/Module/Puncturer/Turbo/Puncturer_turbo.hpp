@@ -24,7 +24,6 @@ struct Puncturer_turbo : public Puncturer
 		std::vector<std::vector<bool>> pattern      = {{1,1,1},{1,1,1},{1,1,1}};
 		bool                           not_buffered = false;
 		unsigned                       tail_length  = 0;
-		std::vector<std::string>       str_pattern;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Puncturer_turbo_prefix);
@@ -39,6 +38,9 @@ struct Puncturer_turbo : public Puncturer
 		// builder
 		template <typename B = int, typename Q = float>
 		module::Puncturer<B,Q>* build() const;
+
+	private:
+		std::string str_pattern = "{111,111,111}";
 	};
 
 	template <typename B = int, typename Q = float>

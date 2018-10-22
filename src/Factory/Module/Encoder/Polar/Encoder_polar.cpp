@@ -13,7 +13,13 @@ const std::string aff3ct::factory::Encoder_polar_prefix = "enc";
 
 Encoder_polar::parameters
 ::parameters(const std::string &prefix)
-: Encoder::parameters(Encoder_polar_name, prefix)
+: Encoder_polar::parameters(Encoder_polar_name, prefix)
+{
+}
+
+Encoder_polar::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Encoder::parameters(name, prefix)
 {
 	type = "POLAR";
 

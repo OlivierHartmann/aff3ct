@@ -85,7 +85,7 @@ void Codec::parameters
 void Codec::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 	auto v = tools::split(this->get_name(), ' ');
 	auto name = v.size() >= 2 ? v[1] : "UNKNOWN";
 	for (size_t i = 2; i < v.size(); i++)

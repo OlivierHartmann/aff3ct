@@ -68,7 +68,7 @@ void Codec_RS::parameters
 void Codec_RS::parameters
 ::get_headers(std::map<std::string,header_list>& headers, const bool full) const
 {
-	auto p = get_short_name();
+	auto p = get_name();
 
 	Codec_SIHO_HIHO::parameters::get_headers(headers, full);
 

@@ -35,6 +35,7 @@ struct Encoder_turbo_product : public Encoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_turbo_product_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Encoder_turbo_product::parameters* clone() const;
 

@@ -37,6 +37,7 @@ struct Encoder_turbo : public Encoder
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Encoder_turbo_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		Encoder_turbo::parameters<E1,E2>* clone() const;
 
