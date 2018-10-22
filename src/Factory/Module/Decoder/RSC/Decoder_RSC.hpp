@@ -49,26 +49,26 @@ struct Decoder_RSC : public Decoder
 		module::Decoder_SIHO<B,Q>* build(const std::vector<std::vector<int>> &trellis,
 		                                       std::ostream                  &stream  = std::cout,
 		                                 const int                            n_ite   = 1,
-		                                       const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
+		                                 const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
 
 		template <typename B = int, typename Q = float>
 		module::Decoder_SISO_SIHO<B,Q>* build_siso(const std::vector<std::vector<int>> &trellis,
 		                                                 std::ostream                  &stream  = std::cout,
 		                                           const int                            n_ite   = 1,
-		                                                 const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
+		                                           const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
 
 	private:
-		std::string poly_str;
+		std::string poly_str = "{013, 015}";
 
 		template <typename B = int, typename Q = float, typename QD = Q, tools::proto_max<Q> MAX1, tools::proto_max<QD> MAX2>
 		module::Decoder_SISO_SIHO<B,Q>* _build_siso_seq(const std::vector<std::vector<int>> &trellis,
 		                                                      std::ostream                  &stream  = std::cout,
 		                                                const int                            n_ite   = 1,
-		                                                      const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
+		                                                const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
 
 		template <typename B = int, typename Q = float, typename QD = Q, tools::proto_max_i<Q> MAX>
 		module::Decoder_SISO_SIHO<B,Q>* _build_siso_simd(const std::vector<std::vector<int>> &trellis,
-		                                                       const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
+		                                                 const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
 	};
 
 	template <typename B = int, typename Q = float>
@@ -76,14 +76,14 @@ struct Decoder_RSC : public Decoder
 	                                        const std::vector<std::vector<int>> &trellis,
 	                                              std::ostream                  &stream  = std::cout,
 	                                        const int                            n_ite   = 1,
-	                                              const std::unique_ptr<module::Encoder<B>>& encoder = nullptr);
+	                                        const std::unique_ptr<module::Encoder<B>>& encoder = nullptr);
 
 	template <typename B = int, typename Q = float>
 	static module::Decoder_SISO_SIHO<B,Q>* build_siso(const parameters                    &params,
 	                                                  const std::vector<std::vector<int>> &trellis,
 	                                                        std::ostream                  &stream  = std::cout,
 	                                                  const int                            n_ite   = 1,
-	                                                        const std::unique_ptr<module::Encoder<B>>& encoder = nullptr);
+	                                                  const std::unique_ptr<module::Encoder<B>>& encoder = nullptr);
 };
 }
 }

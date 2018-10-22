@@ -108,10 +108,10 @@ void Decoder_RSC::parameters
 	auto p = get_prefix();
 
 
-	if (standard == "LTE" && !vals.exist({p+"-poly"}))
+	if (standard == "LTE")
 		poly = {013, 015};
 
-	if (standard == "CCSDS" && !vals.exist({p+"-poly"}))
+	else if (standard == "CCSDS")
 		poly = {023, 033};
 
 	if (poly_str != "")
@@ -122,6 +122,8 @@ void Decoder_RSC::parameters
 		std::sscanf(poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #endif
 	}
+	else
+
 
 	if (poly[0] == 013 && poly[1] == 015)
 		standard = "LTE";
