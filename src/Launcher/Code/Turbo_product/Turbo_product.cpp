@@ -12,7 +12,7 @@ using namespace aff3ct::launcher;
 template <class L, typename B, typename R, typename Q>
 Turbo_product<L,B,R,Q>
 ::Turbo_product(const int argc, const char **argv, std::ostream &stream)
-: L(argc, argv, stream), params_cdc(new factory::Codec_turbo_product::parameters("cdc"))
+: L(argc, argv, stream), params_cdc(new factory::Codec_turbo_product::parameters(""))
 {
 	this->params.set_cdc(params_cdc);
 }

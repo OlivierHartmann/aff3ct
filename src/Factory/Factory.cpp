@@ -120,17 +120,20 @@ void aff3ct::factory::Header
 ::print_parameters(bool grp_key, const std::string& grp_name, const header_list& header, int max_n_chars,
                    std::ostream& stream)
 {
-	if (grp_key)
+	if (grp_name != "")
 	{
-		stream << rang::tag::comment << "* " << rang::style::bold << rang::style::underline << grp_name << rang::style::reset << " ";
-		for (auto i = 0; i < 46 - (int)grp_name.size(); i++) std::cout << "-";
-		stream << std::endl;
-	}
-	else // sub group
-	{
-		stream << rang::tag::comment << "   " << rang::style::bold << rang::style::underline << grp_name << rang::style::reset << " ";
-		for (auto i = 0; i < 45 - (int)grp_name.size(); i++) std::cout << "-";
-		stream << std::endl;
+		if (grp_key)
+		{
+			stream << rang::tag::comment << "* " << rang::style::bold << rang::style::underline << grp_name << rang::style::reset << " ";
+			for (auto i = 0; i < 46 - (int)grp_name.size(); i++) std::cout << "-";
+			stream << std::endl;
+		}
+		else // sub group
+		{
+			stream << rang::tag::comment << "   " << rang::style::bold << rang::style::underline << grp_name << rang::style::reset << " ";
+			for (auto i = 0; i < 45 - (int)grp_name.size(); i++) std::cout << "-";
+			stream << std::endl;
+		}
 	}
 
 	std::vector<std::string> dup;
@@ -181,7 +184,8 @@ void aff3ct::factory::Header
 		{
 			std::stringstream message;
 			message << "'prefixes.size()' has to be equal to 'names.size()' and 'short_names.size()' ('prefixes.size()' = "
-			        << prefixes.size() << ", 'names.size()' = " << names.size() << " and 'short_names.size()' = " << short_names.size() << ").";
+			        << prefixes.size() << ", 'names.size()' = " << names.size()
+			        << " and 'short_names.size()' = " << short_names.size() << ").";
 			throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
 		}
 
@@ -216,19 +220,19 @@ void aff3ct::factory::Header
 			auto& h  = headers    [n];
 			auto print_head = (i == 0) ? print_first_title || h.size() : h.size();
 
-			if (full || (h.size() && (h[0].first != "Type" || h[0].second != "NO")))
+			if (full || (h.size() && (h[0].first != "Type" || h[0].second != "NO")
+			             && std::find(dup_n.begin(), dup_n.end(), n) == dup_n.end()))
 			{
-				if (print_head && (std::find(dup_h.begin(), dup_h.end(), h) == dup_h.end() ||
-				                   std::find(dup_n.begin(), dup_n.end(), n) == dup_n.end()))
+				if (print_head)
 				{
 					auto is_top_module = prefixes[i].empty();
 					auto name = sn;
+
 					if (!is_top_module)
 						name = n;
 
 					Header::print_parameters(is_top_module, name, h, max_n_chars, stream);
 
-					dup_h.push_back(h);
 					dup_n.push_back(n);
 				}
 			}

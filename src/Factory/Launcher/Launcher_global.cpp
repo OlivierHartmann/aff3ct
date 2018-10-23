@@ -15,8 +15,14 @@ const std::string aff3ct::factory::Launcher_global_name   = "Launcher global";
 const std::string aff3ct::factory::Launcher_global_prefix = "lch";
 
 factory::Launcher_global::parameters
-::parameters(const std::string &prefix, const std::string &name)
-: Launcher_global::parameters(name, name, prefix)
+::parameters(const std::string &prefix)
+: Launcher_global::parameters(Launcher_global_name, Launcher_global_name, prefix)
+{
+}
+
+factory::Launcher_global::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Launcher_global::parameters(name, Launcher_global_name, prefix)
 {
 }
 

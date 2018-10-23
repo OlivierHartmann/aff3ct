@@ -13,7 +13,7 @@ using namespace aff3ct::launcher;
 template <class L, typename B, typename R, typename Q>
 Polar<L,B,R,Q>
 ::Polar(const int argc, const char **argv, std::ostream &stream)
-: L(argc, argv, stream), params_cdc(new factory::Codec_polar::parameters("cdc"))
+: L(argc, argv, stream), params_cdc(new factory::Codec_polar::parameters(""))
 {
 	this->params.set_cdc(params_cdc);
 

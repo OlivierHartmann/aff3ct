@@ -13,7 +13,7 @@ using namespace aff3ct::launcher;
 template <class L, typename B, typename R, typename Q>
 RSC<L,B,R,Q>
 ::RSC(const int argc, const char **argv, std::ostream &stream)
-: L(argc, argv, stream), params_cdc(new factory::Codec_RSC::parameters("cdc"))
+: L(argc, argv, stream), params_cdc(new factory::Codec_RSC::parameters(""))
 {
 	this->params.set_cdc(params_cdc);
 

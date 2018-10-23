@@ -10,7 +10,7 @@ using namespace aff3ct::launcher;
 template <class L, typename B, typename R, typename Q>
 Uncoded<L,B,R,Q>
 ::Uncoded(const int argc, const char **argv, std::ostream &stream)
-: L(argc, argv, stream), params_cdc(new factory::Codec_uncoded::parameters("cdc"))
+: L(argc, argv, stream), params_cdc(new factory::Codec_uncoded::parameters(""))
 {
 	this->params.set_cdc(params_cdc);
 }

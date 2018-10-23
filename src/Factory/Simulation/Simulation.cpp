@@ -15,7 +15,7 @@ const std::string aff3ct::factory::Simulation_prefix = "sim";
 Simulation::parameters
 ::parameters(const std::string &name, const std::string &prefix)
 : Launcher::parameters(name, Simulation_name, prefix),
-  noise(new factory::Noise::parameters(Simulation_name, prefix))
+  noise(new factory::Noise::parameters(name, prefix))
 {
 }
 

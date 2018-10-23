@@ -37,7 +37,8 @@ struct Launcher : public Factory
 		unsigned    sim_prec = 32;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
-		explicit parameters(const std::string &p = Launcher_prefix, const std::string &n = Launcher_name);
+		explicit parameters(const std::string &p = Launcher_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		virtual Launcher::parameters* clone() const;
 

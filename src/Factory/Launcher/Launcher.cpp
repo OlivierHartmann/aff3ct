@@ -47,15 +47,21 @@ const std::string aff3ct::factory::Launcher_name   = "Launcher";
 const std::string aff3ct::factory::Launcher_prefix = "lch";
 
 factory::Launcher::parameters
-::parameters(const std::string &prefix, const std::string &name)
-: Launcher::parameters(name, name, prefix)
+::parameters(const std::string &prefix)
+: Launcher::parameters(Launcher_name, Launcher_name, prefix)
+{
+}
+
+factory::Launcher::parameters
+::parameters(const std::string &name, const std::string &prefix)
+: Launcher::parameters(name, Launcher_name, prefix)
 {
 }
 
 factory::Launcher::parameters
 ::parameters(const std::string &name, const std::string &short_name, const std::string &prefix)
 : Factory::parameters(name, short_name, prefix),
-  glb(new factory::Launcher_global::parameters("", short_name))
+  glb(new factory::Launcher_global::parameters(name, ""))
 {
 }
 

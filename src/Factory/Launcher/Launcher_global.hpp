@@ -28,7 +28,8 @@ struct Launcher_global : public Factory
 		bool        advanced_help    = false;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
-		explicit parameters(const std::string &p = Launcher_global_prefix, const std::string &n = Launcher_global_name);
+		explicit parameters(const std::string &p = Launcher_global_prefix);
+		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
 		virtual Launcher_global::parameters* clone() const;
 

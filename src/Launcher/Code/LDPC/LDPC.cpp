@@ -14,7 +14,7 @@ using namespace aff3ct::launcher;
 template <class L, typename B, typename R, typename Q>
 LDPC<L,B,R,Q>
 ::LDPC(const int argc, const char **argv, std::ostream &stream)
-: L(argc, argv, stream), params_cdc(new factory::Codec_LDPC::parameters("cdc"))
+: L(argc, argv, stream), params_cdc(new factory::Codec_LDPC::parameters(""))
 {
 	this->params.set_cdc(params_cdc);
 
