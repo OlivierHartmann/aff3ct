@@ -58,7 +58,7 @@ void Codec_turbo_DB::parameters
 
 
 	// auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());
-	// auto des = dec_tur->sub; // sub decoder
+	// auto& des = dec_tur->sub; // sub decoder
 
 	// CLI::remove_option(sub_des, "--no-buff"  , des->get_prefix());
 	// CLI::remove_option(sub_des, "--std"      , des->get_prefix());

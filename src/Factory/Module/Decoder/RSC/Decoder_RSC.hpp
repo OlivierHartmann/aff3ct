@@ -32,6 +32,8 @@ struct Decoder_RSC : public Decoder
 		bool             not_buffered  = false;
 		std::vector<int> poly          = {013, 015};
 
+		void delete_poly_option(CLI::App *);
+
 		// ---------------------------------------------------------------------------------------------------- METHODS
 		explicit parameters(const std::string &p = Decoder_RSC_prefix);
 		parameters(const std::string &n, const std::string &p);
@@ -58,7 +60,8 @@ struct Decoder_RSC : public Decoder
 		                                           const std::unique_ptr<module::Encoder<B>>& encoder = nullptr) const;
 
 	private:
-		std::string poly_str = "{013, 015}";
+		std::string  poly_str    = "{013, 015}";
+		CLI::Option *poly_option = nullptr;
 
 		template <typename B = int, typename Q = float, typename QD = Q, tools::proto_max<Q> MAX1, tools::proto_max<QD> MAX2>
 		module::Decoder_SISO_SIHO<B,Q>* _build_siso_seq(const std::vector<std::vector<int>> &trellis,

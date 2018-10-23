@@ -41,6 +41,7 @@ struct Encoder_RSC : public Encoder
 
 	private:
 		std::string poly_str = "{013, 015}";
+		CLI::Option *poly_option;
 	};
 
 	template <typename B = int>

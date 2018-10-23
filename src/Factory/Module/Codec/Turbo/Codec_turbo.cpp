@@ -61,12 +61,12 @@ void Codec_turbo::parameters
 	CLI::remove_option(sub_dec, "--json"     , dec->get_prefix(), dec->no_argflag());
 
 
-	// auto dec_tur = dynamic_cast<Decoder_turbo::parameters<>*>(dec.get());
-	// auto des = dec_tur->sub1; // sub decoder
+	auto dec_tur = dynamic_cast<Decoder_turbo::parameters<>*>(dec.get());
+	auto& decsub1 = dec_tur->sub1; // sub decoder -> auto_cloned pointeur so need the ref & !
 
-	// CLI::remove_option(sub_des, "--no-buff"  , des->get_prefix());
-	// CLI::remove_option(sub_des, "--poly"     , des->get_prefix());
-	// CLI::remove_option(sub_des, "--std"      , des->get_prefix());
+	decsub1->delete_poly_option(sub_dec);
+	CLI::remove_option(sub_dec, "--no-buff", decsub1->get_prefix(), decsub1->no_argflag());
+	CLI::remove_option(sub_dec, "--std"    , decsub1->get_prefix(), decsub1->no_argflag());
 
 
 	if (itl != nullptr)
@@ -103,19 +103,20 @@ void Codec_turbo::parameters
 
 	dec_tur->K                  = enc_tur->K;
 	dec_tur->N_cw               = enc_tur->N_cw;
+	dec_tur->n_frames           = enc_tur->n_frames;
+	dec_tur->tail_length        = enc_tur->tail_length;
+	dec_tur->enable_json        =!enc_tur->json_path.empty();
 	dec_tur->sub1->not_buffered = enc_tur->sub1->not_buffered;
 	dec_tur->sub2->not_buffered = enc_tur->sub2->not_buffered;
-	dec_tur->n_frames           = enc_tur->n_frames;
 	dec_tur->sub1->n_frames     = enc_tur->sub1->n_frames;
 	dec_tur->sub2->n_frames     = enc_tur->sub2->n_frames;
-	dec_tur->tail_length        = enc_tur->tail_length;
 	dec_tur->sub1->tail_length  = enc_tur->sub1->tail_length;
 	dec_tur->sub2->tail_length  = enc_tur->sub2->tail_length;
 	dec_tur->sub1->poly         = enc_tur->sub1->poly;
 	dec_tur->sub2->poly         = enc_tur->sub2->poly;
 	dec_tur->sub1->standard     = enc_tur->sub1->standard;
 	dec_tur->sub2->standard     = enc_tur->sub2->standard;
-	dec_tur->enable_json        =!enc_tur->json_path.empty();
+
 
 	dec->callback_arguments();
 

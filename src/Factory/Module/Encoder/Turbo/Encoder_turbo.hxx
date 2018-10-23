@@ -127,14 +127,27 @@ void Encoder_turbo::parameters<E1,E2>
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
 	sub1->K        = sub2->K        = K;
 	sub1->n_frames = sub2->n_frames = n_frames;
 	sub1->seed     = sub2->seed     = seed;
 
 	sub1->callback_arguments();
-	sub2->callback_arguments();
+
+	if (std::is_same<E1,E2>())
+	{
+		sub2->not_buffered = sub1->not_buffered;
+		sub2->standard     = sub1->standard;
+		sub2->poly         = sub1->poly;
+
+		tail_length = 2 * sub1->tail_length;
+		N_cw        = 2 * sub1->N_cw - K;
+	}
+	else
+	{
+		sub2->callback_arguments();
+		tail_length = sub1->tail_length + sub2->tail_length;
+		N_cw        = sub1->N_cw + sub2->N_cw - K;
+	}
 
 	if (!json_path.empty())
 	{
@@ -142,9 +155,7 @@ void Encoder_turbo::parameters<E1,E2>
 		sub2->type += "_JSON";
 	}
 
-	tail_length = sub1->tail_length + sub2->tail_length;
-	N_cw        = sub1->N_cw + sub2->N_cw - K;
-	R           = (float)K / (float)N_cw;
+	R = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{

@@ -51,6 +51,7 @@ void Encoder_RSC::parameters
 		"Disable the buffered encoding.")
 		->group("Standard");
 
+	poly_option =
 	CLI::add_option(app, p, naf,
 		"--poly",
 		poly_str,
@@ -72,30 +73,31 @@ void Encoder_RSC::parameters
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
-	if (standard == "LTE")
-		poly = {013, 015};
-
-	if (standard == "CCSDS")
-		poly = {023, 033};
-
-	if (poly_str != "")
+	if (poly_option != nullptr && !poly_option->empty())
 	{
-		standard = "";
-
 #ifdef _MSC_VER
 		sscanf_s   (poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #else
 		std::sscanf(poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #endif
+
+		if (poly[0] == 013 && poly[1] == 015)
+			standard = "LTE";
+
+		else if (poly[0] == 023 && poly[1] == 033)
+			standard = "CCSDS";
+
+		else
+			standard = "";
 	}
+	else
+	{
+		if (standard == "LTE")
+			poly = {013, 015};
 
-	if (poly[0] == 013 && poly[1] == 015)
-		standard = "LTE";
-
-	if (poly[0] == 023 && poly[1] == 033)
-		standard = "CCSDS";
+		else if (standard == "CCSDS")
+			poly = {023, 033};
+	}
 
 	tail_length = (int)(2 * std::floor(std::log2((float)std::max(poly[0], poly[1]))));
 	N_cw        = 2 * K + tail_length;

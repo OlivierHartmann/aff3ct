@@ -53,6 +53,15 @@ Decoder_RSC::parameters* Decoder_RSC::parameters
 }
 
 void Decoder_RSC::parameters
+::delete_poly_option(CLI::App *app)
+{
+	CLI::remove_option(app, "--poly", get_prefix(), no_argflag());
+	poly_option = nullptr;
+}
+
+
+
+void Decoder_RSC::parameters
 ::register_arguments(CLI::App &app)
 {
 	auto p   = get_prefix();
@@ -84,6 +93,7 @@ void Decoder_RSC::parameters
 		"Disable the buffered encoding.")
 		->group("Standard");
 
+	poly_option =
 	CLI::add_option(app, p, naf,
 		"--poly",
 		poly_str,
@@ -105,33 +115,33 @@ void Decoder_RSC::parameters
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
-
-	if (standard == "LTE")
-		poly = {013, 015};
-
-	else if (standard == "CCSDS")
-		poly = {023, 033};
-
-	if (poly_str != "")
+	if (poly_option != nullptr && !poly_option->empty())
 	{
 #ifdef _MSC_VER
 		sscanf_s   (poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #else
 		std::sscanf(poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
 #endif
+
+		if (poly[0] == 013 && poly[1] == 015)
+			standard = "LTE";
+
+		else if (poly[0] == 023 && poly[1] == 033)
+			standard = "CCSDS";
+
+		else
+			standard = "";
 	}
 	else
+	{
+		if (standard == "LTE")
+			poly = {013, 015};
 
+		else if (standard == "CCSDS")
+			poly = {023, 033};
+	}
 
-	if (poly[0] == 013 && poly[1] == 015)
-		standard = "LTE";
-
-	if (poly[0] == 023 && poly[1] == 033)
-		standard = "CCSDS";
-
-	if (poly[0] != 013 || poly[1] != 015)
+	if (standard.empty())
 		implem = "GENERIC";
 
 	tail_length = (int)(2 * std::floor(std::log2((float)std::max(poly[0], poly[1]))));

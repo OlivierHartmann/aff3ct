@@ -160,13 +160,38 @@ void Decoder_turbo::parameters<D1,D2>
 {
 	Decoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
 	sub1->K        = sub2->K        = K;
 	sub1->n_frames = sub2->n_frames = n_frames;
 
 	sub1->callback_arguments();
-	sub2->callback_arguments();
+
+	if (!sub1->implem_option_set_by_user())
+	{
+		sub1->implem = "GENERIC";
+	}
+
+	if (std::is_same<D1,D2>())
+	{
+		sub2->not_buffered  = sub1->not_buffered;
+		sub2->n_frames      = sub1->n_frames;
+		sub2->tail_length   = sub1->tail_length;
+		sub2->poly          = sub1->poly;
+		sub2->standard      = sub1->standard;
+		sub2->max           = sub1->max;
+		sub2->simd_strategy = sub1->simd_strategy;
+		sub2->implem        = sub1->implem;
+
+		tail_length = 2 * sub1->tail_length;
+		N_cw        = 2 * sub1->N_cw - K;
+	}
+	else
+	{
+		sub2->callback_arguments();
+		tail_length = sub1->tail_length + sub2->tail_length;
+		N_cw        = sub1->N_cw + sub2->N_cw - K;
+	}
+
+	R = (float)K / (float)N_cw;
 
 	if (enable_json)
 	{
@@ -175,10 +200,6 @@ void Decoder_turbo::parameters<D1,D2>
 		sub1->simd_strategy = "";
 		sub2->simd_strategy = "";
 	}
-
-	tail_length = sub1->tail_length + sub2->tail_length;
-	N_cw        = sub1->N_cw + sub2->N_cw - K;
-	R           = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{
@@ -231,9 +252,7 @@ void Decoder_turbo::parameters<D1,D2>
 
 		sub1->get_headers(headers, full);
 		if (!std::is_same<D1,D2>())
-		{
 			sub2->get_headers(headers, full);
-		}
 	}
 }
 
