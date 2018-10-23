@@ -414,11 +414,11 @@ for fn in fileNames:
 
 
 	# run the tested simulator
-	strArgsAFFECT = RefCommand.commandMapToList(argsAFFECT);
+	listArgsAFFECT = RefCommand.commandMapToList(argsAFFECT);
 	os.chdir(args.buildPath)
 	startTime = time.time()
 	try:
-		processAFFECT = subprocess.Popen(strArgsAFFECT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		processAFFECT = subprocess.Popen(listArgsAFFECT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		(stdoutAFFECT, stderrAFFECT) = processAFFECT.communicate()
 	except KeyboardInterrupt:
 		os.kill(processAFFECT.pid, signal.SIGINT)
@@ -449,7 +449,7 @@ for fn in fileNames:
 			print(errAndWarnMessages)
 
 		print("---- Command:", end="\n");
-		print(strArgsAFFECT, end="\n\n")
+		print(RefCommand.commandMapToString(argsAFFECT), end="\n\n")
 		nErrors += 1
 		failIds.append(testId +1)
 

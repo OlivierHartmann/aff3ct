@@ -96,7 +96,7 @@ int sc_main(int argc, char **argv)
 
 	auto app = factory::Factory::make_argument_handler();
 
-	factory::Launcher::parameters params("", "Simulation");
+	factory::Launcher::parameters params("Simulation", "");
 	params.glb->register_arguments(*app);
 
 	auto sub_sim = CLI::make_subcommand(*app, "sim", params.get_name() + " parameters");
