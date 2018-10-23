@@ -19,6 +19,7 @@ Codec_polar::parameters
 	Codec::parameters::set_dec(new Decoder_polar::parameters(""));
 
   	fbg = new Frozenbits_generator::parameters("fb");
+  	fbg->no_argflag(true);
 }
 
 Codec_polar::parameters* Codec_polar::parameters
@@ -37,63 +38,51 @@ std::vector<std::string> Codec_polar::parameters
 ::get_names() const
 {
 	auto n = Codec::parameters::get_names();
-	std::vector<std::string> n2;
 
-	for (size_t i = 0; i < n.size(); i++)
+	// add fbg under Encoder and not Decoder header
+	if (enc != nullptr && fbg != nullptr)
 	{
-		n2.push_back(n[i]);
-		if (enc != nullptr && n[i] == enc->get_name() && fbg != nullptr)
-		{
-			auto nn = fbg->get_names();
-			for (auto &x : nn)
-				n2.push_back(x);
-		}
+		auto n2  = fbg->get_names();
+		auto off = Factory::parameters::get_names().size() + enc->get_names().size();
+		n.insert(n.begin() + off, n2.begin(), n2.end());
 	}
 
 //	if (fbg != nullptr) { auto nn = fbg->get_names(); for (auto &x : nn) n.push_back(x); }
-	return n2;
+	return n;
 }
 
 std::vector<std::string> Codec_polar::parameters
 ::get_short_names() const
 {
 	auto sn = Codec::parameters::get_short_names();
-	std::vector<std::string> sn2;
 
-	for (size_t i = 0; i < sn.size(); i++)
+	// add fbg under Encoder and not Decoder header
+	if (enc != nullptr && fbg != nullptr)
 	{
-		sn2.push_back(sn[i]);
-		if (enc != nullptr && sn[i] == enc->get_short_name() && fbg != nullptr)
-		{
-			auto nn = fbg->get_short_names();
-			for (auto &x : nn)
-				sn2.push_back(x);
-		}
+		auto n2  = fbg->get_short_names();
+		auto off = Factory::parameters::get_short_names().size() + enc->get_short_names().size();
+		sn.insert(sn.begin() + off, n2.begin(), n2.end());
 	}
 
 //	if (fbg != nullptr) { auto nn = fbg->get_short_names(); for (auto &x : nn) sn.push_back(x); }
-	return sn2;
+	return sn;
 }
 
 std::vector<std::string> Codec_polar::parameters
 ::get_prefixes() const
 {
 	auto p = Codec::parameters::get_prefixes();
-	std::vector<std::string> p2;
 
-	for (size_t i = 0; i < p.size(); i++)
+	// add fbg under Encoder and not Decoder header
+	if (enc != nullptr && fbg != nullptr)
 	{
-		p2.push_back(p[i]);
-		if (enc != nullptr && p[i] == enc->get_prefix() && fbg != nullptr)
-		{
-			auto nn = fbg->get_prefixes();
-			for (auto &x : nn)
-				p2.push_back(x);
-		}
+		auto n2  = fbg->get_prefixes();
+		auto off = Factory::parameters::get_prefixes().size() + enc->get_prefixes().size();
+		p.insert(p.begin() + off, n2.begin(), n2.end());
 	}
 
 //	if (fbg != nullptr) { auto nn = fbg->get_prefixes(); for (auto &x : nn) p.push_back(x); }
-	return p2;
+	return p;
 }
 
 void Codec_polar::parameters

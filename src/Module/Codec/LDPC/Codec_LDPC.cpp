@@ -125,7 +125,7 @@ Codec_LDPC<B,Q>
 	{
 		this->get_encoder();
 	}
-	catch (tools::runtime_error const&)
+	catch (tools::unavailable_error const&)
 	{ // encoder not set when building encoder LDPC_H
 		try
 		{
