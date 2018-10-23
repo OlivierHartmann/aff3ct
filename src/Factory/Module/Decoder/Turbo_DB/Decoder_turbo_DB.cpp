@@ -122,8 +122,6 @@ void Decoder_turbo_DB::parameters
 void Decoder_turbo_DB::parameters
 ::callback_arguments()
 {
-	auto p = get_name();
-
 	Decoder::parameters::callback_arguments();
 
 	sub->K        = K;

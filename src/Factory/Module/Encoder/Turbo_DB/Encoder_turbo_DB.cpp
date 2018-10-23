@@ -19,7 +19,7 @@ Encoder_turbo_DB::parameters
 Encoder_turbo_DB::parameters
 ::parameters(const std::string &name, const std::string &prefix)
 : Encoder::parameters(name, prefix),
-  itl(new Interleaver::parameters("itl")),
+  itl(new Interleaver   ::parameters("itl")),
   sub(new Encoder_RSC_DB::parameters("sub"))
 {
 	type = "TURBO_DB";

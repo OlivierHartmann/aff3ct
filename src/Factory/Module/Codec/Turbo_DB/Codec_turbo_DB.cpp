@@ -42,12 +42,10 @@ void Codec_turbo_DB::parameters
 	{
 		pct->register_arguments(*sub_pct);
 
-		CLI::remove_option(sub_pct, "--info-bits"  , pct->get_prefix(), pct->no_argflag());
-		CLI::remove_option(sub_pct, "--fra"        , pct->get_prefix(), pct->no_argflag());
-		CLI::remove_option(sub_pct, "--no-buff"    , pct->get_prefix(), pct->no_argflag());
-		CLI::remove_option(sub_pct, "--tail-length", pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--info-bits", pct->get_prefix(), pct->no_argflag());
+		CLI::remove_option(sub_pct, "--fra"      , pct->get_prefix(), pct->no_argflag());
 
-		CLI::get_option(sub_pct, "--fra-size", pct->get_prefix(), pct->no_argflag())->required(false);
+		// CLI::get_option(sub_pct, "--fra-size", pct->get_prefix(), pct->no_argflag())->required(false);
 	}
 
 	enc->register_arguments(*sub_enc);
@@ -56,12 +54,10 @@ void Codec_turbo_DB::parameters
 	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
 	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
 
+	auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());
+	auto& decsub = dec_tur->sub; // sub decoder -> auto_cloned pointeur so need the ref & !
 
-	// auto dec_tur = dynamic_cast<Decoder_turbo_DB::parameters*>(dec.get());
-	// auto& des = dec_tur->sub; // sub decoder
-
-	// CLI::remove_option(sub_des, "--no-buff"  , des->get_prefix());
-	// CLI::remove_option(sub_des, "--std"      , des->get_prefix());
+	CLI::remove_option(sub_dec, "--no-buff", decsub->get_prefix(), decsub->no_argflag());
 
 	if (itl != nullptr)
 	{
@@ -85,7 +81,6 @@ void Codec_turbo_DB::parameters
 	if (pct != nullptr)
 	{
 		pct->K        = enc->K;
-		pct->N        = enc->N_cw;
 		pct->N_cw     = enc->N_cw;
 		pct->n_frames = enc->n_frames;
 
@@ -100,9 +95,8 @@ void Codec_turbo_DB::parameters
 
 	dec->callback_arguments();
 
-	auto pdes = dec_tur->sub->get_prefix();
 
-	if (!enc_tur->sub->standard.empty() && !vals.exist({pdes+"-implem"}))
+	if (!enc_tur->sub->standard.empty() && !dec_tur->sub->implem_option_set_by_user())
 		dec_tur->sub->implem = enc_tur->sub->standard;
 	enc_tur->sub->standard = dec_tur->sub->implem;
 
@@ -120,9 +114,9 @@ void Codec_turbo_DB::parameters
 
 		if (!itl->core->type_option_set_by_user())
 		{
-			if (enc_tur->sub->type == "DVB-RCS1")
+			if (dec_tur->sub->implem == "DVB-RCS1")
 				itl->core->type = "DVB-RCS1";
-			else if (enc_tur->sub->type == "DVB-RCS2")
+			else if (dec_tur->sub->implem == "DVB-RCS2")
 				itl->core->type = "DVB-RCS2";
 		}
 	}
