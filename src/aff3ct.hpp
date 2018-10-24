@@ -103,7 +103,7 @@
 #ifndef VERSION_H_
 #include <Tools/version.h>
 #endif
-// #ifndef COMMAND_PARSER_HPP
+#ifndef COMMAND_PARSER_HPP
 #include <Factory/Command_parser.hpp>
 #endif
 #ifndef FACTORY_HPP
