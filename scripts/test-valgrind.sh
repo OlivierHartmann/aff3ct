@@ -28,7 +28,7 @@ function check_valgrind
 		ci=$(awk -F "=" '/ci/ {print $2}' $path)
 		if [ "$ci" != "off" ]; then
 			cd $build
-			eval "valgrind -q --error-exitcode=1 --leak-check=full ${cmd} --sim-stop-time 1 -t 1 -e 10000"
+			eval "valgrind -q --error-exitcode=1 --leak-check=full ${cmd} --stop-time 1 -t 1"
 			rc=$?;
 			cd ..
 			if [[ $rc != 0 ]]; then
@@ -51,7 +51,7 @@ function check_valgrind
 
 check_valgrind ${build_root} ${refs_root}
 
-COUNT=$(wc -l < ${log_file} )
+COUNT=$(wc -l < ${log_file})
 
 if [ $COUNT -gt 0 ]; then
 	echo "Error count is $COUNT! Memory check run failed :-(.";
