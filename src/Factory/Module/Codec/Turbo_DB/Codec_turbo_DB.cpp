@@ -85,6 +85,9 @@ void Codec_turbo_DB::parameters
 		pct->n_frames = enc->n_frames;
 
 		pct->callback_arguments();
+
+		if (pct->N == 0)
+			pct->N = pct->N_cw;
 	}
 
 	dec_tur->K                 = enc_tur->K;

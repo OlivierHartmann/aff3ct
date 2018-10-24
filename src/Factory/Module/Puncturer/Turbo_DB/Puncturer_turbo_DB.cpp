@@ -40,6 +40,9 @@ void Puncturer_turbo_DB::parameters
 
 	N_cw = 3 * K;
 
+	if (N == 0)
+		N = N_cw;
+
 	if (N == N_cw)
 		type = "NO";
 }
