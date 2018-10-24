@@ -32,7 +32,7 @@ function gen_coverage_info
 		ci=$(awk -F "=" '/ci/ {print $2}' $path)
 		if [ "$ci" != "off" ]; then
 			cd $build
-			eval "${cmd} --sim-stop-time 1 -t 1"
+			eval "${cmd} --stop-time 1 -t 1"
 			rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 			cd ..
 		else

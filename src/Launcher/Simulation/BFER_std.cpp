@@ -149,17 +149,17 @@ void BFER_std<B,R,Q>
 
 	if (std::is_integral<Q>())
 		params.qnt->callback_arguments();
+	else
+		params.qnt->type = "NO";
+
 
 	params.mnt_er->K = params.coded_monitoring ? N_cw : params.src->K;
 	params.mnt_mi->N = N;
 	params.mnt_er->callback_arguments();
 	params.mnt_mi->callback_arguments();
 
-
 	params.ter->callback_arguments();
 
-	if (!std::is_integral<Q>())
-		params.qnt->type = "NO";
 
 	if (params.coset)
 		params.cdc->enc->type = "COSET";
