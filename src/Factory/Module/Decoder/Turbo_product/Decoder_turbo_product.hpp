@@ -30,9 +30,9 @@ struct Decoder_turbo_product : public Decoder
 	public:
 		// ------------------------------------------------------------------------------------------------- PARAMETERS
 		// optional parameters
-		std::vector<float> alpha;
+		std::vector<float> alpha = {0.5f};
 		std::vector<float> beta;
-		std::vector<float> cp_coef;
+		std::vector<float> cp_coef = {1.f,1.f,1.f,1.f,0.f};
 		unsigned           n_ite = 4;
 		unsigned           n_least_reliable_positions = 2;
 		unsigned           n_test_vectors = 0;

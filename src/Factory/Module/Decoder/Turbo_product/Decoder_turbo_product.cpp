@@ -22,11 +22,17 @@ Decoder_turbo_product::parameters
 Decoder_turbo_product::parameters
 ::parameters(const std::string &name, const std::string &prefix)
 : Decoder::parameters(name, prefix),
-  sub(new Decoder_BCH::parameters(prefix+"-sub")),
+  sub(new Decoder_BCH::parameters("sub")),
   itl(new Interleaver::parameters("itl"))
 {
 	type   = "CP";
 	implem = "STD";
+
+	type_set  .insert("CP");
+	implem_set.insert("FAST");
+
+	sub->no_argflag(true);
+	itl->no_argflag(true);
 }
 
 Decoder_turbo_product::parameters* Decoder_turbo_product::parameters
@@ -82,71 +88,85 @@ void Decoder_turbo_product::parameters
 
 	Decoder::parameters::register_arguments(app);
 
-	args.erase({p+"-info-bits", "K"});
-	args.erase({p+"-cw-size",   "N"});
-
 	if (itl != nullptr)
 	{
 		itl->register_arguments(app);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 
-	tools::add_options(args.at({p+"-type", "D"}), 0, "CP");
-	tools::add_options(args.at({p+"-implem"   }), 0, "FAST");
+	CLI::add_option(app, p, naf,
+		"-i,--ite",
+		n_ite,
+		"Maximal number of iterations in the turbo decoder.",
+		true)
+		->check(CLI::StrictlyPositiveRange(0u))
+		->group("Standard");
+
+	CLI::add_option(app, p, naf,
+		"--alpha",
+		alpha,
+		"Weighting factor, one by half iteration (so twice more than number of iterations). "
+		"If not enough given values, then automatically extends the last to all iterations.")
+		->check(CLI::VectorLength(1,0))
+		->group("Standard");
+
+	CLI::add_option(app, p, naf,
+		"--beta",
+		beta,
+		"Reliability factor, one by half iteration (so twice more than number of iterations). "
+		"If not enough given values, then automatically extends the last to all iterations. "
+		"If not given, then computes beta dynamically from the least reliable position metrics.")
+		->check(CLI::VectorLength(1,0))
+		->group("Standard");
+
+	CLI::add_option(app, p, naf,
+		"--pos",
+		n_least_reliable_positions,
+		"Number of least reliable positions.",
+		true)
+		->check(CLI::StrictlyPositiveRange(16u))
+		->group("Standard");
+
+	CLI::add_option(app, p, naf,
+		"--tv",
+		n_test_vectors,
+		"Number of test vectors (0 means equal to 2^pos).",
+		true)
+		->group("Standard");
+
+	CLI::add_option(app, p, naf,
+		"--cp",
+		n_competitors,
+		"Number of competitors (0 means equal to number of test vectors, 1 means only the decided word).",
+		true)
+		->group("Standard");
+
+	CLI::add_flag(app, p, naf,
+		"--ext",
+		parity_extended,
+		"Considers an extended code with a parity bits.")
+		->group("Standard");
+
+	CLI::add_option(app, p, naf,
+		"--cp-coef",
+		cp_coef,
+		"The 5 Chase Pyndiah constant coefficients \"a,b,c,d,e\".",
+		true)
+		->check(CLI::VectorLength(5,5))
+		->group("Standard");
 
 
-	args.add(
-		{p+"-ite", "i"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"maximal number of iterations in the turbo.");
-
-	args.add(
-		{p+"-alpha"},
-		tools::List<float,Real_splitter>(tools::Real(), tools::Length(1)),
-		"weighting factor, one by half iteration (so twice more than number of iterations)."
-		" If not enough given values, then automatically extends the last to all iterations.");
-
-	args.add(
-		{p+"-beta"},
-		tools::List<float,Real_splitter>(tools::Real(tools::Positive()), tools::Length(1)),
-		"reliability factor, one by half iteration (so twice more than number of iterations)."
-		" If not enough given values, then automatically extends the last to all iterations."
-		" If not given, then computes beta dynamically from the least reliable position metrics.");
-
-	args.add(
-		{p+"-p"},
-		tools::Integer(tools::Positive(), tools::Non_zero()),
-		"number of least reliable positions.");
-
-	args.add(
-		{p+"-t"},
-		tools::Integer(tools::Positive()),
-		"number of test vectors (0 means equal to 2^p).");
-
-	args.add(
-		{p+"-c"},
-		tools::Integer(tools::Positive()),
-		"number of competitors (0 means equal to number of test vectors, 1 means only the decided word).");
-
-	args.add(
-		{p+"-ext"},
-		tools::None(),
-		"extends code with a parity bits.");
-
-	args.add(
-		{p+"-cp-coef"},
-		tools::List<float,Real_splitter>(tools::Real(), tools::Length(5,5)),
-		"the 5 Chase Pyndiah constant coefficients \"a,b,c,d,e\".");
-
+	sub->type_set   = {"ALGEBRAIC"};
+	sub->implem_set = {"STD", "FAST"};
 	sub->register_arguments(app);
 
-	auto ps = sub->get_prefix();
-
-	args.erase({ps+"-fra", "F"});
+	CLI::remove_option(app, "--info-bits", sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--cw-size",   sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--fra",       sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--hamming",   sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--flips",     sub->get_prefix(), sub->no_argflag());
 }
 
 void Decoder_turbo_product::parameters
@@ -156,66 +176,35 @@ void Decoder_turbo_product::parameters
 
 	Decoder::parameters::callback_arguments();
 
-	if (vals.exist({p+"-ite", "i"})) n_ite                      = vals.to_int({p+"-ite", "i"});
-	if (vals.exist({p+"-p"       })) n_least_reliable_positions = vals.to_int({p+"-p"       });
-
-	if (vals.exist({p+"-t"}))
-		n_test_vectors = vals.to_int({p+"-t"});
-	else
-		n_test_vectors = 1<<n_least_reliable_positions;
+	if (n_test_vectors == 0)
+		n_test_vectors = 1 << n_least_reliable_positions;
 
 	if (vals.exist({p+"-c"}))
 		n_competitors = vals.to_int({p+"-c"});
 	else
 		n_competitors = n_test_vectors;
 
-	if (vals.exist({p+"-ext"})) parity_extended = true;
 
+	alpha.resize(n_ite*2, alpha.back());
 
-	if (vals.exist({p+"-alpha"}))
-	{
-		alpha = vals.to_list<float>({p+"-alpha"});
-		alpha.resize(n_ite*2, alpha.back());
-	}
-	else
-	{
-		alpha.clear();
-		alpha.resize(n_ite*2, 0.5f);
-	}
-
-	if (vals.exist({p+"-beta"}))
-	{
-		beta = vals.to_list<float>({p+"-beta"});
+	if (!beta.empty())
 		beta.resize(n_ite*2, beta.back());
-	}
-	else
-	{
-		beta.clear();
-	}
 
 
-	if (vals.exist({p+"-cp-coef"}))
-		cp_coef = vals.to_list<float>({p+"-cp-coef"});
-	else
-	{
-		cp_coef.clear();
-		cp_coef.resize(5, 1.f);
-		cp_coef[4] = 0;
-	}
-
-
-	// sub->n_frames = n_frames;
-
+	sub->K        = K;
+	sub->N_cw     = N_cw;
+	sub->n_frames = n_frames;
 	sub->callback_arguments();
 
-	K = sub->K * sub->K;
+	K    = sub->K    * sub->K;
+	N_cw = sub->N_cw * sub->N_cw;
+	R    = (float)K / (float)N_cw;
 
-	R = (float)K / (float)N_cw;
 
 	if (itl != nullptr)
 	{
-		itl->core->n_frames = n_frames;
 		itl->core->type     = "ROW_COL";
+		itl->core->n_frames = n_frames;
 
 		if (parity_extended)
 			itl->core->n_cols = sub->N_cw +1;

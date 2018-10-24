@@ -19,10 +19,15 @@ Encoder_turbo_product::parameters
 Encoder_turbo_product::parameters
 ::parameters(const std::string &name, const std::string &prefix)
 : Encoder::parameters(name, prefix),
-  sub(new Encoder_BCH::parameters(prefix+"-sub")),
+  sub(new Encoder_BCH::parameters("sub")),
   itl(new Interleaver::parameters("itl"))
 {
-	this->type = "TURBO_PROD";
+	type = "TURBO_PROD";
+
+	type_set.insert("TURBO_PROD");
+
+	sub->no_argflag(true);
+	itl->no_argflag(true);
 }
 
 Encoder_turbo_product::parameters* Encoder_turbo_product::parameters
@@ -66,32 +71,30 @@ void Encoder_turbo_product::parameters
 
 	Encoder::parameters::register_arguments(app);
 
-	args.erase({p+"-info-bits", "K"});
-	args.erase({p+"-cw-size",   "N"});
-
 	if (itl != nullptr)
 	{
 		itl->register_arguments(app);
 
-		auto pi = this->itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(app, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(app, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 
-	tools::add_options(args.at({p+"-type"}), 0, "TURBO_PROD");
+	CLI::add_flag(app, p, naf,
+		"--ext",
+		parity_extended,
+		"Extends code with a parity bits.")
+		->group("Standard");
 
-	args.add(
-		{p+"-ext"},
-		tools::None(),
-		"extends code with a parity bits.");
 
-
+	sub->type_set = {"BCH"};
 	sub->register_arguments(app);
 
-	auto ps = sub->get_prefix();
-
-	args.erase({ps+"-fra", "F"});
+	CLI::remove_option(app, "--info-bits", sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--cw-size",   sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--fra",       sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--path",      sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--start-idx", sub->get_prefix(), sub->no_argflag());
+	CLI::remove_option(app, "--seed",      sub->get_prefix(), sub->no_argflag());
 }
 
 void Encoder_turbo_product::parameters
@@ -99,31 +102,28 @@ void Encoder_turbo_product::parameters
 {
 	Encoder::parameters::callback_arguments();
 
-	auto p = get_prefix();
-
-	if (vals.exist({p+"-ext"})) this->parity_extended = true;
-
-	// this->sub->n_frames = this->n_frames;
-
+	sub->K        = K;
+	sub->N_cw     = N_cw;
+	sub->n_frames = n_frames;
 	sub->callback_arguments();
 
-	this->K = this->sub->K * this->sub->K;
-
-	this->R = (float)this->K / (float)this->N_cw;
+	K    = sub->K    * sub->K;
+	N_cw = sub->N_cw * sub->N_cw;
+	R    = (float)K / (float)N_cw;
 
 
 	if (itl != nullptr)
 	{
-		this->itl->core->n_frames = this->n_frames;
-		this->itl->core->type     = "ROW_COL";
+		itl->core->type     = "ROW_COL";
+		itl->core->n_frames = n_frames;
 
 		if (parity_extended)
-			this->itl->core->n_cols = this->sub->N_cw +1;
+			itl->core->n_cols = sub->N_cw +1;
 		else
-			this->itl->core->n_cols = this->sub->N_cw;
+			itl->core->n_cols = sub->N_cw;
 
-		this->itl->core->size = this->itl->core->n_cols * this->itl->core->n_cols;
-		this->N_cw = this->itl->core->size;
+		itl->core->size = itl->core->n_cols * itl->core->n_cols;
+		N_cw = itl->core->size;
 
 		itl->callback_arguments();
 	}
@@ -139,7 +139,7 @@ void Encoder_turbo_product::parameters
 	if (itl != nullptr)
 		itl->get_headers(headers, full);
 
-	headers[p].push_back(std::make_pair("Parity extended", (this->parity_extended ? "yes" : "no")));
+	headers[p].push_back(std::make_pair("Parity extended", (parity_extended ? "yes" : "no")));
 
 	sub->get_headers(headers, full);
 }
@@ -150,7 +150,7 @@ module::Encoder_turbo_product<B>* Encoder_turbo_product::parameters
               module::Encoder_BCH<B> &enc_r,
               module::Encoder_BCH<B> &enc_c) const
 {
-	if (this->type == "TURBO_PROD") return new module::Encoder_turbo_product<B>(itl, enc_r, enc_c, n_frames);
+	if (type == "TURBO_PROD") return new module::Encoder_turbo_product<B>(itl, enc_r, enc_c, n_frames);
 
 	throw tools::cannot_allocate(__FILE__, __LINE__, __func__);
 }

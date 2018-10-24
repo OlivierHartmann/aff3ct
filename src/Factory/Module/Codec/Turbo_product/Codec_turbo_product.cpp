@@ -14,12 +14,14 @@ Codec_turbo_product::parameters
 : Codec          ::parameters(Codec_turbo_product_name, prefix),
   Codec_SISO_SIHO::parameters(Codec_turbo_product_name, prefix)
 {
-	auto enc_t = new Encoder_turbo_product::parameters("enc");
-	auto dec_t = new Decoder_turbo_product::parameters("dec");
+	auto enc_t = new Encoder_turbo_product::parameters("");
+	auto dec_t = new Decoder_turbo_product::parameters("");
+	enc_t->itl = nullptr;
+	dec_t->itl = nullptr;
+
 	Codec::parameters::set_enc(enc_t);
 	Codec::parameters::set_dec(dec_t);
-	Codec::parameters::set_itl(std::move(enc_t->itl));
-	dec_t->itl = nullptr;
+	Codec::parameters::set_itl(new Interleaver::parameters(""));
 }
 
 Codec_turbo_product::parameters* Codec_turbo_product::parameters
@@ -31,33 +33,26 @@ Codec_turbo_product::parameters* Codec_turbo_product::parameters
 void Codec_turbo_product::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p   = get_prefix();
-	auto naf = no_argflag();
+	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	Codec_SIHO::parameters::register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto dec_tur = dynamic_cast<Decoder_turbo_product::parameters*>(dec.get());
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	// auto dec_tur = dynamic_cast<Decoder_turbo_product::parameters*>(dec.get());
+	// auto& decsub = dec_tur->sub; // sub decoder -> auto_cloned pointeur so need the ref & !
 
-	auto pdec = dec->get_prefix();
-	auto pdes = dec_tur->get_prefix();
-
-	args.erase({pdes+"-cw-size",   "N"});
-	args.erase({pdes+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
-	args.erase({pdec+"-ext",          });
-
+	CLI::remove_option(sub_dec, "--cw-size",   dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra",       dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--ext",       dec->get_prefix(), dec->no_argflag());
 
 	if (itl != nullptr)
 	{
-		itl->register_arguments(app);
+		itl->register_arguments(*sub_itl);
 
-		auto pi = itl->get_prefix();
-
-		args.erase({pi+"-size"    });
-		args.erase({pi+"-fra", "F"});
+		CLI::remove_option(sub_itl, "--size", itl->get_prefix(), itl->no_argflag());
+		CLI::remove_option(sub_itl, "--fra" , itl->get_prefix(), itl->no_argflag());
 	}
 }
 
@@ -71,8 +66,8 @@ void Codec_turbo_product::parameters
 
 	enc->callback_arguments();
 
-	dec_tur->sub->K           = enc_tur->sub->K;
-	dec_tur->sub->N_cw        = enc_tur->sub->N_cw;
+	dec_tur->K                = enc_tur->sub->K;
+	dec_tur->N_cw             = enc_tur->sub->N_cw;
 	dec_tur->n_frames         = enc_tur->n_frames;
 	dec_tur->parity_extended  = enc_tur->parity_extended;
 
