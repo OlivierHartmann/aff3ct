@@ -149,7 +149,7 @@ void Modem::parameters
 	// --------------------------------------------------------------------------------------------------- demodulator
 	CLI::add_set(app, p, naf,
 		"--max",
-		wave_shape,
+		max,
 		{"MAX", "MAXL", "MAXS", "MAXSS"},
 		"Select the type of the max operation to use in the demodulator.",
 		true)

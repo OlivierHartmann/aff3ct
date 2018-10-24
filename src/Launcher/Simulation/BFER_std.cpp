@@ -67,7 +67,8 @@ void BFER_std<B,R,Q>
 
 	auto sub_enc = app.get_subcommand("enc");
 
-	if (CLI::has_option(sub_enc, "--info-bits", params.cdc->enc->get_prefix(), params.cdc->enc->no_argflag()) || CLI::has_option(sub_pct, "--info-bits", params.cdc->pct->get_prefix(), params.cdc->pct->no_argflag()))
+	if (CLI::has_option(sub_enc, "--info-bits", params.cdc->enc->get_prefix(), params.cdc->enc->no_argflag()) ||
+		(params.cdc->pct != nullptr && CLI::has_option(sub_pct, "--info-bits", params.cdc->pct->get_prefix(), params.cdc->pct->no_argflag())))
 		CLI::remove_option(sub_src, "--info-bits", params.src->get_prefix(), params.src->no_argflag());
 	CLI::remove_option(sub_src, "--seed"     , params.src->get_prefix(), params.src->no_argflag());
 

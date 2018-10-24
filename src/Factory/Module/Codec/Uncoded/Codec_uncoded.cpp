@@ -1,6 +1,6 @@
 #include "Codec_uncoded.hpp"
 
-#include "Factory/Module/Decoder/NO/Decoder_NO.hpp"
+#include "Factory/Module/Decoder/Hard_decision/Decoder_HD.hpp"
 
 using namespace aff3ct;
 using namespace aff3ct::factory;
@@ -13,8 +13,11 @@ Codec_uncoded::parameters
 : Codec          ::parameters(Codec_uncoded_name, prefix),
   Codec_SISO_SIHO::parameters(Codec_uncoded_name, prefix)
 {
-	Codec::parameters::set_enc(new Encoder   ::parameters("enc"));
-	Codec::parameters::set_dec(new Decoder_NO::parameters("dec"));
+	Codec::parameters::set_enc(new Encoder   ::parameters(""));
+	Codec::parameters::set_dec(new Decoder_HD::parameters(""));
+
+	// default value
+	enc->type = "NO";
 }
 
 Codec_uncoded::parameters* Codec_uncoded::parameters
@@ -26,24 +29,19 @@ Codec_uncoded::parameters* Codec_uncoded::parameters
 void Codec_uncoded::parameters
 ::register_arguments(CLI::App &app)
 {
-	auto p   = get_prefix();
-	auto naf = no_argflag();
-
 	Codec_SISO_SIHO::parameters::register_arguments(app);
 
-	enc->register_arguments(app);
-	dec->register_arguments(app);
+	enc->register_arguments(*sub_enc);
+	dec->register_arguments(*sub_dec);
 
-	auto penc = enc->get_prefix();
-	auto pdec = dec->get_prefix();
+	CLI::remove_option(sub_enc, "--cw-size", enc->get_prefix(), enc->no_argflag());
+	CLI::remove_option(sub_enc, "--path"   , enc->get_prefix(), enc->no_argflag());
+	CLI::remove_option(sub_enc, "--type"   , enc->get_prefix(), enc->no_argflag());
+	CLI::remove_option(sub_enc, "--seed"   , enc->get_prefix(), enc->no_argflag());
 
-	args.erase({penc+"-type"          });
-	args.erase({penc+"-cw-size",   "N"});
-	args.erase({penc+"-path"          });
-	args.erase({penc+"-seed",      "S"});
-	args.erase({pdec+"-cw-size",   "N"});
-	args.erase({pdec+"-info-bits", "K"});
-	args.erase({pdec+"-fra",       "F"});
+	CLI::remove_option(sub_dec, "--cw-size"  , dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--info-bits", dec->get_prefix(), dec->no_argflag());
+	CLI::remove_option(sub_dec, "--fra"      , dec->get_prefix(), dec->no_argflag());
 }
 
 void Codec_uncoded::parameters
@@ -51,14 +49,9 @@ void Codec_uncoded::parameters
 {
 	Codec_SISO_SIHO::parameters::callback_arguments();
 
-	enc->type = "NO";
-
 	enc->callback_arguments();
 
 	enc->N_cw     = enc->K;
-
-	dec->type     = "NONE";
-	dec->implem   = "HARD_DECISION";
 	dec->K        = enc->K;
 	dec->N_cw     = enc->N_cw;
 	dec->n_frames = enc->n_frames;
@@ -83,7 +76,7 @@ template <typename B, typename Q>
 module::Codec_uncoded<B,Q>* Codec_uncoded::parameters
 ::build(module::CRC<B>* crc) const
 {
-	return new module::Codec_uncoded<B,Q>(*enc, dynamic_cast<const Decoder_NO::parameters&>(*dec));
+	return new module::Codec_uncoded<B,Q>(*enc, dynamic_cast<const Decoder_HD::parameters&>(*dec));
 }
 
 template <typename B, typename Q>

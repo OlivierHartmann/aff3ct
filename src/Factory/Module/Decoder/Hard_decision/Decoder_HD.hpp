@@ -1,5 +1,5 @@
-#ifndef FACTORY_DECODER_NO_HPP
-#define FACTORY_DECODER_NO_HPP
+#ifndef FACTORY_DECODER_HD_HPP
+#define FACTORY_DECODER_HD_HPP
 
 #include <string>
 
@@ -12,9 +12,9 @@ namespace aff3ct
 {
 namespace factory
 {
-extern const std::string Decoder_NO_name;
-extern const std::string Decoder_NO_prefix;
-struct Decoder_NO : public Decoder
+extern const std::string Decoder_HD_name;
+extern const std::string Decoder_HD_prefix;
+struct Decoder_HD : public Decoder
 {
 	class parameters : public Decoder::parameters
 	{
@@ -23,10 +23,10 @@ struct Decoder_NO : public Decoder
 		// empty
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
-		explicit parameters(const std::string &p = Decoder_NO_prefix);
+		explicit parameters(const std::string &p = Decoder_HD_prefix);
 		parameters(const std::string &n, const std::string &p);
 		virtual ~parameters() = default;
-		Decoder_NO::parameters* clone() const;
+		Decoder_HD::parameters* clone() const;
 
 		// parameters construction
 		void register_arguments(CLI::App &app);
@@ -50,4 +50,4 @@ struct Decoder_NO : public Decoder
 }
 }
 
-#endif /* FACTORY_DECODER_NO_HPP */
+#endif /* FACTORY_DECODER_HD_HPP */

@@ -408,8 +408,11 @@ for fn in fileNames:
 
 	if simuRef.getNoiseType() == "ebn0":
 		argsAFFECT["sim"]["-E"] = "EBN0"
+		delete_entry(argsAFFECT["sim"], "--noise-type")
+
 	elif simuRef.getNoiseType() == "esn0":
 		argsAFFECT["sim"]["-E"] = "ESN0"
+		delete_entry(argsAFFECT["sim"], "--noise-type")
 
 
 

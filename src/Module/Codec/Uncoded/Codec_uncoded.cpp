@@ -3,7 +3,7 @@
 #include "Tools/Exception/exception.hpp"
 
 #include "Factory/Module/Encoder/Encoder.hpp"
-#include "Factory/Module/Decoder/NO/Decoder_NO.hpp"
+#include "Factory/Module/Decoder/Hard_decision/Decoder_HD.hpp"
 #include "Factory/Module/Puncturer/Puncturer.hpp"
 
 #include "Codec_uncoded.hpp"
@@ -14,7 +14,7 @@ using namespace aff3ct::module;
 template <typename B, typename Q>
 Codec_uncoded<B,Q>
 ::Codec_uncoded(const factory::Encoder   ::parameters &enc_params,
-                const factory::Decoder_NO::parameters &dec_params)
+                const factory::Decoder_HD::parameters &dec_params)
 : Codec          <B,Q>(enc_params.K, enc_params.N_cw, enc_params.N_cw, enc_params.tail_length, enc_params.n_frames),
   Codec_SISO_SIHO<B,Q>(enc_params.K, enc_params.N_cw, enc_params.N_cw, enc_params.tail_length, enc_params.n_frames)
 {
@@ -67,11 +67,11 @@ Codec_uncoded<B,Q>
 
 	try
 	{
-		this->set_decoder_siso_siho(factory::Decoder_NO::build_siso<B,Q>(dec_params, this->get_encoder()));
+		this->set_decoder_siso_siho(factory::Decoder_HD::build_siso<B,Q>(dec_params, this->get_encoder()));
 	}
 	catch (const std::exception&)
 	{
-		this->set_decoder_siho(factory::Decoder_NO::build<B,Q>(dec_params, this->get_encoder()));
+		this->set_decoder_siho(factory::Decoder_HD::build<B,Q>(dec_params, this->get_encoder()));
 	}
 }
 

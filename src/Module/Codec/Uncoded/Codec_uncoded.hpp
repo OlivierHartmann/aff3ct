@@ -2,7 +2,7 @@
 #define CODEC_UNCODED_HPP_
 
 #include "Factory/Module/Encoder/Encoder.hpp"
-#include "Factory/Module/Decoder/NO/Decoder_NO.hpp"
+#include "Factory/Module/Decoder/Hard_decision/Decoder_HD.hpp"
 
 #include "../Codec_SISO_SIHO.hpp"
 
@@ -15,7 +15,7 @@ class Codec_uncoded : public Codec_SISO_SIHO<B,Q>
 {
 public:
 	Codec_uncoded(const factory::Encoder   ::parameters &enc_params,
-	              const factory::Decoder_NO::parameters &dec_params);
+	              const factory::Decoder_HD::parameters &dec_params);
 	virtual ~Codec_uncoded() = default;
 
 protected:
