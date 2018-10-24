@@ -54,8 +54,8 @@ void Encoder_RSC::parameters
 	poly_option =
 	CLI::add_option(app, p, naf,
 		"--poly",
-		poly_str,
-		"The polynomials describing RSC code, should be of the form \"{A,B}\" in octal base.",
+		poly,
+		"The polynomials describing RSC code, should be of the form \"{013,015}\" (you can use octal base description).",
 		true)
 		->group("Standard");
 
@@ -63,8 +63,7 @@ void Encoder_RSC::parameters
 		"--std",
 		standard,
 		{"LTE", "CCSDS"},
-		"Select a standard and set automatically some parameters (overwritten by \"--poly\").",
-		true)
+		"Select a standard and set automatically some parameters (overwritten by \"--poly\").")
 		->group("Standard");
 }
 
@@ -75,12 +74,6 @@ void Encoder_RSC::parameters
 
 	if (poly_option != nullptr && !poly_option->empty())
 	{
-#ifdef _MSC_VER
-		sscanf_s   (poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
-#else
-		std::sscanf(poly_str.c_str(), "{%o,%o}", &poly[0], &poly[1]);
-#endif
-
 		if (poly[0] == 013 && poly[1] == 015)
 			standard = "LTE";
 

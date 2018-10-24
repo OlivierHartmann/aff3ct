@@ -40,7 +40,6 @@ struct Encoder_RSC : public Encoder
 		module::Encoder_RSC_sys<B>* build(std::ostream &stream = std::cout) const;
 
 	private:
-		std::string poly_str = "{013, 015}";
 		CLI::Option *poly_option;
 	};
 

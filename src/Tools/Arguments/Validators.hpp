@@ -65,7 +65,7 @@ struct StrictlyPositiveRange : public Validator
 				auto val = (T)0;
 				detail::lexical_cast(input, val);
 				if (val <= (T)0)
-					return "Value " + input + " not a stritly positive value";
+					return "Value " + input + " not a strictly positive value";
 
 				return std::string();
 			};
@@ -133,7 +133,10 @@ struct Power_of_two_minus_one : public CLI::Validator
 {
 	Power_of_two_minus_one()
 	{
-		tname = "Power of two minus one";
+		std::stringstream out;
+		out << detail::type_name<T>() << " in {Powers of two minus one}";
+		tname = out.str();
+
 		func = [](const std::string &str)
 		{
 			auto val = (T)0;
@@ -177,6 +180,105 @@ struct OutputFile : public Validator {
 		func = [](const std::string &filename) {
 			return std::string();
 		};
+	}
+};
+
+
+
+struct VectorLength : public CLI::Validator
+{
+	/// This produces a length check with a default null minimum and a maximum 'max' (0 == infinite).
+	VectorLength(size_t max) : VectorLength(0, max)
+	{
+	}
+
+	/// This produces a length check with minimum (0 == no min) and a maximum 'max' (0 == infinite).
+	VectorLength(size_t min, size_t max)
+	{
+		std::stringstream out;
+
+		if (min == 0 && max == 0)
+		{
+			out << "VECTOR without length limit.";
+			tname = out.str();
+
+			func = [](const std::string &str)
+			{
+				return std::string();
+			};
+		}
+		else if (max == 0)
+		{
+			out << "VECTOR of a minimum length of " << min;
+			tname = out.str();
+
+			func = [min](const std::string &str)
+			{
+				const std::string head      = "{([";
+				const std::string queue     = "})]";
+				const std::string separator = ",;";
+
+				auto str_vector = aff3ct::tools::split(str, head, queue, separator);
+
+				if (str_vector.size() < min)
+				{
+					std::stringstream out;
+					out << "Vector is too short : " << str_vector.size() << " instead of a minimum of " << min;
+					return out.str();
+				}
+				else
+					return std::string();
+			};
+		}
+		else if (min == 0)
+		{
+			out << "VECTOR of a maximum length of " << max;
+			tname = out.str();
+
+			func = [max](const std::string &str)
+			{
+				const std::string head      = "{([";
+				const std::string queue     = "})]";
+				const std::string separator = ",;";
+
+				auto str_vector = aff3ct::tools::split(str, head, queue, separator);
+
+				if (str_vector.size() > max)
+				{
+					std::stringstream out;
+					out << "Vector is too long : " << str_vector.size() << " instead of a maximum of " << max;
+					return out.str();
+				}
+				else
+					return std::string();
+			};
+
+		}
+		else
+		{
+			out << "VECTOR of a length between " << min << " and " << max;
+			tname = out.str();
+
+			func = [min, max](const std::string &str)
+			{
+				const std::string head      = "{([";
+				const std::string queue     = "})]";
+				const std::string separator = ",;";
+
+				auto str_vector = aff3ct::tools::split(str, head, queue, separator);
+
+				if (str_vector.size() < min || str_vector.size() > max)
+				{
+					std::stringstream out;
+					out << "Vector's size is not good : " << str_vector.size() << " instead of a length between "
+					    << min << " and " << max;
+					return out.str();
+				}
+				else
+					return std::string();
+			};
+
+		}
 	}
 };
 

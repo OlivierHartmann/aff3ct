@@ -85,10 +85,7 @@ namespace CLI
 	std::istringstream &operator>>(std::istringstream &in, Matlab_vector<T> &val)
 	{
 		val = in.str();
-
-		std::cout << "coucou from Mars" << std::endl;
 		in.str("");
-
 		return in;
 	}
 
