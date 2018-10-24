@@ -27,7 +27,7 @@ struct Terminal : Factory
 		bool                      disabled  = false;
 
 		// ---------------------------------------------------------------------------------------------------- METHODS
-		parameters(const std::string &p = Terminal_prefix);
+		explicit parameters(const std::string &p = Terminal_prefix);
 		virtual ~parameters() = default;
 		virtual Terminal::parameters* clone() const;
 

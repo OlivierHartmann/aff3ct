@@ -55,7 +55,7 @@ public:
 	 *             ref at 1 means a bit at 1 and ref at 0 means a bit at 0
 	 */
 	template <typename D, class AD = std::allocator<D>, class AB = std::allocator<B>>
-	void display_bit_vector(std::vector<D,AD> vec, std::vector<B,AB> ref = {});
+	void display_bit_vector(const std::vector<D,AD>& vec, const std::vector<B,AB>& ref = {});
 
 	/*!
 	 * \brief Display a vector (= a frame) of reals.
@@ -67,7 +67,7 @@ public:
 	 *             ref at 1 means a negative value and ref at 0 means a positive value
 	 */
 	template <typename D, class AD = std::allocator<D>, class AB = std::allocator<B>>
-	void display_real_vector(std::vector<D,AD> vec, std::vector<B,AB> ref = {});
+	void display_real_vector(const std::vector<D,AD>& vec, const std::vector<B,AB>& ref = {});
 
 	/*!
 	 * \brief Display a vector (= a frame) of hexadecimals.
@@ -77,7 +77,7 @@ public:
 	 * \param vec: a vector to display.
 	 */
 	template <typename D, class AD = std::allocator<D>>
-	void display_hex_vector(std::vector<D,AD> vec);
+	void display_hex_vector(const std::vector<D,AD>& vec);
 
 	/*!
 	 * \brief Display a vector (= a frame) of bits (0 or 1) in 2D.
@@ -90,7 +90,7 @@ public:
 	 *             ref at 1 means a bit at 1 and ref at 0 means a bit at 0
 	 */
 	template <typename D, class AD = std::allocator<D>, class AB = std::allocator<B>>
-	void display_bit_vector(std::vector<D,AD> vec, unsigned int row_width, std::vector<B,AB> ref = {});
+	void display_bit_vector(const std::vector<D,AD>& vec, unsigned int row_width, const std::vector<B,AB>& ref = {});
 
 	/*!
 	 * \brief Display a vector (= a frame) of reals in 2D.
@@ -103,7 +103,7 @@ public:
 	 *             ref at 1 means a negative value and ref at 0 means a positive value
 	 */
 	template <typename D, class AD = std::allocator<D>, class AB = std::allocator<B>>
-	void display_real_vector(std::vector<D,AD> vec, unsigned int row_width, std::vector<B,AB> ref = {});
+	void display_real_vector(const std::vector<D,AD>& vec, unsigned int row_width, const std::vector<B,AB>& ref = {});
 
 	/*!
 	 * \brief Display a vector (= a frame) of hexadecimals in 2D.
@@ -114,11 +114,11 @@ public:
 	 * \param row_width: number of values in a row (size of the x dimension).
 	 */
 	template <typename D, class AD = std::allocator<D>>
-	void display_hex_vector(std::vector<D,AD> vec, unsigned int row_width);
+	void display_hex_vector(const std::vector<D,AD>& vec, unsigned int row_width);
 
 private:
 	template <typename D, class AD = std::allocator<D>, class AB = std::allocator<B>>
-	void display_vector(std::vector<D,AD> vec, unsigned int row_width, std::vector<B,AB> ref, debug_version version);
+	void display_vector(const std::vector<D,AD>& vec, unsigned int row_width, const std::vector<B,AB>& ref, debug_version version);
 
 	template <typename D>
 	void display_value (D value, debug_version version, B ref = -1);

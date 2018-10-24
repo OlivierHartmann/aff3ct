@@ -103,14 +103,17 @@
 #ifndef VERSION_H_
 #include <Tools/version.h>
 #endif
-#ifndef COMMAND_PARSER_HPP
+// #ifndef COMMAND_PARSER_HPP
 #include <Factory/Command_parser.hpp>
 #endif
 #ifndef FACTORY_HPP
 #include <Factory/Factory.hpp>
 #endif
-#ifndef FACTORY_SIMULATION_MAIN_H_
+#ifndef FACTORY_LAUNCHER_HPP_
 #include <Factory/Launcher/Launcher.hpp>
+#endif
+#ifndef FACTORY_LAUNCHER_GLOBAL_HPP_
+#include <Factory/Launcher/Launcher_global.hpp>
 #endif
 #ifndef FACTORY_CHANNEL_HPP
 #include <Factory/Module/Channel/Channel.hpp>
@@ -181,11 +184,11 @@
 #ifndef FACTORY_DECODER_HPP_
 #include <Factory/Module/Decoder/Decoder.hpp>
 #endif
+#ifndef FACTORY_DECODER_HD_HPP
+#include <Factory/Module/Decoder/Hard_decision/Decoder_HD.hpp>
+#endif
 #ifndef FACTORY_DECODER_LDPC_HPP
 #include <Factory/Module/Decoder/LDPC/Decoder_LDPC.hpp>
-#endif
-#ifndef FACTORY_DECODER_NO_HPP
-#include <Factory/Module/Decoder/NO/Decoder_NO.hpp>
 #endif
 #ifndef FACTORY_DECODER_POLAR_HPP
 #include <Factory/Module/Decoder/Polar/Decoder_polar.hpp>
@@ -520,6 +523,9 @@
 #ifndef DECODER_MAXIMUM_LIKELIHOOD_STD_HPP_
 #include <Module/Decoder/Generic/ML/Decoder_maximum_likelihood_std.hpp>
 #endif
+#ifndef DECODER_HD_HPP_
+#include <Module/Decoder/Hard_decision/Decoder_HD.hpp>
+#endif
 #ifndef DECODER_LDPC_BIT_FLIPPING_HPP_
 #include <Module/Decoder/LDPC/BF/Decoder_LDPC_bit_flipping.hpp>
 #endif
@@ -555,9 +561,6 @@
 #endif
 #ifndef DECODER_LDPC_BP_VERTICAL_LAYERED_INTER_HPP_
 #include <Module/Decoder/LDPC/BP/Vertical_layered/Decoder_LDPC_BP_vertical_layered_inter.hpp>
-#endif
-#ifndef DECODER_NO_HPP_
-#include <Module/Decoder/NO/Decoder_NO.hpp>
 #endif
 #ifndef DECODER_POLAR_ASCL_FAST_SYS_CA
 #include <Module/Decoder/Polar/ASCL/Decoder_polar_ASCL_fast_CA_sys.hpp>
@@ -1045,107 +1048,38 @@
 #ifndef BINARY_TREE_METRIC_HPP_
 #include <Tools/Algo/Tree/Binary_tree_metric.hpp>
 #endif
-#ifndef ARGUMENT_HANDLER_HPP_
-#include <Tools/Arguments/Argument_handler.hpp>
+#ifndef CLI11_TOOLS_HPP
+#include <Tools/Arguments/CLI11_tools.hpp>
 #endif
-#ifndef ARGUMENT_TOOLS_HPP_
-#include <Tools/Arguments/Argument_tools.hpp>
+#ifndef CLI_HELP_FORMATTER_HPP
+#include <Tools/Arguments/Help_formatter.hpp>
 #endif
-#ifndef ARGUMENT_INFO_HPP_
-#include <Tools/Arguments/Maps/Argument_info.hpp>
+#ifndef CLI_MATLAB_VECTOR_HPP
+#include <Tools/Arguments/Matlab_vector.hpp>
 #endif
-#ifndef ARGUMENT_LINKS_HPP_
-#include <Tools/Arguments/Maps/Argument_links.hpp>
+#ifndef CLI_MATLAB_VECTOR_DETAILS_HPP
+#include <Tools/Arguments/Matlab_vector_details.hpp>
 #endif
-#ifndef ARGUMENT_MAP_GROUP_HPP_
-#include <Tools/Arguments/Maps/Argument_map_group.hpp>
+#ifndef OPTION_FUNCTIONS_HPP
+#include <Tools/Arguments/Option_functions.hpp>
 #endif
-#ifndef ARGUMENT_MAP_INFO_HPP_
-#include <Tools/Arguments/Maps/Argument_map_info.hpp>
+#ifndef OPTION_SPECIAL_TYPES_HPP__
+#include <Tools/Arguments/Option_special_types.hpp>
 #endif
-#ifndef ARGUMENT_MAP_VALUE_HPP_
-#include <Tools/Arguments/Maps/Argument_map_value.hpp>
-#endif
-#ifndef ARGUMENT_TAG_HPP_
-#include <Tools/Arguments/Maps/Argument_tag.hpp>
-#endif
-#ifndef ARGUMENT_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Argument_range.hpp>
-#endif
-#ifndef ARGUMENT_FUNCTION_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Function.hpp>
-#endif
-#ifndef ARGUMENT_RANGE_LENGTH_HPP_
-#include <Tools/Arguments/Ranges/Length.hpp>
-#endif
-#ifndef ARGUMENT_MAX_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Max.hpp>
-#endif
-#ifndef ARGUMENT_MIN_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Min.hpp>
-#endif
-#ifndef ARGUMENT_RANGE_NEGATIVE_HPP_
-#include <Tools/Arguments/Ranges/Negative.hpp>
-#endif
-#ifndef ARGUMENT_RANGE_NON_ZERO_HPP_
-#include <Tools/Arguments/Ranges/Non_zero.hpp>
-#endif
-#ifndef ARGUMENT_RANGE_POSITIVE_HPP_
-#include <Tools/Arguments/Ranges/Positive.hpp>
-#endif
-#ifndef ARGUMENT_EXAMPLE_SET_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Set/Example_set.hpp>
-#endif
-#ifndef ARGUMENT_EXCLUDING_SET_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Set/Excluding_set.hpp>
-#endif
-#ifndef ARGUMENT_INCLUDING_SET_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Set/Including_set.hpp>
-#endif
-#ifndef ARGUMENT_SET_RANGE_HPP_
-#include <Tools/Arguments/Ranges/Set/Set.hpp>
+#ifndef OPTION_SPECIAL_TYPES_DETAILS_HPP__
+#include <Tools/Arguments/Option_special_types_details.hpp>
 #endif
 #ifndef ARGUMENT_SPLITTER_HPP_
 #include <Tools/Arguments/Splitter/Splitter.hpp>
 #endif
-#ifndef ARGUMENT_TYPE_HPP_
-#include <Tools/Arguments/Types/Argument_type.hpp>
+#ifndef TYPE_CHRONO_HPP
+#include <Tools/Arguments/Type_chrono.hpp>
 #endif
-#ifndef ARGUMENT_TYPE_LIMITED_HPP_
-#include <Tools/Arguments/Types/Argument_type_limited.hpp>
+#ifndef TYPE_CHRONO_DETAILS_HPP
+#include <Tools/Arguments/Type_chrono_details.hpp>
 #endif
-#ifndef ARGUMENT_TYPE_LIST_HPP_
-#include <Tools/Arguments/Types/Container/List.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_TEXT_HPP_
-#include <Tools/Arguments/Types/Container/Text.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_FILE_HPP_
-#include <Tools/Arguments/Types/File_system/File.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_FILE_SYSTEM_HPP_
-#include <Tools/Arguments/Types/File_system/File_system.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_FOLDER_HPP_
-#include <Tools/Arguments/Types/File_system/Folder.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_PATH_HPP_
-#include <Tools/Arguments/Types/File_system/Path.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_NONE_HPP_
-#include <Tools/Arguments/Types/None.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_BOOLEAN_HPP_
-#include <Tools/Arguments/Types/Number/Boolean.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_INTEGER_HPP_
-#include <Tools/Arguments/Types/Number/Integer.hpp>
-#endif
-#ifndef ARGUMENT_TYPE_REAL_HPP_
-#include <Tools/Arguments/Types/Number/Real.hpp>
-#endif
-#ifndef ARGUMENT_UTILITIES_HPP
-#include <Tools/Arguments/utilities.hpp>
+#ifndef CLI_VALIDATORS_HPP
+#include <Tools/Arguments/Validators.hpp>
 #endif
 #ifndef AUTO_CLONED_UNIQUE_PTR_HPP__
 #include <Tools/auto_cloned_unique_ptr.hpp>
@@ -1396,6 +1330,9 @@
 #ifndef RUNTIME_ERROR_HPP_
 #include <Tools/Exception/runtime_error/runtime_error.hpp>
 #endif
+#ifndef UNAVAILABLE_ERROR_HPP_
+#include <Tools/Exception/unavailable_error/unavailable_error.hpp>
+#endif
 #ifndef UNDERFLOW_ERROR_HPP_
 #include <Tools/Exception/underflow_error/underflow_error.hpp>
 #endif
@@ -1461,6 +1398,9 @@
 #endif
 #ifndef REORDERER_HPP_
 #include <Tools/Perf/Reorderer/Reorderer.hpp>
+#endif
+#ifndef STRING_SPLITTER_HPP_
+#include <Tools/String_splitter/String_splitter.hpp>
 #endif
 #ifndef SC_DEBUG_HPP_
 #include <Tools/SystemC/SC_Debug.hpp>

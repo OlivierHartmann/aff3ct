@@ -26,10 +26,10 @@ namespace CLI
 
 	public:
 		Matlab_vector() = default;
-		Matlab_vector(const std::string& desc) { (*this) = desc; }
-		Matlab_vector(const std::vector<std::string>& desc) { (*this) = desc; }
-		Matlab_vector(const Container& v) : vec_(v) {}
-		Matlab_vector(Container&& v) : vec_(std::move(v)) {}
+		explicit Matlab_vector(const std::string& desc) { (*this) = desc; }
+		explicit Matlab_vector(const std::vector<std::string>& desc) { (*this) = desc; }
+		explicit Matlab_vector(const Container& v) : vec_(v) {}
+		explicit Matlab_vector(Container&& v) : vec_(std::move(v)) {}
 
 
 		Matlab_vector<T>& operator=(const std::string& description);

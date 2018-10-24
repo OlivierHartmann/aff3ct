@@ -13,10 +13,7 @@
 #include <memory>
 
 #include "Tools/types.h"
-#include "Tools/Arguments/Argument_handler.hpp"
-
 #include "Factory/Simulation/Simulation.hpp"
-
 #include "Simulation/Simulation.hpp"
 
 namespace aff3ct
@@ -42,9 +39,6 @@ private:
 	factory::Simulation::parameters *params_simu;  /*!< A structure of parameters to store and pass to the simulation. */
 
 protected:
-	tools::Argument_handler         ah;       /*!< An argument reader to manage the parsing and the documentation of the command line parameters. */
-	tools::Argument_map_info        args;     /*!< List of the arguments to find in the command line */
-	tools::Argument_map_value       arg_vals; /*!< List of the arguments with their values */
 	std::ostream                    &stream;  /*!< The dedicated stream in which the Launcher writes the parameters. */
 
 public:

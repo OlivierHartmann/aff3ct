@@ -14,7 +14,7 @@ namespace tools
 template <typename B>
 template <typename D, class AD, class AB>
 void Frame_trace<B>
-::display_bit_vector(std::vector<D,AD> vec, std::vector<B,AB> ref)
+::display_bit_vector(const std::vector<D,AD>& vec, const std::vector<B,AB>& ref)
 {
 	display_bit_vector(vec, (int)vec.size(), ref);
 }
@@ -22,7 +22,7 @@ void Frame_trace<B>
 template <typename B>
 template <typename D, class AD, class AB>
 void Frame_trace<B>
-::display_real_vector(std::vector<D,AD> vec, std::vector<B,AB> ref)
+::display_real_vector(const std::vector<D,AD>& vec, const std::vector<B,AB>& ref)
 {
 	display_real_vector(vec, (int)vec.size(), ref);
 }
@@ -30,7 +30,7 @@ void Frame_trace<B>
 template <typename B>
 template <typename D, class AD>
 void Frame_trace<B>
-::display_hex_vector(std::vector<D,AD> vec)
+::display_hex_vector(const std::vector<D,AD>& vec)
 {
 	display_hex_vector(vec, (int)vec.size());
 }
@@ -38,7 +38,7 @@ void Frame_trace<B>
 template <typename B>
 template <typename D, class AD, class AB>
 void Frame_trace<B>
-::display_bit_vector(std::vector<D,AD> vec, unsigned int row_width, std::vector<B,AB> ref)
+::display_bit_vector(const std::vector<D,AD>& vec, unsigned int row_width, const std::vector<B,AB>& ref)
 {
 	display_vector(vec, row_width, ref, debug_version::BIT);
 }
@@ -46,7 +46,7 @@ void Frame_trace<B>
 template <typename B>
 template <typename D, class AD, class AB>
 void Frame_trace<B>
-::display_real_vector(std::vector<D,AD> vec, unsigned int row_width, std::vector<B,AB> ref)
+::display_real_vector(const std::vector<D,AD>& vec, unsigned int row_width, const std::vector<B,AB>& ref)
 {
 	display_vector(vec, row_width, ref, debug_version::REAL);
 }
@@ -54,7 +54,7 @@ void Frame_trace<B>
 template <typename B>
 template <typename D, class AD>
 void Frame_trace<B>
-::display_hex_vector(std::vector<D,AD> vec, unsigned int row_width)
+::display_hex_vector(const std::vector<D,AD>& vec, unsigned int row_width)
 {
 	display_vector(vec, row_width, {}, debug_version::HEX);
 }
@@ -62,7 +62,7 @@ void Frame_trace<B>
 template <typename B>
 template <typename D, class AD, class AB>
 void Frame_trace<B>
-::display_vector(std::vector<D,AD> vec, unsigned int row_width, std::vector<B,AB> ref, debug_version version)
+::display_vector(const std::vector<D,AD>& vec, unsigned int row_width, const std::vector<B,AB>& ref, debug_version version)
 {
 	std::ios_base::fmtflags f( stream.flags() );
 

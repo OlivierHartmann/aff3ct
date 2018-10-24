@@ -179,9 +179,7 @@ void Decoder_turbo_product::parameters
 	if (n_test_vectors == 0)
 		n_test_vectors = 1 << n_least_reliable_positions;
 
-	if (vals.exist({p+"-c"}))
-		n_competitors = vals.to_int({p+"-c"});
-	else
+	if (n_competitors == 0)
 		n_competitors = n_test_vectors;
 
 

@@ -188,7 +188,7 @@ struct OutputFile : public Validator {
 struct VectorLength : public CLI::Validator
 {
 	/// This produces a length check with a default null minimum and a maximum 'max' (0 == infinite).
-	VectorLength(size_t max) : VectorLength(0, max)
+	explicit VectorLength(size_t max) : VectorLength(0, max)
 	{
 	}
 

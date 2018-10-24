@@ -91,15 +91,6 @@ void Quantizer::parameters
 void Quantizer::parameters
 ::callback_arguments()
 {
-	auto p = get_prefix();
-
-	if (vals.exist({p+"-range"    })) range      = vals.to_float({p+"-range"    });
-	if (vals.exist({p+"-size", "N"})) size       = vals.to_int  ({p+"-size", "N"});
-	if (vals.exist({p+"-fra",  "F"})) n_frames   = vals.to_int  ({p+"-fra",  "F"});
-	if (vals.exist({p+"-dec"      })) n_decimals = vals.to_int  ({p+"-dec"      });
-	if (vals.exist({p+"-bits"     })) n_bits     = vals.to_int  ({p+"-bits"     });
-	if (vals.exist({p+"-type"     })) type       = vals.at      ({p+"-type"     });
-	if (vals.exist({p+"-implem"   })) implem     = vals.at      ({p+"-implem"   });
 }
 
 void Quantizer::parameters

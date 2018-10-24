@@ -13,7 +13,6 @@
 #include <map>
 
 #include "Tools/Arguments/CLI11_tools.hpp"
-#include "Tools/Arguments/Argument_tools.hpp"
 
 namespace aff3ct
 {
@@ -38,8 +37,6 @@ struct Factory
 	class parameters
 	{
 	public:
-		tools::Argument_map_info  args;
-		tools::Argument_map_value vals;
 		// constructor/destructor
 		parameters(const std::string &name       = Factory_name,
 		           const std::string &short_name = Factory_short_name,
@@ -75,7 +72,9 @@ struct Factory
 	static void register_arguments(const std::vector<Factory::parameters*> &params, CLI::App &app);
 	static void callback_arguments(const std::vector<Factory::parameters*> &params);
 
-	static tools::Argument_map_group create_groups(const std::vector<Factory::parameters*> &params);
+
+	using Argument_map_group = std::map<std::string, std::string>;
+	static Argument_map_group create_groups(const std::vector<Factory::parameters*> &params);
 };
 
 struct Header

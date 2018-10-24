@@ -91,11 +91,11 @@ void Factory
 		p->callback_arguments();
 }
 
-tools::Argument_map_group Factory
+Factory::Argument_map_group Factory
 ::create_groups(const std::vector<Factory::parameters*> &params)
 {
 	// create groups of arguments
-	tools::Argument_map_group grps;
+	Argument_map_group grps;
 	for (auto *p : params)
 	{
 		auto prefixes    = p->get_prefixes   ();

@@ -35,35 +35,42 @@ void EXIT<B,R>
 {
 	Launcher::register_arguments(app);
 
-	params.     register_arguments(app);
-	params.src->register_arguments(app);
-	params.mdm->register_arguments(app);
-	params.chn->register_arguments(app);
-	params.mnt->register_arguments(app);
-	params.ter->register_arguments(app);
+	auto sub_sim = CLI::make_subcommand(app, "sim", params.     get_name() + " parameters");
+	auto sub_src = CLI::make_subcommand(app, "src", params.src->get_name() + " parameters");
+	auto sub_mdm = CLI::make_subcommand(app, "mdm", params.mdm->get_name() + " parameters");
+	auto sub_chn = CLI::make_subcommand(app, "chn", params.chn->get_name() + " parameters");
+	auto sub_mnt = CLI::make_subcommand(app, "mnt", params.mnt->get_name() + " parameters"); // same than mnt_mi
+	auto sub_ter = CLI::make_subcommand(app, "ter", params.ter->get_name() + " parameters");
 
-	auto psrc = params.src     ->get_prefix();
-	auto penc = params.cdc->enc->get_prefix();
-	auto pmdm = params.mdm     ->get_prefix();
-	auto pchn = params.chn     ->get_prefix();
-	auto pmnt = params.mnt     ->get_prefix();
-	auto pter = params.ter     ->get_prefix();
+	params.     register_arguments(*sub_sim);
+	params.glb->register_arguments(     app);
+	params.src->register_arguments(*sub_src);
+	params.mdm->register_arguments(*sub_mdm);
+	params.chn->register_arguments(*sub_chn);
+	params.mnt->register_arguments(*sub_mnt);
+	params.ter->register_arguments(*sub_ter);
 
-	if (this->args.exist({penc+"-info-bits", "K"}))
-		this->args.erase({psrc+"-info-bits", "K"});
-	this->args.erase({psrc+"-seed",     "S"});
-	this->args.erase({pmdm+"-fra-size", "N"});
-	this->args.erase({pmdm+"-fra",      "F"});
-	this->args.erase({pmdm+"-noise"       });
-	this->args.erase({pchn+"-fra-size", "N"});
-	this->args.erase({pchn+"-fra",      "F"});
-	this->args.erase({pchn+"-noise"        });
-	this->args.erase({pchn+"-seed",     "S"});
-	this->args.erase({pchn+"-add-users"    });
-	this->args.erase({pchn+"-complex"      });
-	this->args.erase({pmnt+"-size",     "K"});
-	this->args.erase({pmnt+"-fra",      "F"});
-	this->args.erase({pter+"-cw-size",  "N"});
+
+	auto sub_enc = app.get_subcommand("enc");
+
+	if (CLI::has_option(sub_enc, "--info-bits", params.cdc->enc->get_prefix(), params.cdc->enc->no_argflag()))
+		CLI::remove_option(sub_src, "--info-bits", params.src->get_prefix(), params.src->no_argflag());
+	CLI::remove_option(sub_src, "--seed"     , params.src->get_prefix(), params.src->no_argflag());
+
+	CLI::remove_option(sub_mdm, "--fra-size" , params.mdm->get_prefix(), params.mdm->no_argflag());
+	CLI::remove_option(sub_mdm, "--fra"      , params.mdm->get_prefix(), params.mdm->no_argflag());
+	CLI::remove_option(sub_mdm, "--noise"    , params.mdm->get_prefix(), params.mdm->no_argflag());
+
+	CLI::remove_option(sub_chn, "--fra-size" , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--fra"      , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--noise"    , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--seed"     , params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--add-users", params.chn->get_prefix(), params.chn->no_argflag());
+	CLI::remove_option(sub_chn, "--complex"  , params.chn->get_prefix(), params.chn->no_argflag());
+
+	CLI::remove_option(sub_mnt, "--info-bits", params.mnt->get_prefix(), params.mnt->no_argflag());
+	CLI::remove_option(sub_mnt, "--fra"      , params.mnt->get_prefix(), params.mnt->no_argflag());
+	CLI::remove_option(sub_mnt, "--trials"   , params.mnt->get_prefix(), params.mnt->no_argflag());
 }
 
 template <typename B, typename R>
@@ -73,19 +80,18 @@ void EXIT<B,R>
 	Launcher::callback_arguments();
 
 	params.callback_arguments();
+	params.glb->callback_arguments();
 
 	params.src->seed = params.local_seed;
 
+	auto K = params.src->K != 0 ? params.src->K : params.cdc->K;
+	auto N = params.src->K != 0 ? params.src->K : params.cdc->N;
+
 	params.src->callback_arguments();
+	params.src->K = params.src->K != 0 ? params.src->K : K;
 
-	auto psrc = params.src->get_prefix();
 
-	auto K = this->args.exist({psrc+"-info-bits", "K"}) ? params.src->K : params.cdc->K;
-	auto N = this->args.exist({psrc+"-info-bits", "K"}) ? params.src->K : params.cdc->N;
-
-	params.src->K = params.src->K == 0 ? K : params.src->K;
 	params.mdm->N = N;
-
 	params.mdm->callback_arguments();
 
 	params.chn->N         = params.mdm->N_mod;
@@ -96,7 +102,6 @@ void EXIT<B,R>
 	params.chn->callback_arguments();
 
 	params.mnt->size = K;
-
 	params.mnt->callback_arguments();
 
 	params.ter->callback_arguments();
@@ -111,11 +116,6 @@ void EXIT<B,R>
 
 	params.mdm->n_frames = params.src->n_frames;
 	params.chn->n_frames = params.src->n_frames;
-
-	auto pmnt = params.mnt->get_prefix();
-
-	if (!this->arg_vals.exist({pmnt+"-trials", "n"}) && params.cdc->K != 0)
-		params.mnt->n_trials = 200000 / params.cdc->K;
 }
 
 template <typename B, typename R>

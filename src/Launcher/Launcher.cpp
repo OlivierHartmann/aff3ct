@@ -37,7 +37,7 @@ using namespace aff3ct::launcher;
 
 Launcher
 ::Launcher(const int argc, const char **argv, std::ostream &stream)
-: simu(nullptr), argc(argc), argv((char**)argv), params_simu(nullptr), ah(argc, argv), stream(stream)
+: simu(nullptr), argc(argc), argv((char**)argv), params_simu(nullptr), stream(stream)
 {
 	cmd_line += std::string(argv[0]) + std::string(" ");
 	for (auto i = 1; i < argc; i++)
