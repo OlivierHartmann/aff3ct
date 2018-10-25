@@ -7,4 +7,3 @@ Visual Studio projects, Eclipse projects, etc.).
 .. include:: debian_like.rst
 .. include:: windows.rst
 .. include:: comp_options.rst
-.. include:: pyber.rst

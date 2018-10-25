@@ -29,7 +29,7 @@ Open a shell and type (from the AFF3CT root folder):
 Compile the code
 ^^^^^^^^^^^^^^^^
 
-This command will use the generated Makefile to compile::
+This command will use the generated Makefile to compile:
 
 .. code-block:: bash
 
