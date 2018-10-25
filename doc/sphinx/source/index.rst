@@ -27,7 +27,7 @@ Welcome to AFF3CT's documentation!
    install/install
    usage/usage
    license
-   help
+   help/help
 
 
 Indices and tables
