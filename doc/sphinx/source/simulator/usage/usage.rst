@@ -1,9 +1,8 @@
 Usage
 =====
 
-Getting started
-^^^^^^^^^^^^^^^
+.. toctree::
+   :maxdepth: 3
+   :caption: Contents
 
-copy paste from github wiki
-
-.. include:: pyber.rst
+   overview/overview
