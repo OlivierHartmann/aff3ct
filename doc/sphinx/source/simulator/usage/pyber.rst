@@ -5,7 +5,7 @@ Displaying results with PyBER
 
 You can download it here: `PyBER <https://github.com/aff3ct/PyBER>`_
 
-.. image:: ../../images/PyBER_plot.png
+.. image:: /images/PyBER_plot.png
 
 
 Install Python 3

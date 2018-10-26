@@ -63,13 +63,13 @@ Notice that some parts of the code use **SIMD** (Single Instruction Multiple Dat
 parallelism and this type of instructions often requires additionnal compiler
 options to be enabled (specific GNU compiler flags are given):
 
- * ``-msse2``: enable the SSE2 set of instructions on x86 CPUs (128-bit vector size, required for 32-bit and 64-bit data),
- * ``-mssse3``: enable the SSSE3 set of instructions on x86 CPUs (128-bit vector size, specifically required for 32-bit data and the SC_FAST decoder),
- * ``-msse4.1``: enable the SSE4.1 set of instructions on x86 CPUs (128-bit vector size, required for 8-bit and 16-bit data),
- * ``-mavx``: enable the AVX set of instructions on x86 CPUs (256-bit vector size, required for 32-bit and 64-bit data),
- * ``-mavx2``: enable the AVX2 set of instructions on x86 CPUs (256-bit vector size, required for 8-bit and 16-bit data),
- * ``-mfpu=neon``: enable the NEON set of instructions on ARMv7 and ARMv8 CPUs (128-bit vector size, required for 8-bit, 16-bit data and 32-bit data),
- * ``-march=native``: let the compiler choose the best set of instructions available on the current architecture (it does not work for ARMv7 architectures since the NEON instructions are not IEEE 754 compatible).
+   * ``-msse2``: enable the SSE2 set of instructions on x86 CPUs (128-bit vector size, required for 32-bit and 64-bit data),
+   * ``-mssse3``: enable the SSSE3 set of instructions on x86 CPUs (128-bit vector size, specifically required for 32-bit data and the SC_FAST decoder),
+   * ``-msse4.1``: enable the SSE4.1 set of instructions on x86 CPUs (128-bit vector size, required for 8-bit and 16-bit data),
+   * ``-mavx``: enable the AVX set of instructions on x86 CPUs (256-bit vector size, required for 32-bit and 64-bit data),
+   * ``-mavx2``: enable the AVX2 set of instructions on x86 CPUs (256-bit vector size, required for 8-bit and 16-bit data),
+   * ``-mfpu=neon``: enable the NEON set of instructions on ARMv7 and ARMv8 CPUs (128-bit vector size, required for 8-bit, 16-bit data and 32-bit data),
+   * ``-march=native``: let the compiler choose the best set of instructions available on the current architecture (it does not work for ARMv7 architectures since the NEON instructions are not IEEE 754 compatible).
 
 
 Enabling the cool bash mode
