@@ -390,7 +390,7 @@ def write_module(moduleMap, path):
 		text = "``" + tag + "``"
 
 		if argtype != "FLAG":
-			text += " + " + argtype
+			text += " + *" + argtype + "*"
 
 		text += "\n\n"
 		# text += indent + '"""\n\n'
@@ -398,7 +398,20 @@ def write_module(moduleMap, path):
 		text += indent + ":description: " + info.replace("--", "\\\\-\\\\-") + "\n"
 
 		if limits != "":
-			text += indent + ":restrictions: " + limits + "\n"
+			__limits = limits
+			pos = limits.find("{");
+			if pos != -1:
+				__limits  = "\n\n";
+				__limits += indent + indent + ".. hlist::\n"
+				__limits += indent + indent + indent + ":columns: 3\n\n"
+
+				table = limits[pos+1:-1].split(',')
+
+				for t in table:
+					__limits += indent + indent + indent + "* `" + t + "`\n"
+
+
+			text += indent + ":restrictions: " + __limits + "\n"
 
 		text += "\n"
 		# text += indent + '"""\n\n'

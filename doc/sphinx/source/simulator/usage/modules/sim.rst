@@ -1,15 +1,9 @@
 Simulation BFER standard parameters
 -----------------------------------
 
-``--crit-nostop``
+``--max-frame`` + *UINT*
 
-   :description: The stop criteria arguments -stop-time or -max-frame kill the current simulatated noise point but not the simulation.
-
-
-
-``--meta`` + TEXT
-
-   :description: Print the output with metadata, takes the simulation title.
+   :description: Maximum number of frames to play after what the current simulatated noise stops (0 is infinite).
 
 
 
@@ -19,9 +13,59 @@ Simulation BFER standard parameters
 
 
 
-``--debug``
+``-d,--debug-limit`` + *UINT*
 
-   :description: Enable debug mode: print array values after each step.
+   :description: Enable debug mode: set the max number of elements to display in the debug mode (0 is all).
+   :restrictions: in ]0 - inf[
+
+
+
+``-p,--prec`` + *UINT*
+
+   :description: The simulation precision in bits.
+   :restrictions: 
+
+      .. hlist::
+         :columns: 3
+
+         * `8`
+         * `16`
+         * `32`
+         * `64`
+
+
+
+
+``-R,--noise-range`` + *MATLAB VECTOR STYLE*
+
+   :description: Noise energy range to run (Matlab style: "0.5:2.5,2.55,2.6:0.05:3" with a default step of 0.1).
+
+
+
+``--stop-time`` + *TIME [SEC]*
+
+   :description: Time in sec after what the current simulatated noise stops (0 is infinite).
+
+
+
+``--type`` + *TEXT*
+
+   :description: Select the type of simulation to launch (default is BFER).
+   :restrictions: 
+
+      .. hlist::
+         :columns: 3
+
+         * `BFER`
+         * `BFERI`
+         * `EXIT`
+
+
+
+
+``-m,--noise-min`` + *FLOAT*
+
+   :description: Minimal noise energy to simulate.
 
 
 
@@ -31,9 +75,39 @@ Simulation BFER standard parameters
 
 
 
-``--pdf-path`` + FILE
+``--crit-nostop``
 
-   :description: A file that contains PDF for different SNR. Set the SNR range from the given ones. Overwritten by -R or limited by -m and -M with a minimum step of -s
+   :description: The stop criteria arguments -stop-time or -max-frame kill the current simulatated noise point but not the simulation.
+
+
+
+``-C,--cde-type`` + *TEXT*
+
+   :description: Select the code type you want to use.
+   :restrictions: 
+
+      .. hlist::
+         :columns: 3
+
+         * `BCH`
+         * `LDPC`
+         * `POLAR`
+         * `RA`
+         * `REP`
+         * `RS`
+         * `RSC`
+         * `RSC_DB`
+         * `TURBO`
+         * `TURBO_DB`
+         * `TURBO_PROD`
+         * `UNCODED`
+
+
+
+
+``--debug``
+
+   :description: Enable debug mode: print array values after each step.
 
 
 
@@ -43,107 +117,48 @@ Simulation BFER standard parameters
 
 
 
-``-c,--coset``
-
-   :description: Enable the coset approach.
-
-
-
-``--type`` + TEXT
-
-   :description: Select the type of simulation to launch (default is BFER).
-   :restrictions: in {BFER,BFERI,EXIT}
-
-
-
-``--err-trk-path`` + TEXT
-
-   :description: Base path for the files where the bad frames will be stored or read.
-
-
-
-``--stop-time`` + TIME [SEC]
-
-   :description: Time in sec after what the current simulatated noise stops (0 is infinite).
-
-
-
-``-E,--noise-type`` + TEXT
-
-   :description: Select the type of NOISE: SNR per Symbol / SNR per information Bit / Received Optical Power / Erasure Probability.
-   :restrictions: in {EBN0,EP,ESN0,ROP}
-
-
-
-``-M,--noise-max`` + FLOAT
+``-M,--noise-max`` + *FLOAT*
 
    :description: Maximal noise energy to simulate.
 
 
 
-``-C,--cde-type`` + TEXT
+``-S,--seed`` + *UINT*
 
-   :description: Select the code type you want to use.
-   :restrictions: in {BCH,LDPC,POLAR,RA,REP,RS,RSC,RSC_DB,TURBO,TURBO_DB,TURBO_PROD,UNCODED}
-
+   :description: 0            Seed used in the simulation to initialize the pseudo random generators in general.
 
 
-``-s,--noise-step`` + FLOAT
+
+``-s,--noise-step`` + *FLOAT*
 
    :description: Noise energy step between each simulation iteration.
    :restrictions: in ]0 - inf[
 
 
 
-``--stats``
+``--meta`` + *TEXT*
 
-   :description: Display statistics module by module.
-
-
-
-``-p,--prec`` + UINT
-
-   :description: The simulation precision in bits.
-   :restrictions: in {8,16,32,64}
+   :description: Print the output with metadata, takes the simulation title.
 
 
 
-``-d,--debug-limit`` + UINT
-
-   :description: Enable debug mode: set the max number of elements to display in the debug mode (0 is all).
-   :restrictions: in ]0 - inf[
-
-
-
-``-R,--noise-range`` + MATLAB VECTOR STYLE
-
-   :description: Noise energy range to run (Matlab style: "0.5:2.5,2.55,2.6:0.05:3" with a default step of 0.1).
-
-
-
-``-t,--threads`` + UINT
+``-t,--threads`` + *UINT*
 
    :description: 0         Enable multi-threaded mode and specify the number of threads (0 means the maximum supported by the core).
 
 
 
-``-m,--noise-min`` + FLOAT
-
-   :description: Minimal noise energy to simulate.
-
-
-
-``--debug-prec`` + INT
-
-   :description: Set the precision of real elements when displayed in debug mode.
-   :restrictions: in [0 - 10]
-
-
-
-``--err-trk-thold`` + UINT
+``--err-trk-thold`` + *UINT*
 
    :description: Dump only frames with a bit error count above or equal to this threshold.
    :restrictions: in ]0 - inf[
+
+
+
+``--debug-prec`` + *INT*
+
+   :description: Set the precision of real elements when displayed in debug mode.
+   :restrictions: in [0 - 10]
 
 
 
@@ -153,15 +168,43 @@ Simulation BFER standard parameters
 
 
 
-``--max-frame`` + UINT
+``--pdf-path`` + *FILE*
 
-   :description: Maximum number of frames to play after what the current simulatated noise stops (0 is infinite).
+   :description: A file that contains PDF for different SNR. Set the SNR range from the given ones. Overwritten by -R or limited by -m and -M with a minimum step of -s
 
 
 
-``-S,--seed`` + UINT
+``-E,--noise-type`` + *TEXT*
 
-   :description: 0            Seed used in the simulation to initialize the pseudo random generators in general.
+   :description: Select the type of NOISE: SNR per Symbol / SNR per information Bit / Received Optical Power / Erasure Probability.
+   :restrictions: 
+
+      .. hlist::
+         :columns: 3
+
+         * `EBN0`
+         * `EP`
+         * `ESN0`
+         * `ROP`
+
+
+
+
+``-c,--coset``
+
+   :description: Enable the coset approach.
+
+
+
+``--err-trk-path`` + *TEXT*
+
+   :description: Base path for the files where the bad frames will be stored or read.
+
+
+
+``--stats``
+
+   :description: Display statistics module by module.
 
 
 

@@ -1,12 +1,6 @@
 Global parameters
 -----------------
 
-``-h,--help``
-
-   :description: Print the help.
-
-
-
 ``-H,--Help``
 
    :description: Print this help with the advanced arguments.
@@ -19,6 +13,24 @@ Global parameters
 
 
 
+``--no-legend``
+
+   :description: Do not display any legend when launching the simulation.
+
+
+
+``-h,--help``
+
+   :description: Print the help.
+
+
+
+``--full-legend``
+
+   :description: Display fully the legend when launching the simulation.
+
+
+
 ``--no-colors``
 
    :description: Disable the colors in the shell.
@@ -28,18 +40,6 @@ Global parameters
 ``--full-bt``
 
    :description: Enable full backtrace with file names and lines (may take additional time).
-
-
-
-``--no-legend``
-
-   :description: Do not display any legend when launching the simulation.
-
-
-
-``--full-legend``
-
-   :description: Display fully the legend when launching the simulation.
 
 
 

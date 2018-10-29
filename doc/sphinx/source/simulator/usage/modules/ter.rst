@@ -1,7 +1,7 @@
 Terminal parameters
 -------------------
 
-``--freq`` + TIME [MSEC]
+``--freq`` + *TIME [MSEC]*
 
    :description: 500      Display frequency (refresh time step for each iteration, 0 = disable display refresh).
 
@@ -13,10 +13,16 @@ Terminal parameters
 
 
 
-``--type`` + TEXT
+``--type`` + *TEXT*
 
    :description: Type of the terminal to use to display results.
-   :restrictions: in {STD}
+   :restrictions: 
+
+      .. hlist::
+         :columns: 3
+
+         * `STD`
+
 
 
 
