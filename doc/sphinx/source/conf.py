@@ -131,7 +131,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'AFF3CT.tex', 'AFF3CT Documentation',
-     'Olivier Hartmann', 'manual'),
+     'AFF3CT\'s team', 'manual'),
 ]
 
 
