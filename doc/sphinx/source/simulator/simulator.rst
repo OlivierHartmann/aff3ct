@@ -1,6 +1,6 @@
-*************
-The simulator
-*************
+*********
+Simulator
+*********
 
 .. toctree::
    :maxdepth: 2

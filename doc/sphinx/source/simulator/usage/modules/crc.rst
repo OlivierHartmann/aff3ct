@@ -3,19 +3,6 @@
 CRC parameters
 --------------
 
-.. _crc-size:
-
-``--size``
-""""""""""
-
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Group: Standard
-   :Examples: ``--size 1``
-
-
-Size of the CRC (divisor size in bit -1), required if you selected an unknown CRC.
-
 .. _crc-type:
 
 ``--type,--poly``
@@ -28,6 +15,19 @@ Size of the CRC (divisor size in bit -1), required if you selected an unknown CR
 
 
 Select the CRC type/polynomial you want to use (ex: "8-DVB-S2": 0xD5, "16-IBM": 0x8005, "24-LTEA": 0x864CFB, "32-GZIP": 0x04C11DB7).
+
+.. _crc-size:
+
+``--size``
+""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Group: Standard
+   :Examples: ``--size 1``
+
+
+Size of the CRC (divisor size in bit -1), required if you selected an unknown CRC.
 
 .. _crc-implem:
 

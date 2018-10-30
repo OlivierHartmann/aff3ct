@@ -1,6 +1,6 @@
-***********
-The library
-***********
+***************
+Library/Toolbox
+***************
 
 .. toctree::
    :maxdepth: 3
