@@ -3,6 +3,17 @@
 Channel parameters
 ------------------
 
+.. _chn-path:
+
+``--path``
+""""""""""
+
+   :type: FILE
+   :Examples: ``--path example/path/to/the/right/file``
+
+
+Path to a noisy file, to use with "\\-\\-type USER,OPTICAL" or to a gain file (used with "\\-\\-type RAYLEIGH_USER").
+
 .. _chn-blk-fad:
 
 ``--blk-fad``
@@ -11,7 +22,6 @@ Channel parameters
    :type: TEXT
    :Allowed values: ``FRAME`` ``NO`` ``ONETAP`` 
    :Default: NO
-   :Group: Standard
    :Examples: ``--blk-fad NO``
 
 
@@ -42,7 +52,6 @@ Description of the allowed values:
    :type: TEXT
    :Allowed values: ``FAST`` ``STD`` 
    :Default: STD
-   :Group: Standard
    :Examples: ``--implem STD``
 
 
@@ -62,18 +71,6 @@ Description of the allowed values:
 .. |implem_descr_std| replace:: TODO VALUE STD
 
 
-.. _chn-path:
-
-``--path``
-""""""""""
-
-   :type: FILE
-   :Group: Standard
-   :Examples: ``--path example/path/to/the/right/file``
-
-
-Path to a noisy file, to use with "\\-\\-type USER,OPTICAL" or to a gain file (used with "\\-\\-type RAYLEIGH_USER").
-
 .. _chn-gain-occur:
 
 ``--gain-occur``
@@ -82,7 +79,6 @@ Path to a noisy file, to use with "\\-\\-type USER,OPTICAL" or to a gain file (u
    :type: UINT
    :Range: :math:`]0 - \infty[`
    :Default: 1
-   :Group: Standard
    :Examples: ``--gain-occur 1``
 
 
@@ -96,7 +92,6 @@ The number of times a gain is used on consecutive symbols (used with "\\-\\-type
    :type: TEXT
    :Allowed values: ``AWGN`` ``BEC`` ``BSC`` ``NO`` ``OPTICAL`` ``RAYLEIGH`` ``RAYLEIGH_USER`` ``USER`` ``USER_ADD`` 
    :Default: AWGN
-   :Group: Standard
    :Examples: ``--type AWGN``
 
 

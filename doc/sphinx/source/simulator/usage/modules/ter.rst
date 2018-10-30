@@ -3,16 +3,6 @@
 Terminal parameters
 -------------------
 
-.. _ter-no:
-
-``--no``
-""""""""
-
-   :Group: Standard
-
-
-Disable recurrent report but only at the end of each noise point.
-
 .. _ter-freq:
 
 ``--freq``
@@ -20,11 +10,19 @@ Disable recurrent report but only at the end of each noise point.
 
    :type: TIME [MSEC]
    :Default: 500
-   :Group: Standard
    :Examples: ``--freq 500``
 
 
 Display frequency (refresh time step for each iteration, 0 = disable display refresh).
+
+.. _ter-no:
+
+``--no``
+""""""""
+
+
+
+Disable recurrent report but only at the end of each noise point.
 
 .. _ter-type:
 
@@ -34,7 +32,6 @@ Display frequency (refresh time step for each iteration, 0 = disable display ref
    :type: TEXT
    :Allowed values: ``STD`` 
    :Default: STD
-   :Group: Standard
    :Examples: ``--type STD``
 
 

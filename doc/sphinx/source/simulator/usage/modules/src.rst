@@ -10,11 +10,34 @@ Source parameters
 
    :type: UINT
    :Default: 0
-   :Group: Standard
    :Examples: ``--start-idx 0``
 
 
 Start idx to use in the USER type source.
+
+.. _src-fra:
+
+``-F,--fra``
+""""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Examples: ``--fra 1``
+
+
+Set the number of inter frame level to process.
+
+.. _src-path:
+
+``--path``
+""""""""""
+
+   :type: FILE
+   :Examples: ``--path example/path/to/the/right/file``
+
+
+Path to a file containing one or a set of pre-computed source bits (to use with "\\-\\-type USER").
 
 .. _src-implem:
 
@@ -24,7 +47,6 @@ Start idx to use in the USER type source.
    :type: TEXT
    :Allowed values: ``FAST`` ``STD`` 
    :Default: STD
-   :Group: Standard
    :Examples: ``--implem STD``
 
 
@@ -44,18 +66,6 @@ Description of the allowed values:
 .. |implem_descr_std| replace:: TODO VALUE STD
 
 
-.. _src-path:
-
-``--path``
-""""""""""
-
-   :type: FILE
-   :Group: Standard
-   :Examples: ``--path example/path/to/the/right/file``
-
-
-Path to a file containing one or a set of pre-computed source bits (to use with "\\-\\-type USER").
-
 .. _src-type:
 
 ``--type``
@@ -64,7 +74,6 @@ Path to a file containing one or a set of pre-computed source bits (to use with 
    :type: TEXT
    :Allowed values: ``AZCW`` ``RAND`` ``USER`` 
    :Default: RAND
-   :Group: Standard
    :Examples: ``--type RAND``
 
 
@@ -86,18 +95,4 @@ Description of the allowed values:
 .. |type_descr_rand| replace:: TODO VALUE RAND
 .. |type_descr_user| replace:: TODO VALUE USER
 
-
-.. _src-fra:
-
-``-F,--fra``
-""""""""""""
-
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Default: 1
-   :Group: Standard
-   :Examples: ``--fra 1``
-
-
-Set the number of inter frame level to process.
 

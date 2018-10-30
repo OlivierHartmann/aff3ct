@@ -175,5 +175,13 @@ epub_title = project
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
 
+rst_epilog = """
+
+.. |logo_ims| image:: https://www.ims-bordeaux.fr/images/logoimsjoom.png
+    :alt: logo-ims-bordeaux
+    :width: 60px
+    :height: 30px
+
+"""
 
 # -- Extension configuration -------------------------------------------------

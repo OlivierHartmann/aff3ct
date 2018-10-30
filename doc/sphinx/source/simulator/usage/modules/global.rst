@@ -3,85 +3,102 @@
 Global parameters
 -----------------
 
-.. _global-disable-bt:
+.. _global-version:
 
-``--disable-bt``
+``-v,--version``
 """"""""""""""""
 
-   :Group: Advanced
 
 
-Disable the backtrace when displaying exception.
-
-.. _global-full-bt:
-
-``--full-bt``
-"""""""""""""
-
-   :Group: Advanced
-
-
-Enable full backtrace with file names and lines (may take additional time).
-
-.. _global-no-legend:
-
-``--no-legend``
-"""""""""""""""
-
-   :Group: Advanced
-   :Excludes: ``--full-legend`` 
-
-
-Do not display any legend when launching the simulation.
-
-.. _global-no-colors:
-
-``--no-colors``
-"""""""""""""""
-
-   :Group: Advanced
-
-
-Disable the colors in the shell.
+Print informations about the code version.
 
 .. _global-Help:
 
 ``-H,--Help``
 """""""""""""
 
-   :Group: Standard
 
 
 Print this help with the advanced arguments.
-
-.. _global-full-legend:
-
-``--full-legend``
-"""""""""""""""""
-
-   :Group: Advanced
-   :Excludes: ``--no-legend`` 
-
-
-Display fully the legend when launching the simulation.
-
-.. _global-version:
-
-``-v,--version``
-""""""""""""""""
-
-   :Group: Standard
-
-
-Print informations about the code version.
 
 .. _global-help:
 
 ``-h,--help``
 """""""""""""
 
-   :Group: Standard
 
 
 Print the help.
+
+.. _global-no-colors:
+
+``--no-colors``
+"""""""""""""""
+
+   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+      :width:  80px
+      :height: 80px
+      :align: right
+
+
+
+Disable the colors in the shell.
+
+.. _global-full-bt:
+
+``--full-bt``
+"""""""""""""
+
+   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+      :width:  80px
+      :height: 80px
+      :align: right
+
+
+
+Enable full backtrace with file names and lines (may take additional time).
+
+.. _global-disable-bt:
+
+``--disable-bt``
+""""""""""""""""
+
+   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+      :width:  80px
+      :height: 80px
+      :align: right
+
+
+
+Disable the backtrace when displaying exception.
+
+.. _global-no-legend:
+
+``--no-legend``
+"""""""""""""""
+
+   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+      :width:  80px
+      :height: 80px
+      :align: right
+
+   :Excludes: ``--full-legend`` 
+
+
+Do not display any legend when launching the simulation.
+
+.. _global-full-legend:
+
+``--full-legend``
+"""""""""""""""""
+
+   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+      :width:  80px
+      :height: 80px
+      :align: right
+
+   :Excludes: ``--no-legend`` 
+
+
+Display fully the legend when launching the simulation.
 

@@ -401,9 +401,34 @@ def addSpaces(text, totalLength):
 	return text
 
 
+def sortTags(moduleMap):
+	tagList = []
+	for tag in moduleMap:
+		if tag == "name":
+			continue
+		if moduleMap[tag]["required"]:
+			tagList.append([tag, moduleMap[tag]])
+
+	for tag in moduleMap:
+		if tag == "name":
+			continue
+		if not moduleMap[tag]["required"] and moduleMap[tag]["group"] == "Standard":
+			tagList.append([tag, moduleMap[tag]])
+
+	for tag in moduleMap:
+		if tag == "name":
+			continue
+		if not moduleMap[tag]["required"] and moduleMap[tag]["group"] != "Standard":
+			tagList.append([tag, moduleMap[tag]])
+
+	return tagList
+
+
 def write_module(moduleMap, path, reftag):
 	file = open(path, 'w')
 	indent = "   "
+	required_image_link = "http://jeffnielsen.com/wp-content/uploads/2014/06/required-cropped.png"
+	advanced_image_link = "https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg"
 
 	text  = ".. _" + reftag + "-" + moduleMap["name"].replace(' ', '-').lower() + ":\n\n"
 	text += moduleMap["name"] + "\n"
@@ -416,18 +441,17 @@ def write_module(moduleMap, path, reftag):
 	file.write(text)
 
 
-	for tag in moduleMap:
-		if tag == "name":
-			continue
+	for Arg in sortTags(moduleMap):
+		tag = Arg[0]
 
-		group    = moduleMap[tag]["group"   ]
-		argtype  = moduleMap[tag]["argtype" ]
-		limits   = moduleMap[tag]["limits"  ]
-		required = moduleMap[tag]["required"]
-		default  = moduleMap[tag]["default" ]
-		needs    = moduleMap[tag]["needs"   ]
-		excludes = moduleMap[tag]["excludes"]
-		info     = moduleMap[tag]["info"    ]
+		group    = Arg[1]["group"   ]
+		argtype  = Arg[1]["argtype" ]
+		limits   = Arg[1]["limits"  ]
+		required = Arg[1]["required"]
+		default  = Arg[1]["default" ]
+		needs    = Arg[1]["needs"   ]
+		excludes = Arg[1]["excludes"]
+		info     = Arg[1]["info"    ]
 
 		text  = getArgReference(reftag, tag)
 		text += "``" + tag + "``\n"
@@ -435,6 +459,20 @@ def write_module(moduleMap, path, reftag):
 		for t in range(len(tag)+4):
 			text += '"'
 		text +="\n\n"
+
+		if required :
+			text +=	indent + ".. image:: " + required_image_link + "\n"
+			text += indent + indent + ":width:  80px" + "\n"
+			text += indent + indent + ":height: 30px" + "\n"
+			text += indent + indent + ":align: right" + "\n"
+			text += "\n"
+
+		if group == "Advanced" :
+			text +=	indent + ".. image:: " + advanced_image_link + "\n"
+			text += indent + indent + ":width:  80px" + "\n"
+			text += indent + indent + ":height: 80px" + "\n"
+			text += indent + indent + ":align: right" + "\n"
+			text += "\n"
 
 		if argtype != "FLAG":
 			value = argtype
@@ -476,8 +514,6 @@ def write_module(moduleMap, path, reftag):
 			text += indent + ":Default: " + default + "\n"
 
 
-		text += indent + ":Group: " + group + "\n"
-
 		if len(needs):
 			text += indent + ":Needs: "
 			for n in needs:
@@ -497,9 +533,9 @@ def write_module(moduleMap, path, reftag):
 					if len(allowed_values_table):
 						exampleValue = allowed_values_table[0]
 					else:
-						exampleValue = "TODO CHECK DEFAULT VALUE"
+						exampleValue = '"TODO CHECK VALUE"'
 				elif argtype == "MATLAB VECTOR STYLE":
-					exampleValue = "TODO CHECK DEFAULT VALUE"
+					exampleValue = '"TODO CHECK VALUE"'
 				elif argtype.startswith("TIME"):
 					exampleValue = "10"
 				elif argtype == "UINT" or argtype == "INT":
@@ -554,9 +590,6 @@ def write_module(moduleMap, path, reftag):
 				text += ".. |" + descrSubstitution + v.lower() + "| replace:: TODO VALUE " + v + "\n"
 
 			text += "\n\n"
-
-
-
 
 
 
