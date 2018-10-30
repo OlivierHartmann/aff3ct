@@ -1,165 +1,336 @@
+.. _mdm-modem-parameters:
+
 Modem parameters
 ----------------
 
-``--bps`` + *UINT*
+.. _mdm-psi:
 
-   :description: Select the number of bits per symbol.
-   :restrictions: in ]0 - inf[
+``--psi``
+"""""""""
 
-
-
-``--ups`` + *UINT*
-
-   :description: Select the symbol sampling factor.
-   :restrictions: in ]0 - inf[
-
+   :type: TEXT
+   :Allowed values: ``PSI0`` ``PSI1`` ``PSI2`` ``PSI3`` 
+   :Default: PSI0
+   :Group: Standard
+   :Examples: ``--psi PSI0``
 
 
-``--cpm-ws`` + *TEXT*
+Select the type of the psi function to use in the SCMA demodulator.
 
-   :description: Wave shape.
-   :restrictions: 
+Description of the allowed values:
 
-      .. hlist::
-         :columns: 3
++----------+------------------+
+| Value    | Description      |
++==========+==================+
+| ``PSI0`` | |psi_descr_psi0| |
++----------+------------------+
+| ``PSI1`` | |psi_descr_psi1| |
++----------+------------------+
+| ``PSI2`` | |psi_descr_psi2| |
++----------+------------------+
+| ``PSI3`` | |psi_descr_psi3| |
++----------+------------------+
 
-         * `GMSK`
-         * `RCOS`
-         * `REC`
-
-
-
-
-``--implem`` + *TEXT*
-
-   :description: Select the implementation of the modem.
-   :restrictions: 
-
-      .. hlist::
-         :columns: 3
-
-         * `FAST`
-         * `STD`
+.. |psi_descr_psi0| replace:: TODO VALUE PSI0
+.. |psi_descr_psi1| replace:: TODO VALUE PSI1
+.. |psi_descr_psi2| replace:: TODO VALUE PSI2
+.. |psi_descr_psi3| replace:: TODO VALUE PSI3
 
 
+.. _mdm-cpm-ws:
+
+``--cpm-ws``
+""""""""""""
+
+   :type: TEXT
+   :Allowed values: ``GMSK`` ``RCOS`` ``REC`` 
+   :Default: GMSK
+   :Group: Standard
+   :Examples: ``--cpm-ws GMSK``
 
 
-``--ite`` + *UINT*
+Wave shape.
 
-   :description: Number of iteration in the demodulator.
-   :restrictions: in ]0 - inf[
+Description of the allowed values:
 
++----------+---------------------+
+| Value    | Description         |
++==========+=====================+
+| ``GMSK`` | |cpm-ws_descr_gmsk| |
++----------+---------------------+
+| ``RCOS`` | |cpm-ws_descr_rcos| |
++----------+---------------------+
+| ``REC``  | |cpm-ws_descr_rec|  |
++----------+---------------------+
 
-
-``--psi`` + *TEXT*
-
-   :description: Select the type of the psi function to use in the SCMA demodulator.
-   :restrictions: 
-
-      .. hlist::
-         :columns: 3
-
-         * `PSI0`
-         * `PSI1`
-         * `PSI2`
-         * `PSI3`
+.. |cpm-ws_descr_gmsk| replace:: TODO VALUE GMSK
+.. |cpm-ws_descr_rcos| replace:: TODO VALUE RCOS
+.. |cpm-ws_descr_rec| replace:: TODO VALUE REC
 
 
+.. _mdm-ite:
+
+``--ite``
+"""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Group: Standard
+   :Examples: ``--ite 1``
 
 
-``--cpm-map`` + *TEXT*
+Number of iteration in the demodulator.
 
-   :description: Symbols mapping layout.
-   :restrictions: 
+.. _mdm-implem:
 
-      .. hlist::
-         :columns: 3
+``--implem``
+""""""""""""
 
-         * `GRAY`
-         * `NATURAL`
-
-
-
-
-``--cpm-std`` + *TEXT*
-
-   :description: The selection of a default CPM standard hardly implemented (those parameters overwrite the other arguments given by the user).
-   :restrictions: 
-
-      .. hlist::
-         :columns: 3
-
-         * `GSM`
+   :type: TEXT
+   :Allowed values: ``FAST`` ``STD`` 
+   :Default: STD
+   :Group: Standard
+   :Examples: ``--implem STD``
 
 
+Select the implementation of the modem.
+
+Description of the allowed values:
+
++----------+---------------------+
+| Value    | Description         |
++==========+=====================+
+| ``FAST`` | |implem_descr_fast| |
++----------+---------------------+
+| ``STD``  | |implem_descr_std|  |
++----------+---------------------+
+
+.. |implem_descr_fast| replace:: TODO VALUE FAST
+.. |implem_descr_std| replace:: TODO VALUE STD
 
 
-``--const-path`` + *FILE*
+.. _mdm-const-path:
 
-   :description: Path to the ordered modulation symbols (constellation), to use with "\\-\\-type USER".
+``--const-path``
+""""""""""""""""
 
-
-
-``--cpm-p`` + *UINT*
-
-   :description: Modulation index denominator.
-   :restrictions: in ]0 - inf[
+   :type: FILE
+   :Group: Standard
+   :Examples: ``--const-path example/path/to/the/right/file``
 
 
+Path to the ordered modulation symbols (constellation), to use with "\\-\\-type USER".
+
+.. _mdm-cpm-k:
+
+``--cpm-k``
+"""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Group: Standard
+   :Examples: ``--cpm-k 1``
+
+
+Modulation index numerator.
+
+.. _mdm-bps:
+
+``--bps``
+"""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Group: Standard
+   :Examples: ``--bps 1``
+
+
+Select the number of bits per symbol.
+
+.. _mdm-cpm-p:
+
+``--cpm-p``
+"""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 2
+   :Group: Standard
+   :Examples: ``--cpm-p 2``
+
+
+Modulation index denominator.
+
+.. _mdm-cpm-L:
+
+``--cpm-L``
+"""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 2
+   :Group: Standard
+   :Examples: ``--cpm-L 2``
+
+
+CPM pulse width or CPM memory.
+
+.. _mdm-cpm-std:
+
+``--cpm-std``
+"""""""""""""
+
+   :type: TEXT
+   :Allowed values: ``GSM`` 
+   :Group: Standard
+   :Examples: ``--cpm-std GSM``
+
+
+The selection of a default CPM standard hardly implemented (those parameters overwrite the other arguments given by the user).
+
+Description of the allowed values:
+
++---------+---------------------+
+| Value   | Description         |
++=========+=====================+
+| ``GSM`` | |cpm-std_descr_gsm| |
++---------+---------------------+
+
+.. |cpm-std_descr_gsm| replace:: TODO VALUE GSM
+
+
+.. _mdm-ups:
+
+``--ups``
+"""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Group: Standard
+   :Examples: ``--ups 1``
+
+
+Select the symbol sampling factor.
+
+.. _mdm-cpm-map:
+
+``--cpm-map``
+"""""""""""""
+
+   :type: TEXT
+   :Allowed values: ``GRAY`` ``NATURAL`` 
+   :Default: NATURAL
+   :Group: Standard
+   :Examples: ``--cpm-map NATURAL``
+
+
+Symbols mapping layout.
+
+Description of the allowed values:
+
++-------------+-------------------------+
+| Value       | Description             |
++=============+=========================+
+| ``GRAY``    | |cpm-map_descr_gray|    |
++-------------+-------------------------+
+| ``NATURAL`` | |cpm-map_descr_natural| |
++-------------+-------------------------+
+
+.. |cpm-map_descr_gray| replace:: TODO VALUE GRAY
+.. |cpm-map_descr_natural| replace:: TODO VALUE NATURAL
+
+
+.. _mdm-no-sig2:
 
 ``--no-sig2``
+"""""""""""""
 
-   :description: Turn off the division by sigma square in the demodulator.
-
-
-
-``--cpm-k`` + *UINT*
-
-   :description: Modulation index numerator.
-   :restrictions: in ]0 - inf[
+   :Group: Standard
 
 
+Turn off the division by sigma square in the demodulator.
 
-``--type`` + *TEXT*
+.. _mdm-type:
 
-   :description: Type of the modulation to use in the simulation.
-   :restrictions: 
+``--type``
+""""""""""
 
-      .. hlist::
-         :columns: 3
-
-         * `BPSK`
-         * `CPM`
-         * `OOK`
-         * `PAM`
-         * `PSK`
-         * `QAM`
-         * `SCMA`
-         * `USER`
+   :type: TEXT
+   :Allowed values: ``BPSK`` ``CPM`` ``OOK`` ``PAM`` ``PSK`` ``QAM`` ``SCMA`` ``USER`` 
+   :Default: BPSK
+   :Group: Standard
+   :Examples: ``--type BPSK``
 
 
+Type of the modulation to use in the simulation.
+
+Description of the allowed values:
+
++----------+-------------------+
+| Value    | Description       |
++==========+===================+
+| ``BPSK`` | |type_descr_bpsk| |
++----------+-------------------+
+| ``CPM``  | |type_descr_cpm|  |
++----------+-------------------+
+| ``OOK``  | |type_descr_ook|  |
++----------+-------------------+
+| ``PAM``  | |type_descr_pam|  |
++----------+-------------------+
+| ``PSK``  | |type_descr_psk|  |
++----------+-------------------+
+| ``QAM``  | |type_descr_qam|  |
++----------+-------------------+
+| ``SCMA`` | |type_descr_scma| |
++----------+-------------------+
+| ``USER`` | |type_descr_user| |
++----------+-------------------+
+
+.. |type_descr_bpsk| replace:: TODO VALUE BPSK
+.. |type_descr_cpm| replace:: TODO VALUE CPM
+.. |type_descr_ook| replace:: TODO VALUE OOK
+.. |type_descr_pam| replace:: TODO VALUE PAM
+.. |type_descr_psk| replace:: TODO VALUE PSK
+.. |type_descr_qam| replace:: TODO VALUE QAM
+.. |type_descr_scma| replace:: TODO VALUE SCMA
+.. |type_descr_user| replace:: TODO VALUE USER
 
 
-``--max`` + *TEXT*
+.. _mdm-max:
 
-   :description: Select the type of the max operation to use in the demodulator.
-   :restrictions: 
+``--max``
+"""""""""
 
-      .. hlist::
-         :columns: 3
-
-         * `MAX`
-         * `MAXL`
-         * `MAXS`
-         * `MAXSS`
+   :type: TEXT
+   :Allowed values: ``MAX`` ``MAXL`` ``MAXS`` ``MAXSS`` 
+   :Default: MAX
+   :Group: Standard
+   :Examples: ``--max MAX``
 
 
+Select the type of the max operation to use in the demodulator.
 
+Description of the allowed values:
 
-``--cpm-L`` + *UINT*
++-----------+-------------------+
+| Value     | Description       |
++===========+===================+
+| ``MAX``   | |max_descr_max|   |
++-----------+-------------------+
+| ``MAXL``  | |max_descr_maxl|  |
++-----------+-------------------+
+| ``MAXS``  | |max_descr_maxs|  |
++-----------+-------------------+
+| ``MAXSS`` | |max_descr_maxss| |
++-----------+-------------------+
 
-   :description: CPM pulse width or CPM memory.
-   :restrictions: in ]0 - inf[
-
+.. |max_descr_max| replace:: TODO VALUE MAX
+.. |max_descr_maxl| replace:: TODO VALUE MAXL
+.. |max_descr_maxs| replace:: TODO VALUE MAXS
+.. |max_descr_maxss| replace:: TODO VALUE MAXSS
 
 

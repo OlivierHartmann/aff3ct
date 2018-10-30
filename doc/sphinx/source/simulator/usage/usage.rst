@@ -2,8 +2,8 @@ Usage
 =====
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents
+   :maxdepth: 1
+   :caption: Usage contents
 
    overview/overview
    modules/global

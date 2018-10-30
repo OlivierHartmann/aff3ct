@@ -1,51 +1,103 @@
+.. _src-source-parameters:
+
 Source parameters
 -----------------
 
-``-F,--fra`` + *UINT*
+.. _src-start-idx:
 
-   :description: Set the number of inter frame level to process.
-   :restrictions: in ]0 - inf[
+``--start-idx``
+"""""""""""""""
 
-
-
-``--start-idx`` + *UINT*
-
-   :description: 0          Start idx to use in the USER type source.
-
+   :type: UINT
+   :Default: 0
+   :Group: Standard
+   :Examples: ``--start-idx 0``
 
 
-``--path`` + *FILE*
+Start idx to use in the USER type source.
 
-   :description: Path to a file containing one or a set of pre-computed source bits (to use with "\\-\\-type USER").
+.. _src-implem:
 
+``--implem``
+""""""""""""
 
-
-``--implem`` + *TEXT*
-
-   :description: Select the implementation of the algorithm to generate the information bits.
-   :restrictions: 
-
-      .. hlist::
-         :columns: 3
-
-         * `FAST`
-         * `STD`
+   :type: TEXT
+   :Allowed values: ``FAST`` ``STD`` 
+   :Default: STD
+   :Group: Standard
+   :Examples: ``--implem STD``
 
 
+Select the implementation of the algorithm to generate the information bits.
+
+Description of the allowed values:
+
++----------+---------------------+
+| Value    | Description         |
++==========+=====================+
+| ``FAST`` | |implem_descr_fast| |
++----------+---------------------+
+| ``STD``  | |implem_descr_std|  |
++----------+---------------------+
+
+.. |implem_descr_fast| replace:: TODO VALUE FAST
+.. |implem_descr_std| replace:: TODO VALUE STD
 
 
-``--type`` + *TEXT*
+.. _src-path:
 
-   :description: Method used to generate the codewords.
-   :restrictions: 
+``--path``
+""""""""""
 
-      .. hlist::
-         :columns: 3
-
-         * `AZCW`
-         * `RAND`
-         * `USER`
+   :type: FILE
+   :Group: Standard
+   :Examples: ``--path example/path/to/the/right/file``
 
 
+Path to a file containing one or a set of pre-computed source bits (to use with "\\-\\-type USER").
 
+.. _src-type:
+
+``--type``
+""""""""""
+
+   :type: TEXT
+   :Allowed values: ``AZCW`` ``RAND`` ``USER`` 
+   :Default: RAND
+   :Group: Standard
+   :Examples: ``--type RAND``
+
+
+Method used to generate the codewords.
+
+Description of the allowed values:
+
++----------+-------------------+
+| Value    | Description       |
++==========+===================+
+| ``AZCW`` | |type_descr_azcw| |
++----------+-------------------+
+| ``RAND`` | |type_descr_rand| |
++----------+-------------------+
+| ``USER`` | |type_descr_user| |
++----------+-------------------+
+
+.. |type_descr_azcw| replace:: TODO VALUE AZCW
+.. |type_descr_rand| replace:: TODO VALUE RAND
+.. |type_descr_user| replace:: TODO VALUE USER
+
+
+.. _src-fra:
+
+``-F,--fra``
+""""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Group: Standard
+   :Examples: ``--fra 1``
+
+
+Set the number of inter frame level to process.
 

@@ -232,7 +232,7 @@ def parse_argument(command, line, group):
 		elif argtype == "TIME":
 			argtype = info[:info.find("]") + 1]
 
-		info = info[len(argtype) + 1:]
+		info = info[len(argtype):].strip()
 
 		if info.startswith("in"):
 			# TODO change as regular expression
@@ -258,7 +258,7 @@ def parse_argument(command, line, group):
 
 		if info.startswith("{R}"):
 			required = True
-			info     = info[4:]
+			info     = info[3:].strip()
 
 	else: # it is a flag
 		argtype = "FLAG"
@@ -360,10 +360,53 @@ def help_to_map(stdOutput):
 
 	return helpMap
 
-def write_module(moduleMap, path):
-	file = open(path, 'w')
+def getLongestTag(tags):
+	tmp = tags.split(',')
+	tag = tmp[0]
+	if len(tmp) > 1:
+		if len(tmp[0]) < len(tmp[1]):
+			tag = tmp[1]
+	return tag
 
-	text = moduleMap["name"] + "\n"
+def getArgReference(refHeader, refBody):
+	return ".. _" + refHeader + "-" + getLongestTag(refBody).strip('-') + ":\n\n"
+
+def toLatex(value):
+	if not value.startswith("in "):
+		raise RuntimeError(value)
+
+	value = value[3:]
+	text = ":math:`" + value.replace("inf", "\infty") + "`"
+
+	return text;
+
+def makeTableLine(col1_len, col2_len, horiz = "-", vert = "+"):
+	text = vert
+	for i in range(col1_len):
+		text += horiz
+	text += vert
+	for i in range(col2_len):
+		text += horiz
+	text += vert + "\n"
+
+	return text
+
+def addSpaces(text, totalLength):
+	if len(text) >= totalLength:
+		return text
+
+	for i in range(totalLength - len(text)):
+		text += " "
+
+	return text
+
+
+def write_module(moduleMap, path, reftag):
+	file = open(path, 'w')
+	indent = "   "
+
+	text  = ".. _" + reftag + "-" + moduleMap["name"].replace(' ', '-').lower() + ":\n\n"
+	text += moduleMap["name"] + "\n"
 
 	for x in range(len(moduleMap["name"])):
 		text += "-"
@@ -372,7 +415,6 @@ def write_module(moduleMap, path):
 
 	file.write(text)
 
-	indent = "   "
 
 	for tag in moduleMap:
 		if tag == "name":
@@ -387,36 +429,136 @@ def write_module(moduleMap, path):
 		excludes = moduleMap[tag]["excludes"]
 		info     = moduleMap[tag]["info"    ]
 
-		text = "``" + tag + "``"
+		text  = getArgReference(reftag, tag)
+		text += "``" + tag + "``\n"
+
+		for t in range(len(tag)+4):
+			text += '"'
+		text +="\n\n"
 
 		if argtype != "FLAG":
-			text += " + *" + argtype + "*"
+			value = argtype
+			if argtype == "TEXT":
+				value = "text"
+			elif argtype == "INT":
+				value = "integer"
+			elif argtype == "UINT":
+				value = "positive integer"
+			elif argtype == "FLOAT":
+				value = "real"
+			elif argtype == "PATH":
+				value = "path"
+			elif argtype == "FILE":
+				value = "file"
 
-		text += "\n\n"
-		# text += indent + '"""\n\n'
 
-		text += indent + ":description: " + info.replace("--", "\\\\-\\\\-") + "\n"
+			text += indent + ":type: " + argtype + "\n"
+
+
+		allowed_values_table = []
 
 		if limits != "":
-			__limits = limits
+			__limits = ""
 			pos = limits.find("{");
 			if pos != -1:
-				__limits  = "\n\n";
-				__limits += indent + indent + ".. hlist::\n"
-				__limits += indent + indent + indent + ":columns: 3\n\n"
+				__limits  = ":Allowed values: ";
+				allowed_values_table = limits[pos+1:-1].split(',')
 
-				table = limits[pos+1:-1].split(',')
+				for t in allowed_values_table:
+					__limits += "``" + t + "`` "
+			else:
+				__limits = ":Range: " + toLatex(limits)
 
-				for t in table:
-					__limits += indent + indent + indent + "* `" + t + "`\n"
+			text += indent + __limits + "\n"
 
 
-			text += indent + ":restrictions: " + __limits + "\n"
+		if default != "":
+			text += indent + ":Default: " + default + "\n"
 
-		text += "\n"
-		# text += indent + '"""\n\n'
+
+		text += indent + ":Group: " + group + "\n"
+
+		if len(needs):
+			text += indent + ":Needs: "
+			for n in needs:
+				text += "``" + n + "`` "
+			text += "\n"
+
+		if len(excludes):
+			text += indent + ":Excludes: "
+			for e in excludes:
+				text += "``" + e + "`` "
+			text += "\n"
+
+		if argtype != "FLAG":
+			exampleValue = default
+			if default == "":
+				if argtype == "TEXT":
+					if len(allowed_values_table):
+						exampleValue = allowed_values_table[0]
+					else:
+						exampleValue = "TODO CHECK DEFAULT VALUE"
+				elif argtype == "MATLAB VECTOR STYLE":
+					exampleValue = "TODO CHECK DEFAULT VALUE"
+				elif argtype.startswith("TIME"):
+					exampleValue = "10"
+				elif argtype == "UINT" or argtype == "INT":
+					exampleValue = "1"
+				elif argtype == "FLOAT":
+					exampleValue = "1.0"
+				elif argtype == "PATH":
+					exampleValue = "example/path/to/the/right/place/"
+				elif argtype == "FILE":
+					exampleValue = "example/path/to/the/right/file"
+
+			text += indent + ":Examples: ``" + getLongestTag(tag) + " " + exampleValue + "``\n"
 
 		text += "\n\n"
+
+		text += info.replace("--", "\\\\-\\\\-") + "\n\n"
+
+
+		if len(allowed_values_table):
+			text += "Description of the allowed values:\n\n"
+
+			valueHead = " Value "
+			descrHead = " Description "
+
+			longestValue = len(valueHead)
+			for v in allowed_values_table:
+				l = len(v) + 6
+				if l > longestValue :
+					longestValue = l
+
+			descrSubstitution  = getLongestTag(tag).strip('-') + "_descr_"
+			longestDescription = len(descrHead)
+			for v in allowed_values_table:
+				l = len(v) + len(descrSubstitution) + 4
+				if l > longestDescription :
+					longestDescription = l
+
+			text += makeTableLine(longestValue, longestDescription, "-", "+")
+			text +=( "|" + addSpaces(valueHead, longestValue) +
+			        "|" + addSpaces(descrHead, longestDescription) +
+			        "|\n")
+			text += makeTableLine(longestValue, longestDescription, "=", "+")
+
+			for v in allowed_values_table:
+				text +=("|" + addSpaces(" ``" + v + "`` ", longestValue) +
+				        "|" + addSpaces(" |" + descrSubstitution + v.lower() + "| ", longestDescription) +
+				        "|\n")
+				text += makeTableLine(longestValue, longestDescription, "-", "+")
+
+			text += "\n"
+			for v in allowed_values_table:
+				text += ".. |" + descrSubstitution + v.lower() + "| replace:: TODO VALUE " + v + "\n"
+
+			text += "\n\n"
+
+
+
+
+
 
 		file.write(text)
 
@@ -437,14 +579,14 @@ if __name__ == "__main__":
 		os.makedirs(destPath)
 
 
-	write_module(helpMap["global"], destPath + "global.rst");
-	write_module(helpMap["sim"], destPath + "sim.rst");
-	write_module(helpMap["src"], destPath + "src.rst");
-	write_module(helpMap["crc"], destPath + "crc.rst");
-	write_module(helpMap["mdm"], destPath + "mdm.rst");
-	write_module(helpMap["chn"], destPath + "chn.rst");
-	write_module(helpMap["mnt"], destPath + "mnt.rst");
-	write_module(helpMap["ter"], destPath + "ter.rst");
+	write_module(helpMap["global"], destPath + "global.rst", "global");
+	write_module(helpMap["sim"   ], destPath + "sim.rst"   , "sim");
+	write_module(helpMap["src"   ], destPath + "src.rst"   , "src");
+	write_module(helpMap["crc"   ], destPath + "crc.rst"   , "crc");
+	write_module(helpMap["mdm"   ], destPath + "mdm.rst"   , "mdm");
+	write_module(helpMap["chn"   ], destPath + "chn.rst"   , "chn");
+	write_module(helpMap["mnt"   ], destPath + "mnt.rst"   , "mnt");
+	write_module(helpMap["ter"   ], destPath + "ter.rst"   , "ter");
 
 	# write_codec(helpMap, destPath + "codec_bch");
 	# write_module(helpMap["itl"], destPath + "itl");
