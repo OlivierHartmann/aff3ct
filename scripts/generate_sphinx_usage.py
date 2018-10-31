@@ -296,25 +296,20 @@ def write_module(moduleMap, path, reftag):
 		info     = Arg[1]["info"    ]
 
 		text  = getArgReference(reftag, tag)
-		text += "``" + tag + "``\n"
 
-		for t in range(len(tag)+4):
-			text += '"'
-		text +="\n\n"
+		title = "``" + tag + "``"
 
 		if required :
-			text +=	indent + ".. image:: " + required_image_link + "\n"
-			text += indent + indent + ":width:  80px" + "\n"
-			text += indent + indent + ":height: 30px" + "\n"
-			text += indent + indent + ":align: right" + "\n"
-			text += "\n"
+			title += " |image_required_argument|"
 
 		if group == "Advanced" :
-			text +=	indent + ".. image:: " + advanced_image_link + "\n"
-			text += indent + indent + ":width:  80px" + "\n"
-			text += indent + indent + ":height: 80px" + "\n"
-			text += indent + indent + ":align: right" + "\n"
-			text += "\n"
+			title += " |image_advanced_argument|"
+
+		text += title + "\n"
+		for t in range(len(title)):
+			text += '"'
+
+		text +="\n\n"
 
 		if argtype != "FLAG":
 			value = argtype
@@ -391,7 +386,7 @@ def write_module(moduleMap, path, reftag):
 
 			text += indent + ":Examples: ``" + getLongestTag(tag) + " " + exampleValue + "``\n"
 
-		text += "\n\n"
+		text += "\n"
 
 		text += info.replace("--", "\\\\-\\\\-") + "\n\n"
 
@@ -441,7 +436,7 @@ def write_module(moduleMap, path, reftag):
 
 if __name__ == "__main__":
 	######## BFER simulation
-	stdOutput = read_help("BFER", "LDPC");
+	stdOutput = read_help("BFERI", "LDPC");
 	helpMap = help_to_map(stdOutput)
 
 

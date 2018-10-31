@@ -13,7 +13,6 @@ Source parameters
    :Default: 1
    :Examples: ``--fra 1``
 
-
 Set the number of inter frame level to process.
 
 .. _src-implem:
@@ -25,7 +24,6 @@ Set the number of inter frame level to process.
    :Allowed values: ``FAST`` ``STD`` 
    :Default: STD
    :Examples: ``--implem STD``
-
 
 Select the implementation of the algorithm to generate the information bits.
 
@@ -51,7 +49,6 @@ Description of the allowed values:
    :type: FILE
    :Examples: ``--path example/path/to/the/right/file``
 
-
 Path to a file containing one or a set of pre-computed source bits (to use with "\\-\\-type USER").
 
 .. _src-start-idx:
@@ -62,7 +59,6 @@ Path to a file containing one or a set of pre-computed source bits (to use with 
    :type: UINT
    :Default: 0
    :Examples: ``--start-idx 0``
-
 
 Start idx to use in the USER type source.
 
@@ -75,7 +71,6 @@ Start idx to use in the USER type source.
    :Allowed values: ``AZCW`` ``RAND`` ``USER`` 
    :Default: RAND
    :Examples: ``--type RAND``
-
 
 Method used to generate the codewords.
 

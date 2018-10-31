@@ -182,6 +182,17 @@ rst_epilog = """
     :width: 60px
     :height: 30px
 
+.. |image_required_argument| image:: http://jeffnielsen.com/wp-content/uploads/2014/06/required-cropped.png
+                             :alt:  Required
+                             :width:  80px
+                             :height: 30px
+
+.. |image_advanced_argument| image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+                             :alt:  Advanced
+                             :width:  80px
+                             :height: 80px
+
+
 """
 
 # -- Extension configuration -------------------------------------------------

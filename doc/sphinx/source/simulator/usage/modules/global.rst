@@ -9,14 +9,12 @@ Global parameters
 """""""""""""
 
 
-
 Print this help with the advanced arguments.
 
 .. _global-help:
 
 ``-h,--help``
 """""""""""""
-
 
 
 Print the help.
@@ -27,78 +25,47 @@ Print the help.
 """"""""""""""""
 
 
-
 Print informations about the code version.
 
 .. _global-disable-bt:
 
-``--disable-bt``
-""""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
-
+``--disable-bt`` |image_advanced_argument|
+""""""""""""""""""""""""""""""""""""""""""
 
 
 Disable the backtrace when displaying exception.
 
 .. _global-full-bt:
 
-``--full-bt``
-"""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
-
+``--full-bt`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""
 
 
 Enable full backtrace with file names and lines (may take additional time).
 
 .. _global-full-legend:
 
-``--full-legend``
-"""""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
+``--full-legend`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""""
 
    :Excludes: ``--no-legend`` 
-
 
 Display fully the legend when launching the simulation.
 
 .. _global-no-colors:
 
-``--no-colors``
-"""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
-
+``--no-colors`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""
 
 
 Disable the colors in the shell.
 
 .. _global-no-legend:
 
-``--no-legend``
-"""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
+``--no-legend`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""
 
    :Excludes: ``--full-legend`` 
-
 
 Do not display any legend when launching the simulation.
 

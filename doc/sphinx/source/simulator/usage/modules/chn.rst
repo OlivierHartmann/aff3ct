@@ -13,7 +13,6 @@ Channel parameters
    :Default: NO
    :Examples: ``--blk-fad NO``
 
-
 Block fading policy for the RAYLEIGH channel.
 
 Description of the allowed values:
@@ -43,7 +42,6 @@ Description of the allowed values:
    :Default: 1
    :Examples: ``--gain-occur 1``
 
-
 The number of times a gain is used on consecutive symbols (used with "\\-\\-type RAYLEIGH_USER")
 
 .. _chn-implem:
@@ -55,7 +53,6 @@ The number of times a gain is used on consecutive symbols (used with "\\-\\-type
    :Allowed values: ``FAST`` ``STD`` 
    :Default: STD
    :Examples: ``--implem STD``
-
 
 Select the implementation of the algorithm to generate noise.
 
@@ -81,7 +78,6 @@ Description of the allowed values:
    :type: FILE
    :Examples: ``--path example/path/to/the/right/file``
 
-
 Path to a noisy file, to use with "\\-\\-type USER,OPTICAL" or to a gain file (used with "\\-\\-type RAYLEIGH_USER").
 
 .. _chn-type:
@@ -93,7 +89,6 @@ Path to a noisy file, to use with "\\-\\-type USER,OPTICAL" or to a gain file (u
    :Allowed values: ``AWGN`` ``BEC`` ``BSC`` ``NO`` ``OPTICAL`` ``RAYLEIGH`` ``RAYLEIGH_USER`` ``USER`` ``USER_ADD`` 
    :Default: AWGN
    :Examples: ``--type AWGN``
-
 
 Type of the channel to use in the simulation ('USER' has an output got from a file when 'USER_ADD' has an additive noise got from a file).
 

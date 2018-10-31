@@ -13,7 +13,6 @@ CRC parameters
    :Default: FAST
    :Examples: ``--implem FAST``
 
-
 Select the CRC implementation you want to use.
 
 Description of the allowed values:
@@ -42,7 +41,6 @@ Description of the allowed values:
    :Range: :math:`]0 - \infty[`
    :Examples: ``--size 1``
 
-
 Size of the CRC (divisor size in bit -1), required if you selected an unknown CRC.
 
 .. _crc-type:
@@ -53,7 +51,6 @@ Size of the CRC (divisor size in bit -1), required if you selected an unknown CR
    :type: TEXT
    :Default: NO
    :Examples: ``--type NO``
-
 
 Select the CRC type/polynomial you want to use (ex: "8-DVB-S2": 0xD5, "16-IBM": 0x8005, "24-LTEA": 0x864CFB, "32-GZIP": 0x04C11DB7).
 

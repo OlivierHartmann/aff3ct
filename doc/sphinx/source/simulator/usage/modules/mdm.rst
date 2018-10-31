@@ -13,7 +13,6 @@ Modem parameters
    :Default: 1
    :Examples: ``--bps 1``
 
-
 Select the number of bits per symbol.
 
 .. _mdm-const-path:
@@ -23,7 +22,6 @@ Select the number of bits per symbol.
 
    :type: FILE
    :Examples: ``--const-path example/path/to/the/right/file``
-
 
 Path to the ordered modulation symbols (constellation), to use with "\\-\\-type USER".
 
@@ -37,7 +35,6 @@ Path to the ordered modulation symbols (constellation), to use with "\\-\\-type 
    :Default: 1
    :Examples: ``--cpm-k 1``
 
-
 Modulation index numerator.
 
 .. _mdm-cpm-L:
@@ -50,7 +47,6 @@ Modulation index numerator.
    :Default: 2
    :Examples: ``--cpm-L 2``
 
-
 CPM pulse width or CPM memory.
 
 .. _mdm-cpm-map:
@@ -62,7 +58,6 @@ CPM pulse width or CPM memory.
    :Allowed values: ``GRAY`` ``NATURAL`` 
    :Default: NATURAL
    :Examples: ``--cpm-map NATURAL``
-
 
 Symbols mapping layout.
 
@@ -90,7 +85,6 @@ Description of the allowed values:
    :Default: 2
    :Examples: ``--cpm-p 2``
 
-
 Modulation index denominator.
 
 .. _mdm-cpm-std:
@@ -101,7 +95,6 @@ Modulation index denominator.
    :type: TEXT
    :Allowed values: ``GSM`` 
    :Examples: ``--cpm-std GSM``
-
 
 The selection of a default CPM standard hardly implemented (those parameters overwrite the other arguments given by the user).
 
@@ -125,7 +118,6 @@ Description of the allowed values:
    :Allowed values: ``GMSK`` ``RCOS`` ``REC`` 
    :Default: GMSK
    :Examples: ``--cpm-ws GMSK``
-
 
 Wave shape.
 
@@ -156,7 +148,6 @@ Description of the allowed values:
    :Default: STD
    :Examples: ``--implem STD``
 
-
 Select the implementation of the modem.
 
 Description of the allowed values:
@@ -183,7 +174,6 @@ Description of the allowed values:
    :Default: 1
    :Examples: ``--ite 1``
 
-
 Number of iteration in the demodulator.
 
 .. _mdm-max:
@@ -195,7 +185,6 @@ Number of iteration in the demodulator.
    :Allowed values: ``MAX`` ``MAXL`` ``MAXS`` ``MAXSS`` 
    :Default: MAX
    :Examples: ``--max MAX``
-
 
 Select the type of the max operation to use in the demodulator.
 
@@ -225,7 +214,6 @@ Description of the allowed values:
 """""""""""""
 
 
-
 Turn off the division by sigma square in the demodulator.
 
 .. _mdm-psi:
@@ -237,7 +225,6 @@ Turn off the division by sigma square in the demodulator.
    :Allowed values: ``PSI0`` ``PSI1`` ``PSI2`` ``PSI3`` 
    :Default: PSI0
    :Examples: ``--psi PSI0``
-
 
 Select the type of the psi function to use in the SCMA demodulator.
 
@@ -270,7 +257,6 @@ Description of the allowed values:
    :Allowed values: ``BPSK`` ``CPM`` ``OOK`` ``PAM`` ``PSK`` ``QAM`` ``SCMA`` ``USER`` 
    :Default: BPSK
    :Examples: ``--type BPSK``
-
 
 Type of the modulation to use in the simulation.
 
@@ -315,7 +301,6 @@ Description of the allowed values:
    :Range: :math:`]0 - \infty[`
    :Default: 1
    :Examples: ``--ups 1``
-
 
 Select the symbol sampling factor.
 

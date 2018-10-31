@@ -12,14 +12,12 @@ Terminal parameters
    :Default: 500
    :Examples: ``--freq 500``
 
-
 Display frequency (refresh time step for each iteration, 0 = disable display refresh).
 
 .. _ter-no:
 
 ``--no``
 """"""""
-
 
 
 Disable recurrent report but only at the end of each noise point.
@@ -33,7 +31,6 @@ Disable recurrent report but only at the end of each noise point.
    :Allowed values: ``STD`` 
    :Default: STD
    :Examples: ``--type STD``
-
 
 Type of the terminal to use to display results.
 

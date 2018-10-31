@@ -1,22 +1,16 @@
-.. _sim-simulation-bfer-standard-parameters:
+.. _sim-simulation-bfer-iterative-parameters:
 
-Simulation BFER standard parameters
------------------------------------
+Simulation BFER iterative parameters
+------------------------------------
 
 .. _sim-cde-type:
 
-``-C,--cde-type``
-"""""""""""""""""
-
-   .. image:: http://jeffnielsen.com/wp-content/uploads/2014/06/required-cropped.png
-      :width:  80px
-      :height: 30px
-      :align: right
+``-C,--cde-type`` |image_required_argument|
+"""""""""""""""""""""""""""""""""""""""""""
 
    :type: TEXT
    :Allowed values: ``BCH`` ``LDPC`` ``POLAR`` ``RA`` ``REP`` ``RS`` ``RSC`` ``RSC_DB`` ``TURBO`` ``TURBO_DB`` ``TURBO_PROD`` ``UNCODED`` 
    :Examples: ``--cde-type BCH``
-
 
 Select the code type you want to use.
 
@@ -70,7 +64,6 @@ Description of the allowed values:
 """"""""""""""
 
 
-
 Enable the coset approach.
 
 .. _sim-coded:
@@ -79,8 +72,18 @@ Enable the coset approach.
 """""""""""
 
 
-
 Enable the coded monitoring (extends the monitored bits to the entire codeword).
+
+.. _sim-crc-start:
+
+``--crc-start``
+"""""""""""""""
+
+   :type: UINT
+   :Default: 2
+   :Examples: ``--crc-start 2``
+
+Iteration number to start the CRC checking in the turbo demodulation process.
 
 .. _sim-debug-limit:
 
@@ -91,7 +94,6 @@ Enable the coded monitoring (extends the monitored bits to the entire codeword).
    :Range: :math:`]0 - \infty[`
    :Examples: ``--debug-limit 1``
 
-
 Enable debug mode: set the max number of elements to display in the debug mode (0 is all).
 
 .. _sim-debug:
@@ -100,14 +102,12 @@ Enable debug mode: set the max number of elements to display in the debug mode (
 """""""""""
 
 
-
 Enable debug mode: print array values after each step.
 
 .. _sim-debug-hex:
 
 ``--debug-hex``
 """""""""""""""
-
 
 
 Enable debug mode: prints values in the hexadecimal format.
@@ -122,7 +122,6 @@ Enable debug mode: prints values in the hexadecimal format.
    :Default: 2
    :Examples: ``--debug-prec 2``
 
-
 Set the precision of real elements when displayed in debug mode.
 
 .. _sim-noise-type:
@@ -134,7 +133,6 @@ Set the precision of real elements when displayed in debug mode.
    :Allowed values: ``EBN0`` ``EP`` ``ESN0`` ``ROP`` 
    :Default: EBN0
    :Examples: ``--noise-type EBN0``
-
 
 Select the type of NOISE: SNR per Symbol / SNR per information Bit / Received Optical Power / Erasure Probability.
 
@@ -158,6 +156,17 @@ Description of the allowed values:
 .. |noise-type_descr_rop| replace:: TODO VALUE ROP
 
 
+.. _sim-ite:
+
+``-I,--ite``
+""""""""""""
+
+   :type: UINT
+   :Default: 15
+   :Examples: ``--ite 15``
+
+Number of global iterations between the demodulator and the decoder.
+
 .. _sim-noise-max:
 
 ``-M,--noise-max``
@@ -166,7 +175,6 @@ Description of the allowed values:
    :type: FLOAT
    :Excludes: ``--noise-range`` 
    :Examples: ``--noise-max 1.0``
-
 
 Maximal noise energy to simulate.
 
@@ -179,7 +187,6 @@ Maximal noise energy to simulate.
    :Excludes: ``--noise-range`` 
    :Examples: ``--noise-min 1.0``
 
-
 Minimal noise energy to simulate.
 
 .. _sim-meta:
@@ -189,7 +196,6 @@ Minimal noise energy to simulate.
 
    :type: TEXT
    :Examples: ``--meta "TODO CHECK VALUE"``
-
 
 Print the output with metadata, takes the simulation title.
 
@@ -202,7 +208,6 @@ Print the output with metadata, takes the simulation title.
    :Allowed values: ``8`` ``16`` ``32`` ``64`` 
    :Default: 32
    :Examples: ``--prec 32``
-
 
 The simulation precision in bits.
 
@@ -234,7 +239,6 @@ Description of the allowed values:
    :type: FILE
    :Examples: ``--pdf-path example/path/to/the/right/file``
 
-
 A file that contains PDF for different SNR. Set the SNR range from the given ones. Overwritten by -R or limited by -m and -M with a minimum step of -s
 
 .. _sim-noise-range:
@@ -245,7 +249,6 @@ A file that contains PDF for different SNR. Set the SNR range from the given one
    :type: MATLAB VECTOR STYLE
    :Excludes: ``--noise-min`` ``--noise-max`` ``--noise-step`` 
    :Examples: ``--noise-range "TODO CHECK VALUE"``
-
 
 Noise energy range to run (Matlab style: "0.5:2.5,2.55,2.6:0.05:3" with a default step of 0.1).
 
@@ -260,7 +263,6 @@ Noise energy range to run (Matlab style: "0.5:2.5,2.55,2.6:0.05:3" with a defaul
    :Excludes: ``--noise-range`` 
    :Examples: ``--noise-step 0.1``
 
-
 Noise energy step between each simulation iteration.
 
 .. _sim-seed:
@@ -272,14 +274,12 @@ Noise energy step between each simulation iteration.
    :Default: 0
    :Examples: ``--seed 0``
 
-
 Seed used in the simulation to initialize the pseudo random generators in general.
 
 .. _sim-stats:
 
 ``--stats``
 """""""""""
-
 
 
 Display statistics module by module.
@@ -293,7 +293,6 @@ Display statistics module by module.
    :Default: 0
    :Examples: ``--threads 0``
 
-
 Enable multi-threaded mode and specify the number of threads (0 means the maximum supported by the core).
 
 .. _sim-type:
@@ -303,9 +302,8 @@ Enable multi-threaded mode and specify the number of threads (0 means the maximu
 
    :type: TEXT
    :Allowed values: ``BFER`` ``BFERI`` ``EXIT`` 
-   :Default: BFER
-   :Examples: ``--type BFER``
-
+   :Default: BFERI
+   :Examples: ``--type BFERI``
 
 Select the type of simulation to launch (default is BFER).
 
@@ -328,110 +326,68 @@ Description of the allowed values:
 
 .. _sim-crit-nostop:
 
-``--crit-nostop``
-"""""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
-
+``--crit-nostop`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""""
 
 
 The stop criteria arguments -stop-time or -max-frame kill the current simulatated noise point but not the simulation.
 
 .. _sim-err-trk:
 
-``--err-trk``
-"""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
-
+``--err-trk`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""
 
 
 Enable the tracking of the bad frames (by default the frames are stored in the current folder).
 
 .. _sim-err-trk-path:
 
-``--err-trk-path``
-""""""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
+``--err-trk-path`` |image_advanced_argument|
+""""""""""""""""""""""""""""""""""""""""""""
 
    :type: TEXT
    :Needs: ``--err-trk`` 
    :Examples: ``--err-trk-path "TODO CHECK VALUE"``
 
-
 Base path for the files where the bad frames will be stored or read.
 
 .. _sim-err-trk-rev:
 
-``--err-trk-rev``
-"""""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
-
+``--err-trk-rev`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""""
 
 
 Automatically replay the saved frames.
 
 .. _sim-err-trk-thold:
 
-``--err-trk-thold``
-"""""""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
+``--err-trk-thold`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""""""
 
    :type: UINT
    :Range: :math:`]0 - \infty[`
    :Needs: ``--err-trk`` 
    :Examples: ``--err-trk-thold 1``
 
-
 Dump only frames with a bit error count above or equal to this threshold.
 
 .. _sim-max-frame:
 
-``--max-frame``
-"""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
+``--max-frame`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""
 
    :type: UINT
    :Examples: ``--max-frame 1``
-
 
 Maximum number of frames to play after what the current simulatated noise stops (0 is infinite).
 
 .. _sim-stop-time:
 
-``--stop-time``
-"""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
+``--stop-time`` |image_advanced_argument|
+"""""""""""""""""""""""""""""""""""""""""
 
    :type: TIME [SEC]
    :Examples: ``--stop-time 10``
-
 
 Time in sec after what the current simulatated noise stops (0 is infinite).
 
