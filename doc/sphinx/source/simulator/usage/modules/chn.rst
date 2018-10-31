@@ -3,17 +3,6 @@
 Channel parameters
 ------------------
 
-.. _chn-path:
-
-``--path``
-""""""""""
-
-   :type: FILE
-   :Examples: ``--path example/path/to/the/right/file``
-
-
-Path to a noisy file, to use with "\\-\\-type USER,OPTICAL" or to a gain file (used with "\\-\\-type RAYLEIGH_USER").
-
 .. _chn-blk-fad:
 
 ``--blk-fad``
@@ -44,6 +33,19 @@ Description of the allowed values:
 .. |blk-fad_descr_onetap| replace:: TODO VALUE ONETAP
 
 
+.. _chn-gain-occur:
+
+``--gain-occur``
+""""""""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Examples: ``--gain-occur 1``
+
+
+The number of times a gain is used on consecutive symbols (used with "\\-\\-type RAYLEIGH_USER")
+
 .. _chn-implem:
 
 ``--implem``
@@ -71,18 +73,16 @@ Description of the allowed values:
 .. |implem_descr_std| replace:: TODO VALUE STD
 
 
-.. _chn-gain-occur:
+.. _chn-path:
 
-``--gain-occur``
-""""""""""""""""
+``--path``
+""""""""""
 
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Default: 1
-   :Examples: ``--gain-occur 1``
+   :type: FILE
+   :Examples: ``--path example/path/to/the/right/file``
 
 
-The number of times a gain is used on consecutive symbols (used with "\\-\\-type RAYLEIGH_USER")
+Path to a noisy file, to use with "\\-\\-type USER,OPTICAL" or to a gain file (used with "\\-\\-type RAYLEIGH_USER").
 
 .. _chn-type:
 

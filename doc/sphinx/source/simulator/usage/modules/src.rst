@@ -3,18 +3,6 @@
 Source parameters
 -----------------
 
-.. _src-start-idx:
-
-``--start-idx``
-"""""""""""""""
-
-   :type: UINT
-   :Default: 0
-   :Examples: ``--start-idx 0``
-
-
-Start idx to use in the USER type source.
-
 .. _src-fra:
 
 ``-F,--fra``
@@ -27,17 +15,6 @@ Start idx to use in the USER type source.
 
 
 Set the number of inter frame level to process.
-
-.. _src-path:
-
-``--path``
-""""""""""
-
-   :type: FILE
-   :Examples: ``--path example/path/to/the/right/file``
-
-
-Path to a file containing one or a set of pre-computed source bits (to use with "\\-\\-type USER").
 
 .. _src-implem:
 
@@ -65,6 +42,29 @@ Description of the allowed values:
 .. |implem_descr_fast| replace:: TODO VALUE FAST
 .. |implem_descr_std| replace:: TODO VALUE STD
 
+
+.. _src-path:
+
+``--path``
+""""""""""
+
+   :type: FILE
+   :Examples: ``--path example/path/to/the/right/file``
+
+
+Path to a file containing one or a set of pre-computed source bits (to use with "\\-\\-type USER").
+
+.. _src-start-idx:
+
+``--start-idx``
+"""""""""""""""
+
+   :type: UINT
+   :Default: 0
+   :Examples: ``--start-idx 0``
+
+
+Start idx to use in the USER type source.
 
 .. _src-type:
 

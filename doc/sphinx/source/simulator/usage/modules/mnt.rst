@@ -16,15 +16,6 @@ Monitor parameters
 
 Max number of frame errors for each noise point simulation.
 
-.. _mnt-mutinfo:
-
-``--mutinfo``
-"""""""""""""
-
-
-
-Allow the computation of the mutual information.
-
 .. _mnt-err-hist-path:
 
 ``--err-hist-path``
@@ -36,6 +27,15 @@ Allow the computation of the mutual information.
 
 
 Path to the output histogram (add automatically the current noise value and the extension '.txt').
+
+.. _mnt-mutinfo:
+
+``--mutinfo``
+"""""""""""""
+
+
+
+Allow the computation of the mutual information.
 
 .. _mnt-err-hist:
 

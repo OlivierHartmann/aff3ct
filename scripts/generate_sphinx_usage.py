@@ -400,26 +400,42 @@ def addSpaces(text, totalLength):
 
 	return text
 
+def bubbleSort(aTagList):
+    for passnum in range(len(aTagList)-1,0,-1):
+        for i in range(passnum):
+            if aTagList[i][0].strip('-').lower() > aTagList[i+1][0].strip('-').lower():
+                temp = aTagList[i]
+                aTagList[i] = aTagList[i+1]
+                aTagList[i+1] = temp
 
 def sortTags(moduleMap):
-	tagList = []
+	reqList = []
 	for tag in moduleMap:
 		if tag == "name":
 			continue
 		if moduleMap[tag]["required"]:
-			tagList.append([tag, moduleMap[tag]])
+			reqList.append([tag, moduleMap[tag]])
 
+	stdList = []
 	for tag in moduleMap:
 		if tag == "name":
 			continue
 		if not moduleMap[tag]["required"] and moduleMap[tag]["group"] == "Standard":
-			tagList.append([tag, moduleMap[tag]])
+			stdList.append([tag, moduleMap[tag]])
 
+	advList = []
 	for tag in moduleMap:
 		if tag == "name":
 			continue
 		if not moduleMap[tag]["required"] and moduleMap[tag]["group"] != "Standard":
-			tagList.append([tag, moduleMap[tag]])
+			advList.append([tag, moduleMap[tag]])
+
+
+	bubbleSort(reqList)
+	bubbleSort(stdList)
+	bubbleSort(advList)
+
+	tagList = reqList + stdList + advList
 
 	return tagList
 

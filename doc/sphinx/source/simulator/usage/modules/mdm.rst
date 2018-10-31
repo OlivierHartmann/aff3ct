@@ -3,6 +3,19 @@
 Modem parameters
 ----------------
 
+.. _mdm-bps:
+
+``--bps``
+"""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Examples: ``--bps 1``
+
+
+Select the number of bits per symbol.
+
 .. _mdm-const-path:
 
 ``--const-path``
@@ -14,18 +27,94 @@ Modem parameters
 
 Path to the ordered modulation symbols (constellation), to use with "\\-\\-type USER".
 
-.. _mdm-ite:
+.. _mdm-cpm-k:
 
-``--ite``
-"""""""""
+``--cpm-k``
+"""""""""""
 
    :type: UINT
    :Range: :math:`]0 - \infty[`
    :Default: 1
-   :Examples: ``--ite 1``
+   :Examples: ``--cpm-k 1``
 
 
-Number of iteration in the demodulator.
+Modulation index numerator.
+
+.. _mdm-cpm-L:
+
+``--cpm-L``
+"""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 2
+   :Examples: ``--cpm-L 2``
+
+
+CPM pulse width or CPM memory.
+
+.. _mdm-cpm-map:
+
+``--cpm-map``
+"""""""""""""
+
+   :type: TEXT
+   :Allowed values: ``GRAY`` ``NATURAL`` 
+   :Default: NATURAL
+   :Examples: ``--cpm-map NATURAL``
+
+
+Symbols mapping layout.
+
+Description of the allowed values:
+
++-------------+-------------------------+
+| Value       | Description             |
++=============+=========================+
+| ``GRAY``    | |cpm-map_descr_gray|    |
++-------------+-------------------------+
+| ``NATURAL`` | |cpm-map_descr_natural| |
++-------------+-------------------------+
+
+.. |cpm-map_descr_gray| replace:: TODO VALUE GRAY
+.. |cpm-map_descr_natural| replace:: TODO VALUE NATURAL
+
+
+.. _mdm-cpm-p:
+
+``--cpm-p``
+"""""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 2
+   :Examples: ``--cpm-p 2``
+
+
+Modulation index denominator.
+
+.. _mdm-cpm-std:
+
+``--cpm-std``
+"""""""""""""
+
+   :type: TEXT
+   :Allowed values: ``GSM`` 
+   :Examples: ``--cpm-std GSM``
+
+
+The selection of a default CPM standard hardly implemented (those parameters overwrite the other arguments given by the user).
+
+Description of the allowed values:
+
++---------+---------------------+
+| Value   | Description         |
++=========+=====================+
+| ``GSM`` | |cpm-std_descr_gsm| |
++---------+---------------------+
+
+.. |cpm-std_descr_gsm| replace:: TODO VALUE GSM
+
 
 .. _mdm-cpm-ws:
 
@@ -56,6 +145,46 @@ Description of the allowed values:
 .. |cpm-ws_descr_rcos| replace:: TODO VALUE RCOS
 .. |cpm-ws_descr_rec| replace:: TODO VALUE REC
 
+
+.. _mdm-implem:
+
+``--implem``
+""""""""""""
+
+   :type: TEXT
+   :Allowed values: ``FAST`` ``STD`` 
+   :Default: STD
+   :Examples: ``--implem STD``
+
+
+Select the implementation of the modem.
+
+Description of the allowed values:
+
++----------+---------------------+
+| Value    | Description         |
++==========+=====================+
+| ``FAST`` | |implem_descr_fast| |
++----------+---------------------+
+| ``STD``  | |implem_descr_std|  |
++----------+---------------------+
+
+.. |implem_descr_fast| replace:: TODO VALUE FAST
+.. |implem_descr_std| replace:: TODO VALUE STD
+
+
+.. _mdm-ite:
+
+``--ite``
+"""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Examples: ``--ite 1``
+
+
+Number of iteration in the demodulator.
 
 .. _mdm-max:
 
@@ -90,32 +219,6 @@ Description of the allowed values:
 .. |max_descr_maxss| replace:: TODO VALUE MAXSS
 
 
-.. _mdm-ups:
-
-``--ups``
-"""""""""
-
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Default: 1
-   :Examples: ``--ups 1``
-
-
-Select the symbol sampling factor.
-
-.. _mdm-cpm-L:
-
-``--cpm-L``
-"""""""""""
-
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Default: 2
-   :Examples: ``--cpm-L 2``
-
-
-CPM pulse width or CPM memory.
-
 .. _mdm-no-sig2:
 
 ``--no-sig2``
@@ -124,122 +227,6 @@ CPM pulse width or CPM memory.
 
 
 Turn off the division by sigma square in the demodulator.
-
-.. _mdm-cpm-p:
-
-``--cpm-p``
-"""""""""""
-
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Default: 2
-   :Examples: ``--cpm-p 2``
-
-
-Modulation index denominator.
-
-.. _mdm-implem:
-
-``--implem``
-""""""""""""
-
-   :type: TEXT
-   :Allowed values: ``FAST`` ``STD`` 
-   :Default: STD
-   :Examples: ``--implem STD``
-
-
-Select the implementation of the modem.
-
-Description of the allowed values:
-
-+----------+---------------------+
-| Value    | Description         |
-+==========+=====================+
-| ``FAST`` | |implem_descr_fast| |
-+----------+---------------------+
-| ``STD``  | |implem_descr_std|  |
-+----------+---------------------+
-
-.. |implem_descr_fast| replace:: TODO VALUE FAST
-.. |implem_descr_std| replace:: TODO VALUE STD
-
-
-.. _mdm-cpm-k:
-
-``--cpm-k``
-"""""""""""
-
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Default: 1
-   :Examples: ``--cpm-k 1``
-
-
-Modulation index numerator.
-
-.. _mdm-bps:
-
-``--bps``
-"""""""""
-
-   :type: UINT
-   :Range: :math:`]0 - \infty[`
-   :Default: 1
-   :Examples: ``--bps 1``
-
-
-Select the number of bits per symbol.
-
-.. _mdm-cpm-map:
-
-``--cpm-map``
-"""""""""""""
-
-   :type: TEXT
-   :Allowed values: ``GRAY`` ``NATURAL`` 
-   :Default: NATURAL
-   :Examples: ``--cpm-map NATURAL``
-
-
-Symbols mapping layout.
-
-Description of the allowed values:
-
-+-------------+-------------------------+
-| Value       | Description             |
-+=============+=========================+
-| ``GRAY``    | |cpm-map_descr_gray|    |
-+-------------+-------------------------+
-| ``NATURAL`` | |cpm-map_descr_natural| |
-+-------------+-------------------------+
-
-.. |cpm-map_descr_gray| replace:: TODO VALUE GRAY
-.. |cpm-map_descr_natural| replace:: TODO VALUE NATURAL
-
-
-.. _mdm-cpm-std:
-
-``--cpm-std``
-"""""""""""""
-
-   :type: TEXT
-   :Allowed values: ``GSM`` 
-   :Examples: ``--cpm-std GSM``
-
-
-The selection of a default CPM standard hardly implemented (those parameters overwrite the other arguments given by the user).
-
-Description of the allowed values:
-
-+---------+---------------------+
-| Value   | Description         |
-+=========+=====================+
-| ``GSM`` | |cpm-std_descr_gsm| |
-+---------+---------------------+
-
-.. |cpm-std_descr_gsm| replace:: TODO VALUE GSM
-
 
 .. _mdm-psi:
 
@@ -318,4 +305,17 @@ Description of the allowed values:
 .. |type_descr_scma| replace:: TODO VALUE SCMA
 .. |type_descr_user| replace:: TODO VALUE USER
 
+
+.. _mdm-ups:
+
+``--ups``
+"""""""""
+
+   :type: UINT
+   :Range: :math:`]0 - \infty[`
+   :Default: 1
+   :Examples: ``--ups 1``
+
+
+Select the symbol sampling factor.
 

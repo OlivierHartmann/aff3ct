@@ -3,15 +3,6 @@
 Global parameters
 -----------------
 
-.. _global-version:
-
-``-v,--version``
-""""""""""""""""
-
-
-
-Print informations about the code version.
-
 .. _global-Help:
 
 ``-H,--Help``
@@ -30,33 +21,14 @@ Print this help with the advanced arguments.
 
 Print the help.
 
-.. _global-no-colors:
+.. _global-version:
 
-``--no-colors``
-"""""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
+``-v,--version``
+""""""""""""""""
 
 
 
-Disable the colors in the shell.
-
-.. _global-full-bt:
-
-``--full-bt``
-"""""""""""""
-
-   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
-      :width:  80px
-      :height: 80px
-      :align: right
-
-
-
-Enable full backtrace with file names and lines (may take additional time).
+Print informations about the code version.
 
 .. _global-disable-bt:
 
@@ -72,20 +44,19 @@ Enable full backtrace with file names and lines (may take additional time).
 
 Disable the backtrace when displaying exception.
 
-.. _global-no-legend:
+.. _global-full-bt:
 
-``--no-legend``
-"""""""""""""""
+``--full-bt``
+"""""""""""""
 
    .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
       :width:  80px
       :height: 80px
       :align: right
 
-   :Excludes: ``--full-legend`` 
 
 
-Do not display any legend when launching the simulation.
+Enable full backtrace with file names and lines (may take additional time).
 
 .. _global-full-legend:
 
@@ -101,4 +72,33 @@ Do not display any legend when launching the simulation.
 
 
 Display fully the legend when launching the simulation.
+
+.. _global-no-colors:
+
+``--no-colors``
+"""""""""""""""
+
+   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+      :width:  80px
+      :height: 80px
+      :align: right
+
+
+
+Disable the colors in the shell.
+
+.. _global-no-legend:
+
+``--no-legend``
+"""""""""""""""
+
+   .. image:: https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg
+      :width:  80px
+      :height: 80px
+      :align: right
+
+   :Excludes: ``--full-legend`` 
+
+
+Do not display any legend when launching the simulation.
 
