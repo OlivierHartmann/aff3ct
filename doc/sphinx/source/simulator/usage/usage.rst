@@ -2,7 +2,7 @@ Usage
 =====
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: Usage contents
 
    overview/overview
