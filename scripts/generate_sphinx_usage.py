@@ -269,8 +269,6 @@ def sortTags(moduleMap):
 def write_module(moduleMap, path, reftag):
 	file = open(path, 'w')
 	indent = "   "
-	required_image_link = "http://jeffnielsen.com/wp-content/uploads/2014/06/required-cropped.png"
-	advanced_image_link = "https://comps.canstockphoto.com/advanced-stamp-sign-stock-illustration_csp42774668.jpg"
 
 	text  = ".. _" + reftag + "-" + moduleMap["name"].replace(' ', '-').lower() + ":\n\n"
 	text += moduleMap["name"] + "\n"
